@@ -4,7 +4,7 @@ Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.0
 Tested up to: 4.4
 Stable tag: trunk
-License: GPLv2
+License: GPLv2 or later
 
 Send emails via SparkPost
 

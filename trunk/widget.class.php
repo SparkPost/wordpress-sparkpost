@@ -46,7 +46,7 @@ class SparkPostAdmin
     {
 
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
-        add_settings_section("general", "SparkPost SMTP Settings", array($this, 'render_general_section_label'), "sp-options");
+        add_settings_section("general", "SparkPost SMTP Settings", null, "sp-options");
         add_settings_field("from_name", "From name*", array($this, 'render_from_name_field'), "sp-options", "general");
         add_settings_field("from_email", "From email*", array($this, 'render_from_email_field'), "sp-options", "general");
         add_settings_field("password", "SMTP password*", array($this, 'render_password_field'), "sp-options", "general");
@@ -82,11 +82,6 @@ class SparkPostAdmin
         return $new_input;
     }
 
-    public function render_general_section_label() {
-    	echo '<strong>Email Settings</strong>';
-    }
-
-   
     public function render_password_field()
     {
         printf(
