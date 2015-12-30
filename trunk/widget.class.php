@@ -13,6 +13,7 @@ class SparkPostAdmin
     {
         add_action('admin_menu', array($this, 'add_plugin_page'));
         add_action('admin_init', array($this, 'admin_page_init'));
+        $this->options = get_option('sp_settings');
     }
 
     public function add_plugin_page()
@@ -42,7 +43,7 @@ class SparkPostAdmin
 
     private function send_email($recipient) {
         add_filter( 'wp_mail_content_type', array($this, 'set_html_content_type'));
-        $result = wp_mail($recipient, 'SparkPost email test', '<h3>Hurray!!</h3><p>SparkPost email is working!</p>');
+        $result = wp_mail($recipient, 'SparkPost email test', '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/>SparkPost WordPress plugin</p>');
         remove_filter( 'wp_mail_content_type', array($this, 'set_html_content_type'));
         return $result;
     }
@@ -60,6 +61,9 @@ class SparkPostAdmin
             add_action('phpmailer_init', array($this, 'phpmailer_enable_debugging'));
             echo '<div class="notice is-dismissible">';
             echo '<h4>Debug Messages</h4>';
+            if(!$this->options['enable_sparkpost']) {
+                echo '<p>SparkPost is not in use.</p>';
+            }
             $result = $this->send_email($recipient);
             echo '</div>';
         } else {
@@ -75,7 +79,6 @@ class SparkPostAdmin
 
     public function wpsp_admin_page()
     {
-        $this->options = get_option('sp_settings');
         ?>
         <div class="wrap">
             <form method="post" action="options.php">
@@ -97,7 +100,7 @@ class SparkPostAdmin
                     <input type="hidden" name="sp_test_email" value="" />
                     <?php 
                     do_settings_sections("sp-test-email");
-                    submit_button('Send Test Email');
+                    submit_button('Send Test Email', 'secondary');
                     ?>
                 </form>
             </div>
@@ -109,6 +112,7 @@ class SparkPostAdmin
     {
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
         add_settings_section("general", "SparkPost SMTP Settings", null, "sp-options");
+        add_settings_field("enable_sparkpost", "Enable?", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
         add_settings_field("from_name", "From name*", array($this, 'render_from_name_field'), "sp-options", "general");
         add_settings_field("from_email", "From email*", array($this, 'render_from_email_field'), "sp-options", "general");
         add_settings_field("password", "SMTP password*", array($this, 'render_password_field'), "sp-options", "general");
@@ -124,16 +128,21 @@ class SparkPostAdmin
 
         $new_input = array();
 
-        if (isset($input['from_email'])) {
+        if (empty($input['from_email'])) {
+            add_settings_error('From email', esc_attr('from_email'), "From email is required", 'error');
+        } else {
             $new_input['from_email'] = trim($input['from_email']);
         }
 
-        if (isset($input['from_name'])) {
+        if (empty($input['from_name'])) {
+            add_settings_error('From name', esc_attr('from_name'), "From name is required", 'error');
+        } else {
             $new_input['from_name'] = trim($input['from_name']);
         }
 
-
-        if (isset($input['password'])) {
+        if (empty($input['password'])) {
+            add_settings_error('SMTP Password', esc_attr('password'), "SMTP Password is required", 'error');
+        } else {
             $new_input['password'] = trim($input['password']);
         }
 
@@ -143,7 +152,25 @@ class SparkPostAdmin
         	$new_input['use_tls'] = 0;
         }
 
+        if(isset($input['enable_sparkpost'])) {
+            $new_input['enable_sparkpost'] = 1;
+        } else {
+            $new_input['enable_sparkpost'] = 0;
+        }
+
+        if((empty($input['from_email']) || empty($input['from_name']) || empty($input['password'])) && $new_input['enable_sparkpost'] == 1) {
+            add_settings_error('Enable', esc_attr('enable_sparkpost'), "You must enter From name, From email and SMTP Password to enable sending via SparkPost", 'error');
+            $new_input['enable_sparkpost'] = 0;
+        }
+
         return $new_input;
+    }
+
+    public function render_enable_sparkpost_field()
+    {
+        printf(
+            '<label><input type="checkbox" id="enable_sparkpost" name="sp_settings[enable_sparkpost]" value="1" %s />Sending via SparkPost</label><br/><small>SparkPost will not be used until this is checked.</small>', $this->options['enable_sparkpost'] ? 'checked' : ''
+        );
     }
 
     public function render_password_field()
