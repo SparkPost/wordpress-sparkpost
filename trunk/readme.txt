@@ -31,6 +31,10 @@ Visit our [support portal](https://support.sparkpost.com/) for help.
 
 
 == Changelog ==
+= 1.1.0 =
+- Add support for sending test email
+- Add support for enable/disable sending via SparkPost
+
 = 1.0.0 =
 Initial version
 
