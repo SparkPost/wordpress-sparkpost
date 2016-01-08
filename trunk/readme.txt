@@ -3,10 +3,10 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.0
 Tested up to: 4.4
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 
-Send all your email from Wordpress through [SparkPost](https://www.sparkpost.com/), the most advanced email delivery service.
+Send all your email from Wordpress through SparkPost, the most advanced email delivery service.
 
 == Description ==
 The [SparkPost](https://www.sparkpost.com/) email delivery service offers best in class deliverability to ensure your mail hits the inbox, live analytics to review, track and optimize your email activities, as well as highest performance when you need it most: always.
@@ -61,6 +61,9 @@ Visit our [support portal](https://support.sparkpost.com/) for help.
 
 
 == Changelog ==
+= 1.1.2 =
+Shortened the plugin name to just SparkPost, added more readme copy, renamed 'SMTP password' setting to 'API key'
+
 = 1.1.1 = 
 - Add link to `Settings` in plugins list page
 
