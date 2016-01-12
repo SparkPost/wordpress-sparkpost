@@ -61,6 +61,9 @@ Visit our [support portal](https://support.sparkpost.com/) for help.
 
 
 == Changelog ==
+= 1.1.3 =
+Richer plugin settings error messages and help text, TLS now permanently enabled
+
 = 1.1.2 =
 Shortened the plugin name to just SparkPost, added more readme copy, renamed 'SMTP password' setting to 'API key'
 
