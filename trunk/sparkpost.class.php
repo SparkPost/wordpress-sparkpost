@@ -24,8 +24,7 @@ class SparkPost
             'password' => '',
             'from_name' => '',
             'from_email' => '',
-            'enable_sparkpost' => 0,
-            'use_tls' => 1
+            'enable_sparkpost' => 0
             );
 
         add_option('sp_settings', $settings);

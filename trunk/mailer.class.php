@@ -23,9 +23,7 @@ class SparkPostMailer
         }
 
         $phpmailer->isSMTP();
-        if ($options["use_tls"] == 1) {
-            $phpmailer->SMTPSecure = 'tls';
-        }
+        $phpmailer->SMTPSecure = 'tls';
         $phpmailer->Port = 587;
         $phpmailer->Host = 'smtp.sparkpostmail.com';
         $phpmailer->setFrom($options['from_email'], $options['from_name']);
