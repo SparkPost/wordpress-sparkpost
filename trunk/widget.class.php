@@ -115,7 +115,7 @@ class SparkPostAdmin
     {
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
         add_settings_section("general", "SparkPost Settings", null, "sp-options");
-        add_settings_field("enable_sparkpost", "Enable SparkPost", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
+        add_settings_field("enable_sparkpost", "Enable", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
         add_settings_field("from_name", "From name*", array($this, 'render_from_name_field'), "sp-options", "general");
         add_settings_field("from_email", "From email*", array($this, 'render_from_email_field'), "sp-options", "general");
         add_settings_field("password", "Password*", array($this, 'render_password_field'), "sp-options", "general");
@@ -165,7 +165,7 @@ class SparkPostAdmin
     public function render_enable_sparkpost_field()
     {
         printf(
-            '<input type="checkbox" id="enable_sparkpost" name="sp_settings[enable_sparkpost]" value="1" %s /> <br/><small>Note: Your email will not be sent through SparkPost until this is checked.</small>', $this->options['enable_sparkpost'] ? 'checked' : ''
+            '<label><input type="checkbox" id="enable_sparkpost" name="sp_settings[enable_sparkpost]" value="1" %s />Send email using SparkPost</label>', $this->options['enable_sparkpost'] ? 'checked' : ''
         );
     }
 
