@@ -13,7 +13,10 @@ License: GPLv2 or later
 Text Domain: wpsp
 */
 
-defined('ABSPATH') or die('Damn you!');
+// If ABSPATH is defined, we assume WP is calling us.
+// Otherwise, this could be an illicit direct request.
+if (!defined('ABSPATH')) exit();
+
 define('WPSP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPSP_PLUGIN_PATH', WPSP_PLUGIN_DIR . basename(__FILE__));
 
