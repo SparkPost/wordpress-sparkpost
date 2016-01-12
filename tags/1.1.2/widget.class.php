@@ -1,7 +1,5 @@
 <?php
-// If ABSPATH is defined, we assume WP is calling us.
-// Otherwise, this could be an illicit direct request.
-if (!defined('ABSPATH')) exit();
+defined('ABSPATH') or die('Damn you!');
 
 
 /**
@@ -52,17 +50,20 @@ class SparkPostAdmin
 
     public function test_email_sending($recipient, $debug=false) {
         if(empty($recipient)) {
-            return $this->render_message('Please enter a valid email address in the recipient field below.');
+            return $this->render_message('Recipient can\'t be empty!');
         }
 
         if(!is_email($recipient)) {
-            return $this->render_message('Recipient is not a valid email address.');
+            return $this->render_message('Recipient is not valid!');
         }
         
         if($debug) {
             add_action('phpmailer_init', array($this, 'phpmailer_enable_debugging'));
             echo '<div class="notice is-dismissible">';
             echo '<h4>Debug Messages</h4>';
+            if(!$this->options['enable_sparkpost']) {
+                echo '<p>SparkPost is not in use.</p>';
+            }
             $result = $this->send_email($recipient);
             echo '</div>';
         } else {
@@ -70,13 +71,9 @@ class SparkPostAdmin
         }
         
         if ($result) {
-            if(!$this->options['enable_sparkpost']) {
-                $this->render_message('Test email sent successfully but not through SparkPost.<br/>Note: the SparkPost plugin is not enabled.  To enable it, check the "enable" checkbox on the plugin settings page.', 'updated');
-            } else {
-                $this->render_message('Test email sent successfully', 'updated');
-            }
+           $this->render_message('Email sent successfully', 'updated'); 
         } else {
-            $this->render_message('Test email could not be sent.  Please check your plugin settings and refer to <a href="https://support.sparkpost.com/customer/en/portal/topics/770787-getting-started/articles" target="_blank">Getting Started</a> in the <a href="https://support.sparkpost.com/" target="_blank">SparkPost Support Center</a>.');
+            $this->render_message('Email could not sent');
         }
     }
 
@@ -115,10 +112,11 @@ class SparkPostAdmin
     {
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
         add_settings_section("general", "SparkPost Settings", null, "sp-options");
-        add_settings_field("enable_sparkpost", "Enable", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
+        add_settings_field("enable_sparkpost", "Enable?", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
         add_settings_field("from_name", "From name*", array($this, 'render_from_name_field'), "sp-options", "general");
         add_settings_field("from_email", "From email*", array($this, 'render_from_email_field'), "sp-options", "general");
-        add_settings_field("password", "Password*", array($this, 'render_password_field'), "sp-options", "general");
+        add_settings_field("password", "API key*", array($this, 'render_password_field'), "sp-options", "general");
+        add_settings_field("use_tls", "Use TLS", array($this, 'render_use_tls_field'), "sp-options", "general");
 
         add_settings_section('test_email', '', null, 'sp-test-email');
         add_settings_field('to_email', 'Recipient*', array($this, 'render_to_email_field'), 'sp-test-email', 'test_email');
@@ -143,9 +141,15 @@ class SparkPostAdmin
         }
 
         if (empty($input['password'])) {
-            add_settings_error('Password', esc_attr('password'), "Password is required", 'error');
+            add_settings_error('API key', esc_attr('password'), "API key is required", 'error');
         } else {
             $new_input['password'] = trim($input['password']);
+        }
+
+        if(isset($input['use_tls'])) {
+        	$new_input['use_tls'] = 1;
+        } else {
+        	$new_input['use_tls'] = 0;
         }
 
         if(isset($input['enable_sparkpost'])) {
@@ -165,14 +169,14 @@ class SparkPostAdmin
     public function render_enable_sparkpost_field()
     {
         printf(
-            '<label><input type="checkbox" id="enable_sparkpost" name="sp_settings[enable_sparkpost]" value="1" %s />Send email using SparkPost</label>', $this->options['enable_sparkpost'] ? 'checked' : ''
+            '<label><input type="checkbox" id="enable_sparkpost" name="sp_settings[enable_sparkpost]" value="1" %s />Sending via SparkPost</label><br/><small>SparkPost will not be used until this is checked.</small>', $this->options['enable_sparkpost'] ? 'checked' : ''
         );
     }
 
     public function render_password_field()
     {
         printf(
-            '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/><small>Hint: Use a SparkPost API key with "Send via SMTP" permission here.<br/><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
+            '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" />',
             isset($this->options['password']) ? esc_attr($this->options['password']) : ''
         );
     }
@@ -190,6 +194,13 @@ class SparkPostAdmin
         printf(
             '<input type="text" id="from_name" name="sp_settings[from_name]" class="regular-text" value="%s" />',
             isset($this->options['from_name']) ? esc_attr($this->options['from_name']) : ''
+        );
+    }
+
+    public function render_use_tls_field()
+    {
+        printf(
+            '<label><input type="checkbox" id="use_tls" name="sp_settings[use_tls]" value="1" %s />Secure connection</label>', $this->options['use_tls'] ? 'checked' : ''
         );
     }
 

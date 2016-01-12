@@ -1,8 +1,5 @@
 <?php
-// If ABSPATH is defined, we assume WP is calling us.
-// Otherwise, this could be an illicit direct request.
-if (!defined('ABSPATH')) exit();
-
+defined('ABSPATH') or die('Damn you!');
 
 /**
  * @package wp-sparkpost
@@ -24,7 +21,8 @@ class SparkPost
             'password' => '',
             'from_name' => '',
             'from_email' => '',
-            'enable_sparkpost' => 0
+            'enable_sparkpost' => 0,
+            'use_tls' => 0
             );
 
         add_option('sp_settings', $settings);

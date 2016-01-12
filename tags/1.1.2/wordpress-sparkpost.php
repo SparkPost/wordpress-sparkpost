@@ -6,17 +6,14 @@
 Plugin Name: SparkPost
 Plugin URI: http://sparkpost.com/
 Description: Send all your email from Wordpress through SparkPost, the world's most advanced email delivery service.
-Version: 1.1.4
+Version: 1.1.2
 Author: The HungryCoder
 Author URI: http://thehungrycoder.com
 License: GPLv2 or later
 Text Domain: wpsp
 */
 
-// If ABSPATH is defined, we assume WP is calling us.
-// Otherwise, this could be an illicit direct request.
-if (!defined('ABSPATH')) exit();
-
+defined('ABSPATH') or die('Damn you!');
 define('WPSP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPSP_PLUGIN_PATH', WPSP_PLUGIN_DIR . basename(__FILE__));
 

@@ -1,7 +1,5 @@
 <?php
-// If ABSPATH is defined, we assume WP is calling us.
-// Otherwise, this could be an illicit direct request.
-if (!defined('ABSPATH')) exit();
+defined('ABSPATH') or die('Damn you!');
 
 
 /**
@@ -23,7 +21,9 @@ class SparkPostMailer
         }
 
         $phpmailer->isSMTP();
-        $phpmailer->SMTPSecure = 'tls';
+        if ($options["use_tls"] == 1) {
+            $phpmailer->SMTPSecure = 'tls';
+        }
         $phpmailer->Port = 587;
         $phpmailer->Host = 'smtp.sparkpostmail.com';
         $phpmailer->setFrom($options['from_email'], $options['from_name']);
