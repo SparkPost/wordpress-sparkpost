@@ -88,6 +88,7 @@ class SparkPostAdmin
                 <?php
                     settings_fields("sp_settings_group");
                     do_settings_sections("sp-options");
+                    do_settings_sections("sp-advanced");
                     submit_button();
                 ?>
             </form>
@@ -118,7 +119,12 @@ class SparkPostAdmin
         add_settings_field("enable_sparkpost", "Enable", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
         add_settings_field("from_name", "From name*", array($this, 'render_from_name_field'), "sp-options", "general");
         add_settings_field("from_email", "From email*", array($this, 'render_from_email_field'), "sp-options", "general");
+        
+        add_settings_field("username", "Username*", array($this, 'render_username_field'), "sp-options", "general");
         add_settings_field("password", "Password*", array($this, 'render_password_field'), "sp-options", "general");
+
+        add_settings_section('advanced', 'Advanced', null, "sp-advanced");
+        add_settings_field("port", "Port", array($this, 'render_port_field'), "sp-advanced", "advanced");
 
         add_settings_section('test_email', '', null, 'sp-test-email');
         add_settings_field('to_email', 'Recipient*', array($this, 'render_to_email_field'), 'sp-test-email', 'test_email');
@@ -148,7 +154,7 @@ class SparkPostAdmin
             $new_input['password'] = trim($input['password']);
         }
 
-        if(isset($input['enable_sparkpost'])) {
+        if (isset($input['enable_sparkpost'])) {
             $new_input['enable_sparkpost'] = 1;
         } else {
             $new_input['enable_sparkpost'] = 0;
@@ -159,6 +165,8 @@ class SparkPostAdmin
             $new_input['enable_sparkpost'] = 0;
         }
 
+        $new_input['port'] = in_array(intval(esc_attr($input['port'])), array(587, 2525)) ? intval(esc_attr($input['port'])) : 587;
+
         return $new_input;
     }
 
@@ -167,6 +175,11 @@ class SparkPostAdmin
         printf(
             '<label><input type="checkbox" id="enable_sparkpost" name="sp_settings[enable_sparkpost]" value="1" %s />Send email using SparkPost</label>', $this->options['enable_sparkpost'] ? 'checked' : ''
         );
+    }
+
+    public function render_username_field()
+    {
+        echo '<input type="text" id="username" name="sp_settings[username]" class="regular-text" value="SMTP_Injection" readonly />';
     }
 
     public function render_password_field()
@@ -191,6 +204,16 @@ class SparkPostAdmin
             '<input type="text" id="from_name" name="sp_settings[from_name]" class="regular-text" value="%s" />',
             isset($this->options['from_name']) ? esc_attr($this->options['from_name']) : ''
         );
+    }
+
+    public function render_port_field()
+    {
+        $selected_port = esc_attr($this->options['port']);
+
+        echo '<select name="sp_settings[port]">
+        <option value="587" ' . (($selected_port == 587) ? 'selected' : '') . '>587 (Default)</option>
+        <option value="2525" ' .(($selected_port == 2525) ? 'selected' : '') .'>2525</option>
+        </select><br/><small>Change only if default port is not working!</small>';
     }
 
     public function render_to_email_field()

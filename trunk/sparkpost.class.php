@@ -3,7 +3,6 @@
 // Otherwise, this could be an illicit direct request.
 if (!defined('ABSPATH')) exit();
 
-
 /**
  * @package wp-sparkpost
  */
@@ -24,6 +23,7 @@ class SparkPost
             'password' => '',
             'from_name' => '',
             'from_email' => '',
+            'port' => 587,
             'enable_sparkpost' => 0
             );
 
