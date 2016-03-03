@@ -61,6 +61,7 @@ Visit our [support portal](https://support.sparkpost.com/) for help.
 
 
 == Changelog ==
+
 = 1.1.5 =
 - Support alternate port
 - Use filter to set sender info
