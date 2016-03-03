@@ -25,7 +25,7 @@ class SparkPostMail extends PHPMailer
         $data = array(
             'method' => 'POST',
             'timeout' => 15,
-            'headers' => $this->get_headers(),
+            'headers' => $this->get_request_headers(),
             'body' => json_encode($this->get_body())
 
         );
@@ -52,6 +52,7 @@ class SparkPostMail extends PHPMailer
             'content' => array(
                 'from' => $this->From,
                 'subject' => $this->Subject,
+                'headers' => $this->build_email_headers()
             )
         );
 
@@ -101,21 +102,22 @@ class SparkPostMail extends PHPMailer
     protected function handle_response($response)
     {
 
-        if(is_wp_error($response)) {
+        var_dump($response);
+        if (is_wp_error($response)) {
             $this->edebug('Request completed with error');
             $this->edebug($response->get_error_messages()); //WP_Error implements this method
             return false;
         }
 
         $body = json_decode($response['body']);
-        if(property_exists($body, 'errors')) {
+        if (property_exists($body, 'errors')) {
             $this->edebug('Error in transmission');
             $this->setError($body->errors);
             return false;
         }
 
 
-        if(property_exists($body, 'results')) {
+        if (property_exists($body, 'results')) {
             $data = $body->results;
         } else {
             $this->edebug('API response is unknown');
@@ -140,17 +142,16 @@ class SparkPostMail extends PHPMailer
         $recipients = array();
 
         foreach ($this->to as $to) {
-            $recipient = array(
+            $recipients[] = array(
                 'address' => array(
                     'email' => $to[0],
                     'name' => $to[1]
                 ));
-            $recipients[] = $recipient;
         }
         return $recipients;
     }
 
-    protected function get_headers()
+    protected function get_request_headers()
     {
         return array(
             'User-Agent' => 'wordpress-sparkpost',
@@ -159,7 +160,26 @@ class SparkPostMail extends PHPMailer
         );
     }
 
+    protected function build_email_headers() {
+        $unsupported_headers = array('From', 'Subject', 'To', 'Reply-To', 'Content-Type',
+            'Content-Transfer-Encoding', 'MIME-Version');
+        $headers = $this->createHeader();
 
+        $formatted_headers = new StdClass();
+        //split by line separator
+        foreach(explode($this->LE, $headers) as $line) {
+
+            $splitted_line = explode(': ', $line);
+            $key = trim($splitted_line[0]);
+
+            if(!in_array($key, $unsupported_headers) && !empty($key) && !empty($splitted_line[1])) {
+                $formatted_headers->{$key} = trim($splitted_line[1]);
+            }
+        }
+
+        return $formatted_headers;
+
+    }
 
 
 }
