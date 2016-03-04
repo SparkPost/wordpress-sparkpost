@@ -80,7 +80,6 @@ class SparkPost
     public function set_from_name($name)
     {
         if(!empty($this->options['from_name'])) {
-
             return $this->options['from_name'];
         } else {
             return $name;
@@ -90,10 +89,17 @@ class SparkPost
     public function set_from_email($email)
     {
         if(!empty($this->options['from_email'])) {
-
             return $this->options['from_email'];
         } else {
             return $email;
         }
+    }
+
+    static function obfuscate_api_key($api_key) {
+        return str_replace(substr($api_key, 5), str_repeat('*', 35), $api_key);
+    }
+
+    static function is_key_obfuscated($api_key) {
+        return (bool) stripos($api_key, '*');
     }
 }

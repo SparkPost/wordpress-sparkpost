@@ -23,7 +23,7 @@ define('WPSP_PLUGIN_PATH', WPSP_PLUGIN_DIR . basename(__FILE__));
 
 require_once(WPSP_PLUGIN_DIR . 'sparkpost.class.php');
 if (is_admin()) {
-    require_once(WPSP_PLUGIN_DIR . 'widget.class.php');
+    require_once(WPSP_PLUGIN_DIR . 'admin.widget.class.php');
     new SparkPostAdmin();
 }
 $sp = new SparkPost();
@@ -31,14 +31,14 @@ $sp = new SparkPost();
 if ($sp->get_option('enable_sparkpost')) {
 
     if ($sp->get_option('sending_method') == 'smtp') {
-        require_once(WPSP_PLUGIN_DIR . 'mailer.class.php');
-        new SparkPostMailer();
+        require_once(WPSP_PLUGIN_DIR . 'mailer.smtp.class.php');
+        new SparkPostSMTPMailer();
     } else {
-        require_once(WPSP_PLUGIN_DIR . 'sp_mailer.class.php');
+        require_once(WPSP_PLUGIN_DIR . 'mailer.http.class.php');
         add_filter('wp_mail', function ($args) {
             global $phpmailer;
-            if (!$phpmailer instanceof SparkPostMail) {
-                $phpmailer = new SparkPostMail();
+            if (!$phpmailer instanceof SparkPostHTTPMailer) {
+                $phpmailer = new SparkPostHTTPMailer();
             }
             return $args;
         });

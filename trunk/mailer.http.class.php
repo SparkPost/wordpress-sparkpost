@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) exit();
 
 require_once ABSPATH . WPINC . '/class-phpmailer.php';
 
-class SparkPostMail extends PHPMailer
+class SparkPostHTTPMailer extends PHPMailer
 {
     protected $endpoint = 'https://api.sparkpost.com/api/v1/transmissions';
     private $options;
@@ -32,7 +32,8 @@ class SparkPostMail extends PHPMailer
 
         $http = _wp_http_get_object();
 
-        $this->edebug(sprintf('Request headers: %s', print_r($data['headers'], true)));
+        /* TODO remove the api key from header */
+        $this->edebug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
         $this->edebug(sprintf('Request body: %s', $data['body']));
         $this->edebug(sprintf('Making HTTP POST request to %s', $this->endpoint));
         $result = $http->request($this->endpoint, $data);
@@ -102,10 +103,10 @@ class SparkPostMail extends PHPMailer
     protected function handle_response($response)
     {
 
-        var_dump($response);
         if (is_wp_error($response)) {
             $this->edebug('Request completed with error');
-            $this->edebug($response->get_error_messages()); //WP_Error implements this method
+            $this->setError($response->get_error_messages()); //WP_Error implements this method
+            $this->edebug($response->get_error_messages());
             return false;
         }
 
@@ -122,6 +123,7 @@ class SparkPostMail extends PHPMailer
         } else {
             $this->edebug('API response is unknown');
             $this->setError('Unknown response');
+            return false;
         }
 
         if ($data->total_rejected_recipients > 0) {
@@ -129,6 +131,7 @@ class SparkPostMail extends PHPMailer
             $this->setError($data);
             return false;
         }
+
         if ($data->total_accepted_recipients > 0) {
             $this->edebug(sprintf('Successfully sent to %d recipient(s)', $data->total_accepted_recipients));
             $this->edebug(sprintf('Transmission ID is %s', $data->id));
@@ -151,12 +154,16 @@ class SparkPostMail extends PHPMailer
         return $recipients;
     }
 
-    protected function get_request_headers()
+    protected function get_request_headers($hide_api_key = false)
     {
+        $api_key = $this->options['password'];
+        if($hide_api_key) { //replace all but first 5 chars with *
+            $api_key = SparkPost::obfuscate_api_key($api_key);
+        }
         return array(
             'User-Agent' => 'wordpress-sparkpost',
             'Content-Type' => 'application/json',
-            'Authorization' => $this->options['password']
+            'Authorization' => $api_key
         );
     }
 

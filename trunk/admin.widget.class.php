@@ -53,8 +53,7 @@ class SparkPostAdmin
         $result = wp_mail($recipient,
             'SparkPost email test',
             '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/>SparkPost WordPress plugin</p>',
-            '',
-            array(WPSP_PLUGIN_DIR . '/test.txt')
+            ''
         );
         remove_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         return $result;
@@ -127,12 +126,11 @@ class SparkPostAdmin
     {
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
         add_settings_section("general", "SparkPost Settings", null, "sp-options");
-        add_settings_field("enable_sparkpost", "Enable", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
+        add_settings_field("enable_sparkpost", "", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
         add_settings_field("sending_method", "Method*", array($this, 'render_sending_method_field'), "sp-options", "general");
+        add_settings_field("password", "API Key*", array($this, 'render_password_field'), "sp-options", "general");
         add_settings_field("from_name", "From name", array($this, 'render_from_name_field'), "sp-options", "general");
         add_settings_field("from_email", "From email", array($this, 'render_from_email_field'), "sp-options", "general");
-
-        add_settings_field("password", "Password*", array($this, 'render_password_field'), "sp-options", "general");
 
         add_settings_section('test_email', '', null, 'sp-test-email');
         add_settings_field('to_email', 'Recipient*', array($this, 'render_to_email_field'), 'sp-test-email', 'test_email');
@@ -155,7 +153,11 @@ class SparkPostAdmin
         if (empty($input['password'])) {
             add_settings_error('Password', esc_attr('password'), "Password is required", 'error');
         } else {
-            $new_input['password'] = trim($input['password']);
+            if(SparkPost::is_key_obfuscated(esc_attr($input['password']))) { //do not change password
+                $new_input['password'] = $this->options['password'];
+            } else {
+                $new_input['password'] = trim(esc_attr($input['password']));
+            }
         }
 
         if (isset($input['enable_sparkpost'])) {
@@ -179,7 +181,7 @@ class SparkPostAdmin
                 $new_input['sending_method'] = 'smtp';
                 break;
             default:
-                $new_input['port'] = 587;
+                unset($new_input['port']);
                 $new_input['sending_method'] = 'api';
                 break;
         }
@@ -201,17 +203,27 @@ class SparkPostAdmin
 
     public function render_password_field()
     {
+        $api_key = SparkPost::obfuscate_api_key($this->options['password']);
+
         printf(
-            '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/><small>Hint: Use a SparkPost API key with "Send via SMTP" permission here.<br/><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
-            isset($this->options['password']) ? esc_attr($this->options['password']) : ''
+            '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/>
+            <small>Hint: For SMTP, use a SparkPost API key with "Send via SMTP" permission here.<br/><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
+            isset($api_key) ? $api_key : ''
         );
     }
 
     public function render_from_email_field()
     {
+        $hint = 'Important: Domain must match with your verified sending domain.';
+        if(empty($this->options['from_email'])){
+            $hostname = parse_url(get_bloginfo('url'), PHP_URL_HOST);
+            $hint .= sprintf(' When left blank, <strong>%s</strong> will be used as email domain', $hostname);
+        }
+
+        $hint = sprintf('<small>%s</small>', $hint);
         printf(
-            '<input type="email" id="from_email" name="sp_settings[from_email]" class="regular-text" value="%s" />',
-            isset($this->options['from_email']) ? esc_attr($this->options['from_email']) : ''
+            '<input type="email" id="from_email" name="sp_settings[from_email]" class="regular-text" value="%s" /><br/>%s',
+            isset($this->options['from_email']) ? esc_attr($this->options['from_email']) : '', $hint
         );
     }
 
@@ -242,6 +254,6 @@ class SparkPostAdmin
 
     public function render_enable_debugging_field()
     {
-        echo '<label><input type="checkbox" id="enable_debugging" name="enable_debugging" value="1" %s />Show email debugging messages</label>';
+        echo '<label><input type="checkbox" id="enable_debugging" name="enable_debugging" value="1" checked />Show email debugging messages</label>';
     }
 }
