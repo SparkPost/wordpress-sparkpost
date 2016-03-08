@@ -51,7 +51,7 @@ class SparkPostHTTPMailer extends PHPMailer
         $body = array(
             'recipients' => $this->get_recipients(),
             'content' => array(
-                'from' => $this->From,
+                'from' => $this->get_sender(),
                 'subject' => $this->Subject,
                 'headers' => $this->build_email_headers()
             )
@@ -68,6 +68,19 @@ class SparkPostHTTPMailer extends PHPMailer
         }
 
         return $body;
+    }
+
+    protected function get_sender()
+    {
+        $from = array(
+            'email' => $this->From
+        );
+
+        if (!empty($this->FromName)) {
+            $from['name'] = $this->FromName;
+        }
+
+        return $from;
     }
 
     protected function get_attachments()
@@ -157,7 +170,7 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_request_headers($hide_api_key = false)
     {
         $api_key = $this->options['password'];
-        if($hide_api_key) { //replace all but first 5 chars with *
+        if ($hide_api_key) { //replace all but first 5 chars with *
             $api_key = SparkPost::obfuscate_api_key($api_key);
         }
         return array(
@@ -167,19 +180,20 @@ class SparkPostHTTPMailer extends PHPMailer
         );
     }
 
-    protected function build_email_headers() {
+    protected function build_email_headers()
+    {
         $unsupported_headers = array('From', 'Subject', 'To', 'Reply-To', 'Content-Type',
             'Content-Transfer-Encoding', 'MIME-Version');
         $headers = $this->createHeader();
 
         $formatted_headers = new StdClass();
         //split by line separator
-        foreach(explode($this->LE, $headers) as $line) {
+        foreach (explode($this->LE, $headers) as $line) {
 
             $splitted_line = explode(': ', $line);
             $key = trim($splitted_line[0]);
 
-            if(!in_array($key, $unsupported_headers) && !empty($key) && !empty($splitted_line[1])) {
+            if (!in_array($key, $unsupported_headers) && !empty($key) && !empty($splitted_line[1])) {
                 $formatted_headers->{$key} = trim($splitted_line[1]);
             }
         }
