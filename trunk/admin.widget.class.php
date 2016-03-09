@@ -98,10 +98,11 @@ class SparkPostAdmin
                 <?php
                 settings_fields("sp_settings_group");
                 do_settings_sections("sp-options");
-                do_settings_sections("sp-advanced");
+                do_settings_sections("sp-overrides");
                 submit_button();
                 ?>
             </form>
+            <hr/>
             <div>
                 <h2>Test Email</h2>
                 <?php
@@ -129,8 +130,10 @@ class SparkPostAdmin
         add_settings_field("enable_sparkpost", "", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
         add_settings_field("sending_method", "Method*", array($this, 'render_sending_method_field'), "sp-options", "general");
         add_settings_field("password", "API Key*", array($this, 'render_password_field'), "sp-options", "general");
-        add_settings_field("from_name", "From name", array($this, 'render_from_name_field'), "sp-options", "general");
-        add_settings_field("from_email", "From email", array($this, 'render_from_email_field'), "sp-options", "general");
+
+        add_settings_section('overrides', 'Overrides', null, 'sp-overrides');
+        add_settings_field("from_name", "From name", array($this, 'render_from_name_field'), "sp-overrides", "overrides");
+        add_settings_field("from_email", "From email", array($this, 'render_from_email_field'), "sp-overrides", "overrides");
 
         add_settings_section('test_email', '', null, 'sp-test-email');
         add_settings_field('to_email', 'Recipient*', array($this, 'render_to_email_field'), 'sp-test-email', 'test_email');
@@ -207,14 +210,14 @@ class SparkPostAdmin
 
         printf(
             '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/>
-            <small>Hint: For SMTP, use a SparkPost API key with "Send via SMTP" permission here.<br/><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
+            <small><ul><li>For SMTP, use a SparkPost API key with <strong>Send via SMTP</strong> permission</li> <li>For HTTP API, use API Key with <strong>Transmissions: Read/Write</strong> permission</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
             isset($api_key) ? $api_key : ''
         );
     }
 
     public function render_from_email_field()
     {
-        $hint = 'Important: Domain must match with your verified sending domain.';
+        $hint = 'Important: Domain must match with one of your verified sending domains.';
         if(empty($this->options['from_email'])){
             $hostname = parse_url(get_bloginfo('url'), PHP_URL_HOST);
             $hint .= sprintf(' When left blank, <strong>%s</strong> will be used as email domain', $hostname);
@@ -237,8 +240,11 @@ class SparkPostAdmin
 
     public function render_sending_method_field()
     {
-        $selected_method = !empty(esc_attr(@$this->options['sending_method'])) ? esc_attr(@$this->options['sending_method']) : 'api';
-        $selected_port = !empty(esc_attr(@$this->options['port'])) ? esc_attr(@$this->options['port']) : 587;
+        $method = esc_attr(@$this->options['sending_method']);
+        $port = esc_attr(@$this->options['port']);
+
+        $selected_method = !empty($method) ? $method : 'api';
+        $selected_port = !empty($port) ? $port : 587;
 
         echo '<select name="sp_settings[sending_method]">
         <option value="api" ' . (($selected_method == 'api') ? 'selected' : '') . '>HTTP API (Default)</option>

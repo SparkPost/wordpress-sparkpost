@@ -26,7 +26,6 @@ class SparkPostSMTPMailer
         $phpmailer->SMTPSecure = 'tls';
         $phpmailer->Port = !empty($options['port']) ? intval($options['port']) : 587;
         $phpmailer->Host = 'smtp.sparkpostmail.com';
-//        $phpmailer->AddReplyTo($options['from_email'], $options['from_name']);
         
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';

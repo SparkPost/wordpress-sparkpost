@@ -32,7 +32,6 @@ class SparkPostHTTPMailer extends PHPMailer
 
         $http = _wp_http_get_object();
 
-        /* TODO remove the api key from header */
         $this->edebug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
         $this->edebug(sprintf('Request body: %s', $data['body']));
         $this->edebug(sprintf('Making HTTP POST request to %s', $this->endpoint));
