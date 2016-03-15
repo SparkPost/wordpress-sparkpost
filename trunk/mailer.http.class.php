@@ -26,7 +26,7 @@ class SparkPostHTTPMailer extends PHPMailer
             'method' => 'POST',
             'timeout' => 15,
             'headers' => $this->get_request_headers(),
-            'body' => json_encode($this->get_body())
+            'body' => json_encode($this->get_request_body())
 
         );
 
@@ -45,7 +45,7 @@ class SparkPostHTTPMailer extends PHPMailer
 
     }
 
-    protected function get_body()
+    protected function get_request_body()
     {
         $body = array(
             'recipients' => $this->get_recipients(),
@@ -56,9 +56,18 @@ class SparkPostHTTPMailer extends PHPMailer
             )
         );
 
-
-        $body['content']['html'] = $this->Body;
-        $body['content']['text'] = $this->AltBody;
+        switch($this->ContentType) {
+            case 'multipart/alternative':
+                $body['content']['html'] = $this->Body;
+                $body['content']['text'] = $this->AltBody;
+                break;
+            case 'text/plain':
+                $body['content']['text'] = $this->Body;
+                break;
+            default:
+                $body['content']['html'] = $this->Body;
+                break;
+        }
 
         $attachments = $this->get_attachments();
 
