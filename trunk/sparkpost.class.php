@@ -38,7 +38,7 @@ class SparkPost
 
     public function sp_activate()
     {
-        add_option('sp_settings', $option_defaults);
+        add_option('sp_settings', $this->options_default);
     }
 
     public function sp_deactivate()
