@@ -32,7 +32,7 @@ class SparkPostAdmin
 
     protected function render_message($msg, $msg_type = 'error')
     {
-        echo '<div class="' . $msg_type . ' notice is-dismissible"><p>$msg</p></div>';
+        printf('<div class="%s notice is-dismissible"><p>$msg</p></div>', $msg_type);
     }
 
     public function phpmailer_enable_debugging($phpmailer)
