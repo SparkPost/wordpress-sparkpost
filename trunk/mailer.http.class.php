@@ -47,13 +47,19 @@ class SparkPostHTTPMailer extends PHPMailer
 
     protected function get_request_body()
     {
+        $tracking_enabled = !!$this->options['enable_tracking'];
+
         $body = array(
             'recipients' => $this->get_recipients(),
             'content' => array(
                 'from' => $this->get_sender(),
                 'subject' => $this->Subject,
                 'headers' => $this->build_email_headers()
-            )
+            ),
+            'options' => array(
+                 'open_tracking' => $tracking_enabled,
+                 'click_tracking' => $tracking_enabled
+            );
         );
 
         switch($this->ContentType) {

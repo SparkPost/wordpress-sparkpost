@@ -12,11 +12,11 @@ class SparkPost
     var $options_default = array(
         'port' => 587,
         'sending_method' => 'api',
-        'enable' => false,
         'password' => '',
         'from_name' => '',
         'from_email' => '',
-        'enable_sparkpost' => false
+        'enable_sparkpost' => false,
+        'enable_tracking' => true
     );
 
     var $options;
@@ -38,15 +38,7 @@ class SparkPost
 
     public function sp_activate()
     {
-        $settings = array(
-            'password' => '',
-            'from_name' => '',
-            'from_email' => '',
-            'port' => 587,
-            'enable_sparkpost' => 0
-        );
-
-        add_option('sp_settings', $settings);
+        add_option('sp_settings', $option_defaults);
     }
 
     public function sp_deactivate()
