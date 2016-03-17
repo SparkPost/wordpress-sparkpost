@@ -87,11 +87,13 @@ class SparkPost
         }
     }
 
-    static function obfuscate_api_key($api_key) {
-        return str_replace(substr($api_key, 5), str_repeat('*', 35), $api_key);
+    static function obfuscate_api_key($api_key)
+    {
+        return substr($api_key, 0, 4) . str_repeat('*', 36);
     }
 
-    static function is_key_obfuscated($api_key) {
-        return (bool) stripos($api_key, '*');
+    static function is_key_obfuscated($api_key)
+    {
+        return strpos($api_key, '*') !== false;
     }
 }

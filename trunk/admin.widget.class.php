@@ -52,7 +52,7 @@ class SparkPostAdmin
         add_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         $result = wp_mail($recipient,
             'SparkPost email test',
-            '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="http://sparkpost.com">SparkPost</a> WordPress plugin</p>',
+            '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>',
             ''
         );
         remove_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
@@ -170,7 +170,7 @@ class SparkPostAdmin
             $new_input['enable_sparkpost'] = false;
         }
 
-        if ((empty($input['password'])) && $new_input['enable_sparkpost'] == 1) {
+        if ((empty($input['password'])) && $new_input['enable_sparkpost']) {
             add_settings_error('Enable', esc_attr('enable_sparkpost'), 'You must enter From name, From email and API key to enable sending via SparkPost', 'error');
             $new_input['enable_sparkpost'] = false;
         }
