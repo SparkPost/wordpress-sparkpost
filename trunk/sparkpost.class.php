@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) exit();
 class SparkPost
 {
 
-    var $options_default = array(
+    protected static $options_default = array(
         'port' => 587,
         'sending_method' => 'api',
         'password' => '',
@@ -27,9 +27,9 @@ class SparkPost
         register_deactivation_hook(WPSP_PLUGIN_PATH, array($this, 'sp_deactivate'));
         add_filter('plugin_action_links_' . plugin_basename(WPSP_PLUGIN_PATH), array($this, 'add_settings_link'));
 
-        $this->options = $this->get_options();
+        $this->options = self::get_options();
 
-        if($this->get_option('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
+        if ($this->get_option('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
             add_filter('wp_mail_from', array($this, 'set_from_email'));
             add_filter('wp_mail_from_name', array($this, 'set_from_name'));
         }
@@ -38,7 +38,7 @@ class SparkPost
 
     public function sp_activate()
     {
-        add_option('sp_settings', $this->options_default);
+        add_option('sp_settings', self::$options_default);
     }
 
     public function sp_deactivate()
@@ -46,14 +46,14 @@ class SparkPost
         delete_option('sp_settings');
     }
 
-    public function get_options()
+    static function get_options()
     {
-        return array_merge($this->options_default, get_option('sp_settings'));
+        return array_merge(self::$options_default, get_option('sp_settings'));
     }
 
-    public function get_option($option)
+    static function get_option($option)
     {
-        $options = $this->get_options();
+        $options = self::get_options();
         return $options[$option];
     }
 
@@ -68,7 +68,7 @@ class SparkPost
 
     public function set_from_name($name)
     {
-        if(!empty($this->options['from_name'])) {
+        if (!empty($this->options['from_name'])) {
             return $this->options['from_name'];
         } else {
             return $name;
@@ -77,7 +77,7 @@ class SparkPost
 
     public function set_from_email($email)
     {
-        if(!empty($this->options['from_email'])) {
+        if (!empty($this->options['from_email'])) {
             return $this->options['from_email'];
         } else {
             return $email;
