@@ -5,7 +5,7 @@
 /*
 Plugin Name: SparkPost
 Plugin URI: http://sparkpost.com/
-Description: Send all your email from Wordpress through SparkPost, the world's most advanced email delivery service.
+Description: Send all your email from WordPress through SparkPost, the world's most advanced email delivery service.
 Version: 1.1.3
 Author: The HungryCoder
 Author URI: http://thehungrycoder.com
@@ -29,4 +29,4 @@ new SparkPostMailer();
 if (is_admin()) {
     require_once(WPSP_PLUGIN_DIR . 'widget.class.php');
     new SparkPostAdmin();
-} 
+}

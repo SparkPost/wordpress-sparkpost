@@ -6,16 +6,16 @@ Tested up to: 4.4.2
 Stable tag: 1.1.5
 License: GPLv2 or later
 
-Send all your email from Wordpress through SparkPost, the most advanced email delivery service.
+Send all your email from WordPress through SparkPost, the most advanced email delivery service.
 
 == Description ==
 The [SparkPost](https://www.sparkpost.com/) email delivery service offers best in class deliverability to ensure your mail hits the inbox, live analytics to review, track and optimize your email activities, as well as highest performance when you need it most: always.
 
-When the SparkPost plugin is enabled, all outgoing email from your Wordpress installation is sent through your SparkPost service.  From within [the SparkPost UI](https://app.sparkpost.com/), you can then watch your campaigns unfold live by tracking your engagement metrics, learn what your audience responds to and even integrate more deeply with your app using the SparkPost API.
+When the SparkPost plugin is enabled, all outgoing email from your WordPress installation is sent through your SparkPost service.  From within [the SparkPost UI](https://app.sparkpost.com/), you can then watch your campaigns unfold live by tracking your engagement metrics, learn what your audience responds to and even integrate more deeply with your app using the SparkPost API.
 
 == Installation ==
 
-Option 1: Install using the Wordpress Admin Panel:
+Option 1: Install using the WordPress Admin Panel:
 
 1. From your WordPress site's Admin Panel go to _Plugins -> Add New_.
 1. Enter 'sparkpost' in the _Search Plugins_ text field and hit Enter.
@@ -27,11 +27,11 @@ Option 1: Install using the Wordpress Admin Panel:
 Option 2: Install manually:
 
 1. Download the plugin zip file by clicking on the _Download_ button on [this page](https://wordpress.org/plugins/sparkpost).
-1. Unzip the plugin zip file into your Wordpress plugins directory (usually `wp-content/plugins`)
-1. In the Wordpress Admin Panel, go to the _Plugins_ page.  In the list, you should see your new **SparkPost** plugin.
+1. Unzip the plugin zip file into your WordPress plugins directory (usually `wp-content/plugins`)
+1. In the WordPress Admin Panel, go to the _Plugins_ page.  In the list, you should see your new **SparkPost** plugin.
 1. Click **Activate** to activate your new plugin.
 
-Upon successful activation, **SparkPost** will appear on the _Settings_ menu in the Wordpress Admin Panel. Click on _Settings -> SparkPost_ to open the SparkPost plugin configuration page and complete setup.
+Upon successful activation, **SparkPost** will appear on the _Settings_ menu in the WordPress Admin Panel. Click on _Settings -> SparkPost_ to open the SparkPost plugin configuration page and complete setup.
 
 Fill in each plugin configuration field:
 
@@ -75,7 +75,7 @@ Richer plugin settings error messages and help text, TLS now permanently enabled
 = 1.1.2 =
 Shortened the plugin name to just SparkPost, added more readme copy, renamed 'SMTP password' setting to 'API key'
 
-= 1.1.1 = 
+= 1.1.1 =
 - Add link to `Settings` in plugins list page
 
 = 1.1.0 =

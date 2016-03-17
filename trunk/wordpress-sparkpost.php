@@ -5,7 +5,7 @@
 /*
 Plugin Name: SparkPost
 Plugin URI: http://sparkpost.com/
-Description: Send all your email from Wordpress through SparkPost, the world's most advanced email delivery service.
+Description: Send all your email from WordPress through SparkPost, the world's most advanced email delivery service.
 Version: 2.0.1
 Author: SparkPost
 Author URI: http://sparkpost.com
