@@ -13,7 +13,7 @@ class SparkPostHTTPMailer extends PHPMailer
 
     function __construct($exceptions = false)
     {
-        $this->options = SparkPost::get_options()
+        $this->options = SparkPost::get_options();
 
         parent::__construct($exceptions);
     }

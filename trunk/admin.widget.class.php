@@ -13,7 +13,7 @@ class SparkPostAdmin
 
     public function __construct()
     {
-        $this->options = get_option('sp_settings');
+        $this->options = SparkPost::get_options();
         add_action('admin_menu', array($this, 'add_plugin_page'));
         add_action('admin_init', array($this, 'admin_page_init'));
 
@@ -247,8 +247,8 @@ class SparkPostAdmin
 
     public function render_sending_method_field()
     {
-        $method = esc_attr(@$this->options['sending_method']);
-        $port = esc_attr(@$this->options['port']);
+        $method = esc_attr($this->options['sending_method']);
+        $port = esc_attr($this->options['port']);
 
         $selected_method = !empty($method) ? $method : 'api';
         $selected_port = !empty($port) ? $port : 587;
@@ -263,7 +263,7 @@ class SparkPostAdmin
     public function render_enable_tracking_field()
     {
         printf(
-            '<label><input type="checkbox" id="enable_tracking" name="sp_settings[enable_tracking]" value="1" %s />Track clicks/opens in SparkPost</label>', @$this->options['enable_tracking'] ? 'checked' : ''
+            '<label><input type="checkbox" id="enable_tracking" name="sp_settings[enable_tracking]" value="1" %s />Track clicks/opens in SparkPost</label>', $this->options['enable_tracking'] ? 'checked' : ''
         );
     }
 

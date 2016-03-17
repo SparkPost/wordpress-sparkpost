@@ -48,16 +48,7 @@ class SparkPost
 
     public function get_options()
     {
-        return get_option('sp_settings');
-    }
-
-    public function get_option($option)
-    {
-        if(!empty($this->options[$option])) {
-            return $this->options[$option];
-        } else {
-            return $this->options_default[$option];
-        }
+        return array_merge($this->options_default[$option], get_option('sp_settings'));
     }
 
     public function add_settings_link($links)
