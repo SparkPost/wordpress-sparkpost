@@ -75,8 +75,9 @@ class SparkPostHTTPMailer extends PHPMailer
                 break;
         }
 
-        if ($this->ReplyTo) {
-            $body['content']['reply_to'] =  $this->ReplyTo;
+        $replyTos = $this->getReplyToAddresses();
+        if (count($replyTos)) {
+            $body['content']['reply_to'] =  $replyTos[0];
         }
 
         $attachments = $this->get_attachments();

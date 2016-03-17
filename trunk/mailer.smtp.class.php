@@ -16,7 +16,7 @@ class SparkPostSMTPMailer
     }
 
     public function configure_phpmailer($phpmailer) {
-    	$options = SparkPost::get_options();
+        $options = SparkPost::get_options();
 
         if (!$options['enable_sparkpost'] || empty($options['password'])) {
             return;
