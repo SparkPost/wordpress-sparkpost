@@ -13,7 +13,7 @@ class SparkPostHTTPMailer extends PHPMailer
 
     function __construct($exceptions = false)
     {
-        $this->options = get_option('sp_settings');
+        $this->options = SparkPost::get_options()
 
         parent::__construct($exceptions);
     }
@@ -75,8 +75,11 @@ class SparkPostHTTPMailer extends PHPMailer
                 break;
         }
 
-        $attachments = $this->get_attachments();
+        if ($this->ReplyTo) {
+            $body['content']['reply_to'] =  $this->ReplyTo;
+        }
 
+        $attachments = $this->get_attachments();
         if (count($attachments)) {
             $body['content']['attachments'] = $attachments;
         }
