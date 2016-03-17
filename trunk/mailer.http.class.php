@@ -59,7 +59,7 @@ class SparkPostHTTPMailer extends PHPMailer
             'options' => array(
                  'open_tracking' => $tracking_enabled,
                  'click_tracking' => $tracking_enabled
-            );
+            )
         );
 
         switch($this->ContentType) {

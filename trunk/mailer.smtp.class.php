@@ -22,7 +22,7 @@ class SparkPostSMTPMailer
             return;
         }
         $tracking_enabled = !!$options['enable_tracking'];
-        $x_msys_api => array(
+        $x_msys_api = array(
             'options' => array (
                 'open_tracking' => $tracking_enabled,
                 'click_tracking' => $tracking_enabled
@@ -38,6 +38,6 @@ class SparkPostSMTPMailer
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = $options['password'];
 
-        $phpmailer->set('X-MSYS-API', json_encode($x_msys_api));
+        $phpmailer->addCustomHeader('X-MSYS-API', json_encode($x_msys_api));
     }
 }
