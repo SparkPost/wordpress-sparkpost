@@ -29,7 +29,7 @@ class SparkPost
 
         $this->options = self::get_options();
 
-        if ($this->get_option('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
+        if (self::get_option('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
             add_filter('wp_mail_from', array($this, 'set_from_email'));
             add_filter('wp_mail_from_name', array($this, 'set_from_name'));
         }

@@ -28,9 +28,9 @@ if (is_admin()) {
 }
 $sp = new SparkPost();
 
-if ($sp->get_option('enable_sparkpost')) {
+if ($sp::get_option('enable_sparkpost')) {
 
-    if ($sp->get_option('sending_method') == 'smtp') {
+    if ($sp::get_option('sending_method') == 'smtp') {
         require_once(WPSP_PLUGIN_DIR . 'mailer.smtp.class.php');
         new SparkPostSMTPMailer();
     } else {
