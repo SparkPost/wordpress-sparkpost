@@ -131,7 +131,7 @@ class SparkPostAdmin
         add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options', 'general');
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options', 'general');
         add_settings_field('enable_tracking', 'Enable tracking*', array($this, 'render_enable_tracking_field'), 'sp-options', 'general');
-        add_settings_field('template', 'Template*', array($this, 'render_template_field'), 'sp-options', 'general');
+        add_settings_field('template', 'Template', array($this, 'render_template_field'), 'sp-options', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-overrides');
         add_settings_field('from_name', 'From name', array($this, 'render_from_name_field'), 'sp-overrides', 'overrides');
