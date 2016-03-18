@@ -98,4 +98,13 @@ class SparkPost
     {
         return strpos($api_key, '*') !== false;
     }
+
+    public function init_sp_http_mailer($args)
+    {
+        global $phpmailer;
+        if (!$phpmailer instanceof SparkPostHTTPMailer) {
+            $phpmailer = new SparkPostHTTPMailer();
+        }
+        return $args;
+    }
 }
