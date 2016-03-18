@@ -48,7 +48,7 @@ class SparkPost
 
     static function get_options()
     {
-        return array_merge(self::$options_default, get_option('sp_settings', []));
+        return array_merge(self::$options_default, get_option('sp_settings', array()));
     }
 
     static function get_option($option)
