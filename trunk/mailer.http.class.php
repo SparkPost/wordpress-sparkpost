@@ -57,12 +57,12 @@ class SparkPostHTTPMailer extends PHPMailer
                 'headers' => $this->build_email_headers()
             ),
             'options' => array(
-                 'open_tracking' => $tracking_enabled,
-                 'click_tracking' => $tracking_enabled
+                'open_tracking' => $tracking_enabled,
+                'click_tracking' => $tracking_enabled
             )
         );
 
-        switch($this->ContentType) {
+        switch ($this->ContentType) {
             case 'multipart/alternative':
                 $body['content']['html'] = $this->Body;
                 $body['content']['text'] = $this->AltBody;
@@ -75,10 +75,7 @@ class SparkPostHTTPMailer extends PHPMailer
                 break;
         }
 
-        $replyTos = $this->getReplyToAddresses();
-        if (count($replyTos)) {
-            $body['content']['reply_to'] =  $replyTos[0];
-        }
+        $body['content'] = array_merge($body['content'], $this->get_headers_in_content());
 
         $attachments = $this->get_attachments();
         if (count($attachments)) {
@@ -87,6 +84,7 @@ class SparkPostHTTPMailer extends PHPMailer
 
         return $body;
     }
+
 
     protected function get_sender()
     {
@@ -198,6 +196,30 @@ class SparkPostHTTPMailer extends PHPMailer
         );
     }
 
+    /**
+     * Returns the special headers into body's content object
+     * @return array
+     */
+    protected function get_headers_in_content()
+    {
+        $allowed_headers = array('reply_to');
+
+        $headers = array();
+        foreach ($this->CustomHeader as $header) {
+            list($key, $value) = $header;
+            $key = strtolower(str_replace('-', '_', $key)); //ex: converts Reply_to to reply_to
+            if (!empty($value) && in_array($key, $allowed_headers)) {
+                $headers[$key] = $this->encodeHeader(trim($header[1]));
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Returns a collection that can be sent as headers in body
+     * @return array
+     */
     protected function build_email_headers()
     {
         $unsupported_headers = array('From', 'Subject', 'To', 'Reply-To', 'Content-Type',
