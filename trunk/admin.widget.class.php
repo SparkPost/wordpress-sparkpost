@@ -148,15 +148,15 @@ class SparkPostAdmin
         $new_input = array();
 
         if (!empty($input['from_email'])) {
-            $new_input['from_email'] = trim($input['from_email']);
+            $new_input['from_email'] = sanitize_text_field($input['from_email']);
         }
 
         if (!empty($input['from_name'])) {
-            $new_input['from_name'] = trim($input['from_name']);
+            $new_input['from_name'] = sanitize_text_field($input['from_name']);
         }
 
         if (!empty($input['template'])) {
-            $new_input['template'] = trim($input['template']);
+            $new_input['template'] = sanitize_text_field($input['template']);
         }
 
         if (empty($input['password'])) {
@@ -165,7 +165,7 @@ class SparkPostAdmin
             if(SparkPost::is_key_obfuscated(esc_attr($input['password']))) { //do not change password
                 $new_input['password'] = $this->options['password'];
             } else {
-                $new_input['password'] = trim(esc_attr($input['password']));
+                $new_input['password'] = sanitize_text_field($input['password']);
             }
         }
 
