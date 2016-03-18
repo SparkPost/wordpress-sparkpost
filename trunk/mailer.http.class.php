@@ -203,7 +203,7 @@ class SparkPostHTTPMailer extends PHPMailer
      * Returns the list of Reply-To headers
      * @return array
      */
-    protected function get_reply_to($body_content)
+    protected function get_reply_to()
     {
         $replyTos = array();
         foreach ($this->CustomHeader as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
@@ -223,7 +223,7 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_headers()
     {
         $unsupported_headers = array(
-            'From', 'Subject', 'To', 'Reply-To',
+            'From', 'Subject', 'To', 'Reply-To', 'Cc',
             'Content-Type', 'Content-Transfer-Encoding', 'MIME-Version'
         );
         $headers = $this->createHeader();
