@@ -16,11 +16,18 @@ class SparkPostSMTPMailer
     }
 
     public function configure_phpmailer($phpmailer) {
-    	$options = get_option('sp_settings');
+        $options = SparkPost::get_options();
 
-        if(!$options['enable_sparkpost'] || empty($options['password'])) {
+        if (!$options['enable_sparkpost'] || empty($options['password'])) {
             return;
         }
+        $tracking_enabled = !!$options['enable_tracking'];
+        $x_msys_api = array(
+            'options' => array (
+                'open_tracking' => $tracking_enabled,
+                'click_tracking' => $tracking_enabled
+            )
+        );
 
         $phpmailer->isSMTP();
         $phpmailer->SMTPSecure = 'tls';
@@ -30,5 +37,7 @@ class SparkPostSMTPMailer
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = $options['password'];
+
+        $phpmailer->addCustomHeader('X-MSYS-API', json_encode($x_msys_api));
     }
 }

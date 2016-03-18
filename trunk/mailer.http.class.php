@@ -13,7 +13,7 @@ class SparkPostHTTPMailer extends PHPMailer
 
     function __construct($exceptions = false)
     {
-        $this->options = get_option('sp_settings');
+        $this->options = SparkPost::get_options();
 
         parent::__construct($exceptions);
     }
@@ -47,16 +47,22 @@ class SparkPostHTTPMailer extends PHPMailer
 
     protected function get_request_body()
     {
+        $tracking_enabled = !!$this->options['enable_tracking'];
+
         $body = array(
             'recipients' => $this->get_recipients(),
             'content' => array(
                 'from' => $this->get_sender(),
                 'subject' => $this->Subject,
-                'headers' => $this->build_email_headers()
+                'headers' => $this->get_headers()
+            ),
+            'options' => array(
+                'open_tracking' => $tracking_enabled,
+                'click_tracking' => $tracking_enabled
             )
         );
 
-        switch($this->ContentType) {
+        switch ($this->ContentType) {
             case 'multipart/alternative':
                 $body['content']['html'] = $this->Body;
                 $body['content']['text'] = $this->AltBody;
@@ -69,14 +75,19 @@ class SparkPostHTTPMailer extends PHPMailer
                 break;
         }
 
-        $attachments = $this->get_attachments();
+        $replyTo = $this->get_reply_to();
+        if ($replyTo) {
+            $body['content']['reply_to'] = $replyTo;
+        }
 
+        $attachments = $this->get_attachments();
         if (count($attachments)) {
             $body['content']['attachments'] = $attachments;
         }
 
         return $body;
     }
+
 
     protected function get_sender()
     {
@@ -178,7 +189,7 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_request_headers($hide_api_key = false)
     {
         $api_key = $this->options['password'];
-        if ($hide_api_key) { //replace all but first 5 chars with *
+        if ($hide_api_key) {
             $api_key = SparkPost::obfuscate_api_key($api_key);
         }
         return array(
@@ -188,14 +199,37 @@ class SparkPostHTTPMailer extends PHPMailer
         );
     }
 
-    protected function build_email_headers()
+    /**
+     * Returns the list of Reply-To headers
+     * @return array
+     */
+    protected function get_reply_to()
     {
-        $unsupported_headers = array('From', 'Subject', 'To', 'Reply-To', 'Content-Type',
-            'Content-Transfer-Encoding', 'MIME-Version');
+        $replyTos = array();
+        foreach ($this->CustomHeader as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
+            list($name, $value) = $header;
+            if ($name === 'Reply-To' && !empty($value)) {
+                $replyTos[] = trim($value);
+            }
+        }
+
+        return implode(',', $replyTos);
+    }
+
+    /**
+     * Returns a collection that can be sent as headers in body
+     * @return array
+     */
+    protected function get_headers()
+    {
+        $unsupported_headers = array(
+            'From', 'Subject', 'To', 'Reply-To', 'Cc',
+            'Content-Type', 'Content-Transfer-Encoding', 'MIME-Version'
+        );
         $headers = $this->createHeader();
 
         $formatted_headers = new StdClass();
-        //split by line separator
+        // split by line separator
         foreach (explode($this->LE, $headers) as $line) {
 
             $splitted_line = explode(': ', $line);
@@ -207,8 +241,5 @@ class SparkPostHTTPMailer extends PHPMailer
         }
 
         return $formatted_headers;
-
     }
-
-
 }

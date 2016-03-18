@@ -13,7 +13,7 @@ class SparkPostAdmin
 
     public function __construct()
     {
-        $this->options = get_option('sp_settings');
+        $this->options = SparkPost::get_options();
         add_action('admin_menu', array($this, 'add_plugin_page'));
         add_action('admin_init', array($this, 'admin_page_init'));
 
@@ -32,7 +32,7 @@ class SparkPostAdmin
 
     protected function render_message($msg, $msg_type = 'error')
     {
-        echo "<div class='$msg_type notice is-dismissible'><p>$msg</p></div>";
+        printf('<div class="%s notice is-dismissible"><p>%s</p></div>', $msg_type, $msg);
     }
 
     public function phpmailer_enable_debugging($phpmailer)
@@ -52,7 +52,7 @@ class SparkPostAdmin
         add_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         $result = wp_mail($recipient,
             'SparkPost email test',
-            '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/>SparkPost WordPress plugin</p>',
+            '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>',
             ''
         );
         remove_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
@@ -81,7 +81,7 @@ class SparkPostAdmin
 
         if ($result) {
             if (!$this->options['enable_sparkpost']) {
-                $this->render_message('Test email sent successfully but not through SparkPost.<br/>Note: the SparkPost plugin is not enabled.  To enable it, check the "enable" checkbox on the plugin settings page.', 'updated');
+                $this->render_message('Test email sent successfully but not through SparkPost.<br/>Note: the SparkPost plugin is not enabled.  To enable it, check "Send email using SparkPost" on the SparkPost settings page.', 'updated');
             } else {
                 $this->render_message('Test email sent successfully', 'updated');
             }
@@ -96,9 +96,9 @@ class SparkPostAdmin
         <div class="wrap">
             <form method="post" action="options.php">
                 <?php
-                settings_fields("sp_settings_group");
-                do_settings_sections("sp-options");
-                do_settings_sections("sp-overrides");
+                settings_fields('sp_settings_group');
+                do_settings_sections('sp-options');
+                do_settings_sections('sp-overrides');
                 submit_button();
                 ?>
             </form>
@@ -114,7 +114,7 @@ class SparkPostAdmin
                 <form method="post" action="">
                     <input type="hidden" name="sp_test_email" value=""/>
                     <?php
-                    do_settings_sections("sp-test-email");
+                    do_settings_sections('sp-test-email');
                     submit_button('Send Test Email', 'secondary');
                     ?>
                 </form>
@@ -126,14 +126,15 @@ class SparkPostAdmin
     public function admin_page_init()
     {
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
-        add_settings_section("general", "SparkPost Settings", null, "sp-options");
-        add_settings_field("enable_sparkpost", "", array($this, 'render_enable_sparkpost_field'), "sp-options", "general");
-        add_settings_field("sending_method", "Method*", array($this, 'render_sending_method_field'), "sp-options", "general");
-        add_settings_field("password", "API Key*", array($this, 'render_password_field'), "sp-options", "general");
+        add_settings_section('general', 'SparkPost Settings', null, 'sp-options');
+        add_settings_field('enable_sparkpost', '', array($this, 'render_enable_sparkpost_field'), 'sp-options', 'general');
+        add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options', 'general');
+        add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options', 'general');
+        add_settings_field('enable_tracking', 'Enable tracking*', array($this, 'render_enable_tracking_field'), 'sp-options', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-overrides');
-        add_settings_field("from_name", "From name", array($this, 'render_from_name_field'), "sp-overrides", "overrides");
-        add_settings_field("from_email", "From email", array($this, 'render_from_email_field'), "sp-overrides", "overrides");
+        add_settings_field('from_name', 'From name', array($this, 'render_from_name_field'), 'sp-overrides', 'overrides');
+        add_settings_field('from_email', 'From email', array($this, 'render_from_email_field'), 'sp-overrides', 'overrides');
 
         add_settings_section('test_email', '', null, 'sp-test-email');
         add_settings_field('to_email', 'Recipient*', array($this, 'render_to_email_field'), 'sp-test-email', 'test_email');
@@ -154,7 +155,7 @@ class SparkPostAdmin
         }
 
         if (empty($input['password'])) {
-            add_settings_error('Password', esc_attr('password'), "Password is required", 'error');
+            add_settings_error('Password', esc_attr('password'), 'API Key is required', 'error');
         } else {
             if(SparkPost::is_key_obfuscated(esc_attr($input['password']))) { //do not change password
                 $new_input['password'] = $this->options['password'];
@@ -164,14 +165,14 @@ class SparkPostAdmin
         }
 
         if (isset($input['enable_sparkpost'])) {
-            $new_input['enable_sparkpost'] = 1;
+            $new_input['enable_sparkpost'] = true;
         } else {
-            $new_input['enable_sparkpost'] = 0;
+            $new_input['enable_sparkpost'] = false;
         }
 
-        if ((empty($input['password'])) && $new_input['enable_sparkpost'] == 1) {
-            add_settings_error('Enable', esc_attr('enable_sparkpost'), "You must enter From name, From email and API key to enable sending via SparkPost", 'error');
-            $new_input['enable_sparkpost'] = 0;
+        if ((empty($input['password'])) && $new_input['enable_sparkpost']) {
+            add_settings_error('Enable', esc_attr('enable_sparkpost'), 'You must enter API key to enable sending via SparkPost', 'error');
+            $new_input['enable_sparkpost'] = false;
         }
 
         switch (esc_attr($input['sending_method'])) {
@@ -189,6 +190,12 @@ class SparkPostAdmin
                 break;
         }
 
+        if(!empty($input['enable_tracking'])) {
+            $new_input['enable_tracking'] = true;
+        } else {
+            $new_input['enable_tracking'] = false;
+
+        }
         return $new_input;
     }
 
@@ -240,8 +247,8 @@ class SparkPostAdmin
 
     public function render_sending_method_field()
     {
-        $method = esc_attr(@$this->options['sending_method']);
-        $port = esc_attr(@$this->options['port']);
+        $method = esc_attr($this->options['sending_method']);
+        $port = esc_attr($this->options['port']);
 
         $selected_method = !empty($method) ? $method : 'api';
         $selected_port = !empty($port) ? $port : 587;
@@ -251,6 +258,13 @@ class SparkPostAdmin
         <option value="smtp587" ' . (($selected_method == 'smtp' && $selected_port == 587) ? 'selected' : '') . '>SMTP (Port 587)</option>
         <option value="smtp2525" ' . (($selected_method == 'smtp' && $selected_port == 2525) ? 'selected' : '') . '>SMTP (Port 2525)</option>
         </select>';
+    }
+
+    public function render_enable_tracking_field()
+    {
+        printf(
+            '<label><input type="checkbox" id="enable_tracking" name="sp_settings[enable_tracking]" value="1" %s />Track clicks/opens in SparkPost</label>', $this->options['enable_tracking'] ? 'checked' : ''
+        );
     }
 
     public function render_to_email_field()
