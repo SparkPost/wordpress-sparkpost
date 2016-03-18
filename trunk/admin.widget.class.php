@@ -155,7 +155,7 @@ class SparkPostAdmin
         }
 
         if (empty($input['password'])) {
-            add_settings_error('Password', esc_attr('password'), 'Password is required', 'error');
+            add_settings_error('Password', esc_attr('password'), 'API Key is required', 'error');
         } else {
             if(SparkPost::is_key_obfuscated(esc_attr($input['password']))) { //do not change password
                 $new_input['password'] = $this->options['password'];
@@ -171,7 +171,7 @@ class SparkPostAdmin
         }
 
         if ((empty($input['password'])) && $new_input['enable_sparkpost']) {
-            add_settings_error('Enable', esc_attr('enable_sparkpost'), 'You must enter From name, From email and API key to enable sending via SparkPost', 'error');
+            add_settings_error('Enable', esc_attr('enable_sparkpost'), 'You must enter API key to enable sending via SparkPost', 'error');
             $new_input['enable_sparkpost'] = false;
         }
 
