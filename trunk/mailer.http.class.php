@@ -54,7 +54,7 @@ class SparkPostHTTPMailer extends PHPMailer
             'content' => array(
                 'from' => $this->get_sender(),
                 'subject' => $this->Subject,
-                'headers' => $this->build_email_headers()
+                'headers' => $this->get_headers()
             ),
             'options' => array(
                 'open_tracking' => $tracking_enabled,
@@ -75,7 +75,10 @@ class SparkPostHTTPMailer extends PHPMailer
                 break;
         }
 
-        $body['content'] = array_merge($body['content'], $this->get_headers_in_content());
+        $replyTo = $this->get_reply_to();
+        if ($replyTo) {
+            $body['content']['reply_to'] = $replyTo;
+        }
 
         $attachments = $this->get_attachments();
         if (count($attachments)) {
@@ -186,7 +189,7 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_request_headers($hide_api_key = false)
     {
         $api_key = $this->options['password'];
-        if ($hide_api_key) { //replace all but first 5 chars with *
+        if ($hide_api_key) {
             $api_key = SparkPost::obfuscate_api_key($api_key);
         }
         return array(
@@ -197,37 +200,36 @@ class SparkPostHTTPMailer extends PHPMailer
     }
 
     /**
-     * Returns the special headers into body's content object
+     * Returns the list of Reply-To headers
      * @return array
      */
-    protected function get_headers_in_content()
+    protected function get_reply_to($body_content)
     {
-        $allowed_headers = array('reply_to');
-
-        $headers = array();
-        foreach ($this->CustomHeader as $header) {
-            list($key, $value) = $header;
-            $key = strtolower(str_replace('-', '_', $key)); //ex: converts Reply_to to reply_to
-            if (!empty($value) && in_array($key, $allowed_headers)) {
-                $headers[$key] = $this->encodeHeader(trim($header[1]));
+        $replyTos = array();
+        foreach ($this->CustomHeader as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
+            list($name, $value) = $header;
+            if ($name === 'Reply-To' && !empty($value)) {
+                $replyTos[] = trim($value);
             }
         }
 
-        return $headers;
+        return implode(',', $replyTos);
     }
 
     /**
      * Returns a collection that can be sent as headers in body
      * @return array
      */
-    protected function build_email_headers()
+    protected function get_headers()
     {
-        $unsupported_headers = array('From', 'Subject', 'To', 'Reply-To', 'Content-Type',
-            'Content-Transfer-Encoding', 'MIME-Version');
+        $unsupported_headers = array(
+            'From', 'Subject', 'To', 'Reply-To',
+            'Content-Type', 'Content-Transfer-Encoding', 'MIME-Version'
+        );
         $headers = $this->createHeader();
 
         $formatted_headers = new StdClass();
-        //split by line separator
+        // split by line separator
         foreach (explode($this->LE, $headers) as $line) {
 
             $splitted_line = explode(': ', $line);
@@ -239,8 +241,5 @@ class SparkPostHTTPMailer extends PHPMailer
         }
 
         return $formatted_headers;
-
     }
-
-
 }
