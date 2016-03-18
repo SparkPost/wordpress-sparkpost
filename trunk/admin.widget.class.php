@@ -131,6 +131,7 @@ class SparkPostAdmin
         add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options', 'general');
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options', 'general');
         add_settings_field('enable_tracking', 'Enable tracking*', array($this, 'render_enable_tracking_field'), 'sp-options', 'general');
+        add_settings_field('template', 'Template*', array($this, 'render_template_field'), 'sp-options', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-overrides');
         add_settings_field('from_name', 'From name', array($this, 'render_from_name_field'), 'sp-overrides', 'overrides');
@@ -152,6 +153,10 @@ class SparkPostAdmin
 
         if (!empty($input['from_name'])) {
             $new_input['from_name'] = trim($input['from_name']);
+        }
+
+        if (!empty($input['template'])) {
+            $new_input['template'] = trim($input['template']);
         }
 
         if (empty($input['password'])) {
@@ -219,6 +224,14 @@ class SparkPostAdmin
             '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/>
             <small><ul><li>For SMTP, use a SparkPost API key with <strong>Send via SMTP</strong> permission</li> <li>For HTTP API, use API Key with <strong>Transmissions: Read/Write</strong> permission</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
             isset($api_key) ? $api_key : ''
+        );
+    }
+
+    public function render_template_field()
+    {
+        printf(
+            '<input type="text" id="template" name="sp_settings[template]" class="regular-text" value="%s" /><br/>',
+            isset($this->options['template']) ? $this->options['template'] : ''
         );
     }
 

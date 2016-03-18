@@ -62,17 +62,22 @@ class SparkPostHTTPMailer extends PHPMailer
             )
         );
 
-        switch ($this->ContentType) {
-            case 'multipart/alternative':
-                $body['content']['html'] = $this->Body;
-                $body['content']['text'] = $this->AltBody;
-                break;
-            case 'text/plain':
-                $body['content']['text'] = $this->Body;
-                break;
-            default:
-                $body['content']['html'] = $this->Body;
-                break;
+        if (!empty($this->options['template'])) {
+          $body['content']['template_id'] = $this->options['template'];
+          $body['substitution_data']['content'] = $this->Body;
+        } else {
+          switch($this->ContentType) {
+              case 'multipart/alternative':
+                  $body['content']['html'] = $this->Body;
+                  $body['content']['text'] = $this->AltBody;
+                  break;
+              case 'text/plain':
+                  $body['content']['text'] = $this->Body;
+                  break;
+              default:
+                  $body['content']['html'] = $this->Body;
+                  break;
+          }
         }
 
         $replyTo = $this->get_reply_to();

@@ -16,7 +16,8 @@ class SparkPost
         'from_name' => '',
         'from_email' => '',
         'enable_sparkpost' => false,
-        'enable_tracking' => true
+        'enable_tracking' => true,
+        'template' => ''
     );
 
     var $options;
