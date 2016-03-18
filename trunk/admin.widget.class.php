@@ -230,7 +230,9 @@ class SparkPostAdmin
     public function render_template_field()
     {
         printf(
-            '<input type="text" id="template" name="sp_settings[template]" class="regular-text" value="%s" /><br/>',
+            '<input type="text" id="template" name="sp_settings[template]" class="regular-text" value="%s" /><br/>
+            <small>The template must have a variable in it named <code>{{{content}}}</code>.<br/>
+            Note the triple curly braces, which are required to include non-escaped HTML.</small>',
             isset($this->options['template']) ? $this->options['template'] : ''
         );
     }
