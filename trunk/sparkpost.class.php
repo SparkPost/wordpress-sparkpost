@@ -25,6 +25,7 @@ class SparkPost
     {
         register_activation_hook(WPSP_PLUGIN_PATH, array($this, 'sp_activate'));
         register_deactivation_hook(WPSP_PLUGIN_PATH, array($this, 'sp_deactivate'));
+
         add_filter('plugin_action_links_' . plugin_basename(WPSP_PLUGIN_PATH), array($this, 'add_settings_link'));
 
         $this->options = self::get_options();
@@ -35,10 +36,9 @@ class SparkPost
         }
     }
 
-
     public function sp_activate()
     {
-        add_option('sp_settings', self::$options_default);
+        update_option('sp_settings', self::$options_default);
     }
 
     public function sp_deactivate()
@@ -48,7 +48,7 @@ class SparkPost
 
     static function get_options()
     {
-        return array_merge(self::$options_default, get_option('sp_settings'));
+        return array_merge(self::$options_default, get_option('sp_settings', []));
     }
 
     static function get_option($option)
@@ -86,7 +86,11 @@ class SparkPost
 
     static function obfuscate_api_key($api_key)
     {
-        return substr($api_key, 0, 4) . str_repeat('*', 36);
+        if(!empty($api_key)) {
+            return substr($api_key, 0, 4) . str_repeat('*', 36);
+        }
+
+        return $api_key;
     }
 
     static function is_key_obfuscated($api_key)
