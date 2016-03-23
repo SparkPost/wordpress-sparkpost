@@ -131,6 +131,7 @@ class SparkPostAdmin
         add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options', 'general');
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options', 'general');
         add_settings_field('enable_tracking', 'Enable tracking*', array($this, 'render_enable_tracking_field'), 'sp-options', 'general');
+        add_settings_field('template', 'Template', array($this, 'render_template_field'), 'sp-options', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-overrides');
         add_settings_field('from_name', 'From name', array($this, 'render_from_name_field'), 'sp-overrides', 'overrides');
@@ -147,11 +148,15 @@ class SparkPostAdmin
         $new_input = array();
 
         if (!empty($input['from_email'])) {
-            $new_input['from_email'] = trim($input['from_email']);
+            $new_input['from_email'] = sanitize_text_field($input['from_email']);
         }
 
         if (!empty($input['from_name'])) {
-            $new_input['from_name'] = trim($input['from_name']);
+            $new_input['from_name'] = sanitize_text_field($input['from_name']);
+        }
+
+        if (!empty($input['template'])) {
+            $new_input['template'] = sanitize_text_field($input['template']);
         }
 
         if (empty($input['password'])) {
@@ -160,7 +165,7 @@ class SparkPostAdmin
             if(SparkPost::is_key_obfuscated(esc_attr($input['password']))) { //do not change password
                 $new_input['password'] = $this->options['password'];
             } else {
-                $new_input['password'] = trim(esc_attr($input['password']));
+                $new_input['password'] = sanitize_text_field($input['password']);
             }
         }
 
@@ -217,9 +222,26 @@ class SparkPostAdmin
 
         printf(
             '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/>
-            <small><ul><li>For SMTP, use a SparkPost API key with <strong>Send via SMTP</strong> permission</li> <li>For HTTP API, use API Key with <strong>Transmissions: Read/Write</strong> permission</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
+            <small><ul><li>For SMTP, set up an API key with the <strong>Send via SMTP</strong> permission</li> <li>For HTTP API, set up an API Key with the <strong>Transmissions: Read/Write</strong> permission</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
             isset($api_key) ? $api_key : ''
         );
+    }
+
+    public function render_template_field()
+    {
+        ?>
+        <input type="text" id="template" name="sp_settings[template]" class="regular-text"
+               value="<?php echo $this->options['template']; ?>"/><br/>
+        <small>
+            <ul>
+                <li>- Templates can only be used with the HTTP API.</li>
+                <li>- Leave this field blank to disable use of a template.</li>
+                <li>- The template must have a variable in it named <code>{{{content}}}</code>. Note the triple curly braces, which are required to include non-escaped HTML.</li>
+                <li>- Use <code>{{subject}}</code> and <code>{{from_name}}</code> in your template to allow substitution of Subject and From Name respectively.</li>
+                <li>- From email override has no effect when using a template.</li>
+            </ul>
+        </small>
+    <?php
     }
 
     public function render_from_email_field()

@@ -16,7 +16,8 @@ class SparkPost
         'from_name' => '',
         'from_email' => '',
         'enable_sparkpost' => false,
-        'enable_tracking' => true
+        'enable_tracking' => true,
+        'template' => ''
     );
 
     var $options;
@@ -96,5 +97,14 @@ class SparkPost
     static function is_key_obfuscated($api_key)
     {
         return strpos($api_key, '*') !== false;
+    }
+
+    public function init_sp_http_mailer($args)
+    {
+        global $phpmailer;
+        if (!$phpmailer instanceof SparkPostHTTPMailer) {
+            $phpmailer = new SparkPostHTTPMailer();
+        }
+        return $args;
     }
 }

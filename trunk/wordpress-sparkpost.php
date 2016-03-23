@@ -35,13 +35,7 @@ if (SparkPost::get_option('enable_sparkpost')) {
         new SparkPostSMTPMailer();
     } else {
         require_once(WPSP_PLUGIN_DIR . 'mailer.http.class.php');
-        add_filter('wp_mail', function ($args) {
-            global $phpmailer;
-            if (!$phpmailer instanceof SparkPostHTTPMailer) {
-                $phpmailer = new SparkPostHTTPMailer();
-            }
-            return $args;
-        });
+        add_filter('wp_mail', array($sp, 'init_sp_http_mailer'));
     }
 }
 

@@ -48,11 +48,11 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_request_body()
     {
         $tracking_enabled = !!$this->options['enable_tracking'];
-
+        $sender = $this->get_sender();
         $body = array(
             'recipients' => $this->get_recipients(),
             'content' => array(
-                'from' => $this->get_sender(),
+                'from' => $sender,
                 'subject' => $this->Subject,
                 'headers' => $this->get_headers()
             ),
@@ -62,17 +62,24 @@ class SparkPostHTTPMailer extends PHPMailer
             )
         );
 
-        switch ($this->ContentType) {
-            case 'multipart/alternative':
-                $body['content']['html'] = $this->Body;
-                $body['content']['text'] = $this->AltBody;
-                break;
-            case 'text/plain':
-                $body['content']['text'] = $this->Body;
-                break;
-            default:
-                $body['content']['html'] = $this->Body;
-                break;
+        if (!empty($this->options['template'])) {
+          $body['content']['template_id'] = $this->options['template'];
+          $body['substitution_data']['content'] = $this->Body;
+          $body['substitution_data']['subject'] = $this->Subject;
+          $body['substitution_data']['from_name'] = $sender['name'];
+        } else {
+          switch($this->ContentType) {
+              case 'multipart/alternative':
+                  $body['content']['html'] = $this->Body;
+                  $body['content']['text'] = $this->AltBody;
+                  break;
+              case 'text/plain':
+                  $body['content']['text'] = $this->Body;
+                  break;
+              default:
+                  $body['content']['html'] = $this->Body;
+                  break;
+          }
         }
 
         $replyTo = $this->get_reply_to();
