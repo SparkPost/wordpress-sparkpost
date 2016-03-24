@@ -33,30 +33,6 @@ Option 2: Install manually:
 
 Upon successful activation, **SparkPost** will appear on the _Settings_ menu in the Wordpress Admin Panel. Click on _Settings -> SparkPost_ to open the SparkPost plugin configuration page and complete setup.
 
-Fill in each plugin configuration field:
-
-* Check the "Send email using SparkPost" box to enable the plugin
-
-* **Method**: select whether to send using the HTTP API or SMTP
-
-* **API Key**: a SparkPost API key with *Send via SMTP* and *Transmission Read/Write* permissions
-  * Hint: they look like this: 39fb780c182927cde6baddab00f67676feed1beef17
-
-* **Enable tracking**: select whether to enable open and click tracking
-
-* **Template**: SparkPost template to use when sending email
-  * Note: a template can only be used if the HTTP API method is selected
-
-* **From name**: a human-friendly name to show in 'From' headers
-  * e.g. your name or your site's name
-
-* **From email**: your 'From' email address
-  * e.g. yourname@yourdomain.com
-
-For information on how to create an API key, follow the [official documentation](https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys).
-
-Ensure your [sending domain](https://app.sparkpost.com/configuration/sending-domains) is properly configured within SparkPost.
-
 == Frequently Asked Questions ==
 
 = What do I need to start using this plugin? =
@@ -98,7 +74,7 @@ Visit our [support site](https://support.sparkpost.com/) for help.
 - Update copy
 
 = 1.1.3 =
-Richer plugin settings error messages and help text, TLS now permanently enabled
+- Richer plugin settings error messages and help text, TLS now permanently enabled
 
 = 1.1.2 =
 - Shortened the plugin name to just SparkPost, added more readme copy, renamed 'SMTP password' setting to 'API key'
