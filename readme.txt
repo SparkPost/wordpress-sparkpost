@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.0
 Tested up to: 4.4.2
-Stable tag: 2.1.1
+Stable tag: 2.2.0
 License: GPLv2 or later
 
 Send all your email from Wordpress through SparkPost, the most advanced email delivery service.
@@ -47,7 +47,7 @@ Visit our [support site](https://support.sparkpost.com/) for help.
 
 == Changelog ==
 
-= 2.1.1 =
+= 2.2.0 =
 - Add template field for selecting a SparkPost template when using HTTP API
 - Allow substituion of Subject, From name in HTTP API
 - Replaced anonymous function for compatibility with older versions of PHP
