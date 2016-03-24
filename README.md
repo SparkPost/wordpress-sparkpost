@@ -35,6 +35,6 @@ From Test Email section, try sending a test email to yourself to make sure the c
 For example, if you've cloned this repository to `~/src/wordpress-sparkpost` and your WordPress is installed in `~/src/wordpress`, you should create a symlink like following 
 
 ```
-ln -s ~/src/wordpress-sparkpost/trunk ~/src/wordpress/wp-content/plugins/wordpress-sparkpost
+ln -s ~/src/wordpress-sparkpost ~/src/wordpress/wp-content/plugins/wordpress-sparkpost
 ```
 * Activate the plugin from admin panel
