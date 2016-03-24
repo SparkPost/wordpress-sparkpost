@@ -29,12 +29,10 @@ From Test Email section, try sending a test email to yourself to make sure the c
 
 ## Development
 * Install WordPress
-* Clone this repository
-* Create a symlink to the repository's `trunk` directory in WordPress plugins directory. 
-
-For example, if you've cloned this repository to `~/src/wordpress-sparkpost` and your WordPress is installed in `~/src/wordpress`, you should create a symlink like following 
+* Clone this repository to the WordPress plugins directory:
 
 ```
-ln -s ~/src/wordpress-sparkpost/trunk ~/src/wordpress/wp-content/plugins/wordpress-sparkpost
+git clone git@github.com:SparkPost/wordpress-sparkpost.git ~/src/wordpress/wp-content/plugins/wordpress-sparkpost
 ```
+
 * Activate the plugin from admin panel
