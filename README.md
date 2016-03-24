@@ -36,3 +36,12 @@ git clone git@github.com:SparkPost/wordpress-sparkpost.git ~/src/wordpress/wp-co
 ```
 
 * Activate the plugin from admin panel
+
+## Releasing
+
+* Create a branch off master: `git checkout -b bump`
+* Update the version in [wordpress-sparkpost.php](wordpress-sparkpost.php)
+* Update the version and change log in [readme.txt](readme.txt)
+* Commit the changes and push the branch
+* Create a pull request
+* Once the pull request is merged, run `./deploy.sh`
