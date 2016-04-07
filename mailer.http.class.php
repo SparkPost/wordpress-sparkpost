@@ -37,8 +37,6 @@ class SparkPostHTTPMailer extends PHPMailer
         $this->edebug(sprintf('Making HTTP POST request to %s', $this->endpoint));
         $result = $http->request($this->endpoint, $data);
         $this->edebug('Response received');
-        $this->edebug('Response headers: ' . print_r($result['headers'], true));
-        $this->edebug('Response body: ' . print_r($result['body'], true));
 
         return $this->handle_response($result);
 
@@ -148,6 +146,9 @@ class SparkPostHTTPMailer extends PHPMailer
             $this->edebug($response->get_error_messages());
             return false;
         }
+        
+        $this->edebug('Response headers: ' . print_r($result['headers'], true));
+        $this->edebug('Response body: ' . print_r($result['body'], true));
 
         $body = json_decode($response['body']);
         if (property_exists($body, 'errors')) {
