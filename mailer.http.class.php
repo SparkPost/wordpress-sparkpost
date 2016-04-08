@@ -18,7 +18,7 @@ class SparkPostHTTPMailer extends PHPMailer
         parent::__construct($exceptions);
     }
 
-    function mailSend($header, $body) {
+    function mailSend($header, $body) { /** TODO check if need to use $header, $body */
         return $this->sparkpostSend();
     }
 
