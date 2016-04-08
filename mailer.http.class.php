@@ -151,8 +151,8 @@ class SparkPostHTTPMailer extends PHPMailer
             return false;
         }
         
-        $this->edebug('Response headers: ' . print_r($result['headers'], true));
-        $this->edebug('Response body: ' . print_r($result['body'], true));
+        $this->edebug('Response headers: ' . print_r($response['headers'], true));
+        $this->edebug('Response body: ' . print_r($response['body'], true));
 
         $body = json_decode($response['body']);
         if (property_exists($body, 'errors')) {
