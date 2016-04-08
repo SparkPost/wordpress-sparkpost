@@ -18,6 +18,10 @@ class SparkPostHTTPMailer extends PHPMailer
         parent::__construct($exceptions);
     }
 
+    function mailSend($header, $body) { /** TODO check if need to use $header, $body */
+        return $this->sparkpostSend();
+    }
+
     function sparkpostSend()
     {
         $this->edebug('Preparing request data');
@@ -147,8 +151,8 @@ class SparkPostHTTPMailer extends PHPMailer
             return false;
         }
         
-        $this->edebug('Response headers: ' . print_r($result['headers'], true));
-        $this->edebug('Response body: ' . print_r($result['body'], true));
+        $this->edebug('Response headers: ' . print_r($response['headers'], true));
+        $this->edebug('Response body: ' . print_r($response['body'], true));
 
         $body = json_decode($response['body']);
         if (property_exists($body, 'errors')) {

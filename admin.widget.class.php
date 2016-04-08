@@ -104,7 +104,7 @@ class SparkPostAdmin
             </form>
             <hr/>
             <div>
-                <h2>Test Email</h2>
+                <h3>Test Email</h3>
                 <?php
                 if (isset($_POST['sp_test_email'])) {
                     $this->test_email_sending($_POST['to_email'], !empty($_POST['enable_debugging']));
