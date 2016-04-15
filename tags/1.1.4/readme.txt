@@ -2,8 +2,8 @@
 Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.0
-Tested up to: 4.4.2
-Stable tag: 2.2.1
+Tested up to: 4.4
+Stable tag: 1.1.4
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -33,54 +33,39 @@ Option 2: Install manually:
 
 Upon successful activation, **SparkPost** will appear on the _Settings_ menu in the WordPress Admin Panel. Click on _Settings -> SparkPost_ to open the SparkPost plugin configuration page and complete setup.
 
-== Frequently Asked Questions ==
+Fill in each plugin configuration field:
 
+* **enable?**: Check this box to enable your plugin :)
+* **from name**: a human-friendly name to show in 'From' headers
+  * e.g. your name or your site's name
+
+* **from email**: your 'From' email address
+  * e.g. yourname@yourdomain.com
+
+* **SMTP password**: A SparkPost API key with *Send via SMTP* permission
+  * Hint: they look like this: 39fb780c182927cde6baddab00f67676feed1beef17
+
+For information on how to create an API key, follow the [official documentation](https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys).
+
+Ensure your [sending domain](https://app.sparkpost.com/#/configuration/sending-domains) is properly configured within SparkPost.
+
+== Frequently Asked Questions ==
 = What do I need to start using this plugin? =
-You'll need to create an account on SparkPost.com and then generate an API Key with *Send via SMTP* and *Transmission Read/Write* permissions. Creating an account is completely free. Visit [SparkPost](https://app.sparkpost.com/sign-up) to signup.
+You'll need to create an account on SparkPost.com and then generate an API Key with *Send via SMTP* permission. Creating an account is completely free. Visit [SparkPost](https://app.sparkpost.com/sign-up) to signup.
 
 = How do I create an API key? =
-Follow [this tutorial](https://support.sparkpost.com/customer/portal/articles/1933377) for creating an API key. **Remember:** your API key must have *Send via SMTP* and *Transmission Read/Write* permissions to be usable by this plugin.
+Follow [this tutorial](https://support.sparkpost.com/customer/portal/articles/1933377) for creating an API key. **Remember:** your API key must have 'Send via SMTP' permission to be usable by this plugin.
 
 = How do I get further help? =
-Visit our [support site](https://support.sparkpost.com/) for help.
+Visit our [support portal](https://support.sparkpost.com/) for help.
 
 
 == Changelog ==
-
-= 2.2.1 =
-- Fix issue for previous version of WordPress
-
-= 2.2.0 =
-- Add template field for selecting a SparkPost template when using HTTP API
-- Allow substituion of Subject, From name in HTTP API
-- Replaced anonymous function for compatibility with older versions of PHP
-
-= 2.1.0 =
-- Enable/disable tracking option
-- Add support for Reply-To in HTTP Mailer
-
-= 2.0.1 =
-- Fix email content type problem
-
-= 2.0.0 =
-- Support sending using HTTP API
-- UI Tweak
-- Hide API Key from UI
-- Misc code improvements
-
-= 1.1.5 =
-- Support alternate port
-- Use filter to set sender info
-- Clearer settings panel
-
-= 1.1.4 =
-- Update copy
-
 = 1.1.3 =
-- Richer plugin settings error messages and help text, TLS now permanently enabled
+Richer plugin settings error messages and help text, TLS now permanently enabled
 
 = 1.1.2 =
-- Shortened the plugin name to just SparkPost, added more readme copy, renamed 'SMTP password' setting to 'API key'
+Shortened the plugin name to just SparkPost, added more readme copy, renamed 'SMTP password' setting to 'API key'
 
 = 1.1.1 =
 - Add link to `Settings` in plugins list page
@@ -90,8 +75,7 @@ Visit our [support site](https://support.sparkpost.com/) for help.
 - Add support for enable/disable sending via SparkPost
 
 = 1.0.0 =
-- Initial version
+Initial version
 
 == Upgrade Notice ==
-
 This is initial version.
