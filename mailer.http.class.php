@@ -90,6 +90,10 @@ class SparkPostHTTPMailer extends PHPMailer
             if ($replyTo) {
                 $body['substitution_data']['reply_to'] = $replyTo;
             }
+            $localpart = explode('@', $sender['email']);
+            if (!empty($localpart)) {
+                $body['substitution_data']['from_localpart'] = $localpart[0];
+            }
         } else {
             // inline content
             $body['content'] = array(
@@ -121,6 +125,7 @@ class SparkPostHTTPMailer extends PHPMailer
             $body['content']['attachments'] = $attachments;
         }
 
+        var_dump($body);
         return $body;
     }
 
