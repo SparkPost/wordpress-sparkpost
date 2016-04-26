@@ -11,6 +11,10 @@ class SparkPostHTTPMailer extends PHPMailer
     protected $endpoint = 'https://api.sparkpost.com/api/v1/transmissions';
     private $options;
 
+    /**
+     * Constructor.
+     * @param boolean $exceptions Should we throw external exceptions?
+     */
     function __construct($exceptions = false)
     {
         $this->options = SparkPost::get_options();
@@ -18,7 +22,16 @@ class SparkPostHTTPMailer extends PHPMailer
         parent::__construct($exceptions);
     }
 
-    function mailSend($header, $body) { /** TODO check if need to use $header, $body */
+    /**
+     * Send mail using SparkPost
+     * @param string $header The message headers
+     * @param string $body The message body
+     * @throws SparkPostException
+     * @access protected
+     * @return boolean
+     */
+    protected function mailSend($header, $body)
+    {
         return $this->sparkpostSend();
     }
 
@@ -43,50 +56,68 @@ class SparkPostHTTPMailer extends PHPMailer
         $this->edebug('Response received');
 
         return $this->handle_response($result);
-
-
     }
 
+    /**
+     * Build the request body to be sent to the SparkPost API.
+     */
     protected function get_request_body()
     {
         $tracking_enabled = !!$this->options['enable_tracking'];
         $sender = $this->get_sender();
-        $body = array(
-            'recipients' => $this->get_recipients(),
-            'content' => array(
+        $replyTo = $this->get_reply_to();
+        $body = array();
+
+        // add recipients
+        $body['recipients'] = $this->get_recipients();
+
+        // enable engagement tracking
+        $body['options'] = array(
+            'open_tracking' => $tracking_enabled,
+            'click_tracking' => $tracking_enabled
+        );
+
+        // pass through either stored template or inline content
+        if (!empty($this->options['template'])) {
+            // stored template
+            $body['content']['template_id'] = $this->options['template'];
+
+            // supply substitution data so users can add variables to templates
+            $body['substitution_data']['content'] = $this->Body;
+            $body['substitution_data']['subject'] = $this->Subject;
+            $body['substitution_data']['from_name'] = $sender['name'];
+            $body['substitution_data']['from'] = $sender['name'] . ' <' . $sender['email'] . '>';
+            if ($replyTo) {
+                $body['substitution_data']['reply_to'] = $replyTo;
+            }
+            $localpart = explode('@', $sender['email']);
+            if (!empty($localpart)) {
+                $body['substitution_data']['from_localpart'] = $localpart[0];
+            }
+        } else {
+            // inline content
+            $body['content'] = array(
                 'from' => $sender,
                 'subject' => $this->Subject,
                 'headers' => $this->get_headers()
-            ),
-            'options' => array(
-                'open_tracking' => $tracking_enabled,
-                'click_tracking' => $tracking_enabled
-            )
-        );
+            );
 
-        if (!empty($this->options['template'])) {
-          $body['content']['template_id'] = $this->options['template'];
-          $body['substitution_data']['content'] = $this->Body;
-          $body['substitution_data']['subject'] = $this->Subject;
-          $body['substitution_data']['from_name'] = $sender['name'];
-        } else {
-          switch($this->ContentType) {
-              case 'multipart/alternative':
-                  $body['content']['html'] = $this->Body;
-                  $body['content']['text'] = $this->AltBody;
-                  break;
-              case 'text/plain':
-                  $body['content']['text'] = $this->Body;
-                  break;
-              default:
-                  $body['content']['html'] = $this->Body;
-                  break;
-          }
-        }
+            if ($replyTo) {
+                $body['content']['reply_to'] = $replyTo;
+            }
 
-        $replyTo = $this->get_reply_to();
-        if ($replyTo) {
-            $body['content']['reply_to'] = $replyTo;
+            switch($this->ContentType) {
+                case 'multipart/alternative':
+                    $body['content']['html'] = $this->Body;
+                    $body['content']['text'] = $this->AltBody;
+                    break;
+                case 'text/plain':
+                    $body['content']['text'] = $this->Body;
+                    break;
+                default:
+                    $body['content']['html'] = $this->Body;
+                    break;
+            }
         }
 
         $attachments = $this->get_attachments();
@@ -150,7 +181,7 @@ class SparkPostHTTPMailer extends PHPMailer
             $this->edebug($response->get_error_messages());
             return false;
         }
-        
+
         $this->edebug('Response headers: ' . print_r($response['headers'], true));
         $this->edebug('Response body: ' . print_r($response['body'], true));
 

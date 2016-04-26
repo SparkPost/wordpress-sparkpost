@@ -234,11 +234,9 @@ class SparkPostAdmin
                value="<?php echo $this->options['template']; ?>"/><br/>
         <small>
             <ul>
+                <li>- Please see <a href="https://support.sparkpost.com/customer/portal/articles/2409547-using-templates-with-the-sparkpost-wordpress-plugin">this article</a> for detailed information about using templates with this plugin.</li>
                 <li>- Templates can only be used with the HTTP API.</li>
                 <li>- Leave this field blank to disable use of a template.</li>
-                <li>- The template must have a variable in it named <code>{{{content}}}</code>. Note the triple curly braces, which are required to include non-escaped HTML.</li>
-                <li>- Use <code>{{subject}}</code> and <code>{{from_name}}</code> in your template to allow substitution of Subject and From Name respectively.</li>
-                <li>- From email override has no effect when using a template.</li>
             </ul>
         </small>
     <?php
