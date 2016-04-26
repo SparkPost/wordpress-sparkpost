@@ -125,7 +125,6 @@ class SparkPostHTTPMailer extends PHPMailer
             $body['content']['attachments'] = $attachments;
         }
 
-        var_dump($body);
         return $body;
     }
 
