@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.0
 Tested up to: 4.4.2
-Stable tag: 2.2.1
+Stable tag: 2.3.0
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -46,6 +46,10 @@ Visit our [support site](https://support.sparkpost.com/) for help.
 
 
 == Changelog ==
+
+= 2.3.0 =
+
+- Fixed issue [#33](https://github.com/SparkPost/wordpress-sparkpost/issues/33) where from email and reply to were being overridden by templates: see [this article](https://support.sparkpost.com/customer/portal/articles/2409547-using-templates-with-the-sparkpost-wordpress-plugin) for detailed information
 
 = 2.2.1 =
 - Fix issue for previous version of WordPress
