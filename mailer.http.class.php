@@ -44,7 +44,6 @@ class SparkPostHTTPMailer extends PHPMailer
             'timeout' => 15,
             'headers' => $this->get_request_headers(),
             'body' => json_encode($this->get_request_body())
-
         );
 
         $http = _wp_http_get_object();
@@ -224,8 +223,18 @@ class SparkPostHTTPMailer extends PHPMailer
                 'address' => array(
                     'email' => $to[0],
                     'name' => $to[1]
-                ));
+                )
+            );
         }
+
+        // add bcc to recipients
+        // sparkposts recipients list acts as bcc by default
+        $bcc = $this->get_bcc();
+
+        if(!empty($bcc)) {
+          $recipients = array_merge($recipients, $bcc);
+        }
+
         return $recipients;
     }
 
@@ -260,6 +269,24 @@ class SparkPostHTTPMailer extends PHPMailer
     }
 
     /**
+     * Returns the list of BCC headers
+     * @return array
+     */
+    protected function get_bcc()
+    {
+        $bcc = array();
+        foreach($this->getBccAddresses() as $bccAddress) {
+            $bcc[] = array(
+              'address' => array(
+                'email' => $bccAddress[0],
+                'name' => $bccAddress[1],
+              )
+          );
+        }
+        return $bcc;
+    }
+
+    /**
      * Returns a collection that can be sent as headers in body
      * @return array
      */
@@ -270,6 +297,7 @@ class SparkPostHTTPMailer extends PHPMailer
             'Content-Type', 'Content-Transfer-Encoding', 'MIME-Version'
         );
         $headers = $this->createHeader();
+
 
         $formatted_headers = new StdClass();
         // split by line separator

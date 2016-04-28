@@ -38,5 +38,3 @@ if (SparkPost::get_option('enable_sparkpost')) {
         add_filter('wp_mail', array($sp, 'init_sp_http_mailer'));
     }
 }
-
-
