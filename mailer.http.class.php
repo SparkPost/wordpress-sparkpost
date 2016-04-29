@@ -74,7 +74,8 @@ class SparkPostHTTPMailer extends PHPMailer
         // enable engagement tracking
         $body['options'] = array(
             'open_tracking' => $tracking_enabled,
-            'click_tracking' => $tracking_enabled
+            'click_tracking' => $tracking_enabled,
+            'transactional' => true
         );
 
         // pass through either stored template or inline content
