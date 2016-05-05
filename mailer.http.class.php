@@ -217,22 +217,30 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_recipients()
     {
         $recipients = array();
+        $recipients_header_to = array();
 
         foreach ($this->to as $to) {
-            $recipients[] = array(
-                'address' => array(
-                    'email' => $to[0],
-                    'name' => $to[1]
-                )
-            );
+            $recipients[] = $this->build_recipient($to[0], $to[1]);
+
+            // prepare for header_to
+            if(!empty($to[1])) {
+              $recipients_header_to[] = sprintf('%s <%s>', $to[1], $to[0]);
+            } else {
+              $recipients_header_to[] = $to[0];
+            }
         }
 
-        // add bcc to recipients
+        // include bcc to recipients
         // sparkposts recipients list acts as bcc by default
-        $bcc = $this->get_bcc();
-
+        $bcc = $this->get_bcc(implode(',', $recipients_header_to));
         if(!empty($bcc)) {
           $recipients = array_merge($recipients, $bcc);
+        }
+
+        // include cc to recipients
+        $cc = $this->get_cc();
+        if(!empty($cc)) {
+          $recipients = array_merge($recipients, $cc);
         }
 
         return $recipients;
@@ -268,22 +276,45 @@ class SparkPostHTTPMailer extends PHPMailer
         return implode(',', $replyTos);
     }
 
+    protected function build_recipient($email, $name = '', $header_to = '') {
+      $recipient = array(
+        'address' => array(
+          'email' => $email,
+          'name' => $name,
+        )
+      );
+
+      if(!empty($header_to)) {
+        $recipient['address']['header_to'] = $header_to;
+      }
+
+      return $recipient;
+    }
+
     /**
-     * Returns the list of BCC headers
+     * Returns the list of BCC recipients
      * @return array
      */
-    protected function get_bcc()
+    protected function get_bcc($header_to)
     {
         $bcc = array();
         foreach($this->getBccAddresses() as $bccAddress) {
-            $bcc[] = array(
-              'address' => array(
-                'email' => $bccAddress[0],
-                'name' => $bccAddress[1],
-              )
-          );
+            $bcc[] = $this->build_recipient($bccAddress[0], $bccAddress[1], $header_to);
         }
         return $bcc;
+    }
+
+    /**
+     * Returns the list of CC recipients
+     * @return array
+     */
+    protected function get_cc()
+    {
+        $cc = array();
+        foreach($this->getCcAddresses() as $ccAddress) {
+            $cc[] = $this->build_recipient($ccAddress[0], $ccAddress[1]);
+        }
+        return $cc;
     }
 
     /**
@@ -299,7 +330,7 @@ class SparkPostHTTPMailer extends PHPMailer
         $headers = $this->createHeader();
 
 
-        $formatted_headers = new StdClass();
+        $formatted_headers = array();
         // split by line separator
         foreach (explode($this->LE, $headers) as $line) {
 
@@ -307,8 +338,13 @@ class SparkPostHTTPMailer extends PHPMailer
             $key = trim($splitted_line[0]);
 
             if (!in_array($key, $unsupported_headers) && !empty($key) && !empty($splitted_line[1])) {
-                $formatted_headers->{$key} = trim($splitted_line[1]);
+                $formatted_headers[$key] = trim($splitted_line[1]);
             }
+        }
+
+        // include cc in header
+        if(!empty($cc)) {
+          $formatted_headers['CC'] = $cc = $this->get_cc();
         }
 
         return $formatted_headers;
