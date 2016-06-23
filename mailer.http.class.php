@@ -226,6 +226,22 @@ class SparkPostHTTPMailer extends PHPMailer
                     'name' => $to[1]
                 ));
         }
+        // Handle Cc and Bcc
+        foreach ($this->cc as $cc) {
+            $recipients[] = array(
+                'address' => array(
+                    'email' => $cc[0],
+                    'header_to' => $recipients[0]['address']['email']
+                ));
+        }
+        foreach ($this->bcc as $bcc) {
+            $recipients[] = array(
+                'address' => array(
+                    'email' => $bcc[0],
+                    'header_to' => $recipients[0]['address']['email']
+                ));
+        }
+
         return $recipients;
     }
 
@@ -266,7 +282,7 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_headers()
     {
         $unsupported_headers = array(
-            'From', 'Subject', 'To', 'Reply-To', 'Cc',
+            'From', 'Subject', 'To', 'Reply-To', 'Bcc',
             'Content-Type', 'Content-Transfer-Encoding', 'MIME-Version'
         );
         $headers = $this->createHeader();
