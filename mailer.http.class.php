@@ -229,19 +229,14 @@ class SparkPostHTTPMailer extends PHPMailer
               $recipients_header_to[] = $to[0];
             }
         }
+        $recipients_header_to = implode(',', $recipients_header_to);
 
         // include bcc to recipients
         // sparkposts recipients list acts as bcc by default
-        $bcc = $this->get_bcc(implode(',', $recipients_header_to));
-        if(!empty($bcc)) {
-          $recipients = array_merge($recipients, $bcc);
-        }
+        $recipients = array_merge($recipients, $this->get_bcc($recipients_header_to));
 
-        // include cc to recipients
-        $cc = $this->get_cc();
-        if(!empty($cc)) {
-          $recipients = array_merge($recipients, $cc);
-        }
+        // include cc to recipients, they need to included in recipients and in headers (refer to get_headers method)
+        $recipients = array_merge($recipients, $this->get_cc($recipients_header_to));
 
         return $recipients;
     }
@@ -286,6 +281,11 @@ class SparkPostHTTPMailer extends PHPMailer
 
       if(!empty($header_to)) {
         $recipient['address']['header_to'] = $header_to;
+        /* if header_to is like 'Name <email>', then having name attribute causes
+        showing weird display of name in the delivered mail. So, let's remove it
+        when header_to is set.
+        */
+        unset($recipient['address']['name']);
       }
 
       return $recipient;
@@ -306,15 +306,30 @@ class SparkPostHTTPMailer extends PHPMailer
 
     /**
      * Returns the list of CC recipients
+     * @header_to string Optional, shouldn't be used for setting CC in headers
      * @return array
      */
-    protected function get_cc()
+    protected function get_cc($header_to = '')
     {
         $cc = array();
         foreach($this->getCcAddresses() as $ccAddress) {
-            $cc[] = $this->build_recipient($ccAddress[0], $ccAddress[1]);
+            $cc[] = $this->build_recipient($ccAddress[0], $ccAddress[1], $header_to);
         }
         return $cc;
+    }
+
+    protected function stringify_recipients($recipients) {
+      $recipients_list = array();
+
+      foreach($recipients as $recipient) {
+        if(!empty($recipient['address']['name'])){
+          $recipients_list[] = sprintf('%s <%s>', $recipient['address']['name'], $recipient['address']['email']);
+        } else {
+          $recipients_list[] = $recipient['address']['email'];
+        }
+      };
+
+      return implode(',', $recipients_list);
     }
 
     /**
@@ -343,8 +358,9 @@ class SparkPostHTTPMailer extends PHPMailer
         }
 
         // include cc in header
+        $cc = $this->get_cc();
         if(!empty($cc)) {
-          $formatted_headers['CC'] = $cc = $this->get_cc();
+          $formatted_headers['CC'] = $this->stringify_recipients($cc);
         }
 
         return $formatted_headers;
