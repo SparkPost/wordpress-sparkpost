@@ -44,7 +44,6 @@ class SparkPostHTTPMailer extends PHPMailer
             'timeout' => 15,
             'headers' => $this->get_request_headers(),
             'body' => json_encode($this->get_request_body())
-
         );
 
         $http = _wp_http_get_object();
@@ -218,14 +217,27 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_recipients()
     {
         $recipients = array();
+        $recipients_header_to = array();
 
         foreach ($this->to as $to) {
-            $recipients[] = array(
-                'address' => array(
-                    'email' => $to[0],
-                    'name' => $to[1]
-                ));
+            $recipients[] = $this->build_recipient($to[0], $to[1]);
+
+            // prepare for header_to
+            if(!empty($to[1])) {
+              $recipients_header_to[] = sprintf('%s <%s>', $to[1], $to[0]);
+            } else {
+              $recipients_header_to[] = $to[0];
+            }
         }
+        $recipients_header_to = implode(',', $recipients_header_to);
+
+        // include bcc to recipients
+        // sparkposts recipients list acts as bcc by default
+        $recipients = array_merge($recipients, $this->get_bcc($recipients_header_to));
+
+        // include cc to recipients, they need to included in recipients and in headers (refer to get_headers method)
+        $recipients = array_merge($recipients, $this->get_cc($recipients_header_to));
+
         return $recipients;
     }
 
@@ -259,6 +271,67 @@ class SparkPostHTTPMailer extends PHPMailer
         return implode(',', $replyTos);
     }
 
+    protected function build_recipient($email, $name = '', $header_to = '') {
+      $recipient = array(
+        'address' => array(
+          'email' => $email,
+          'name' => $name,
+        )
+      );
+
+      if(!empty($header_to)) {
+        $recipient['address']['header_to'] = $header_to;
+        /* if header_to is like 'Name <email>', then having name attribute causes
+        showing weird display of name in the delivered mail. So, let's remove it
+        when header_to is set.
+        */
+        unset($recipient['address']['name']);
+      }
+
+      return $recipient;
+    }
+
+    /**
+     * Returns the list of BCC recipients
+     * @return array
+     */
+    protected function get_bcc($header_to)
+    {
+        $bcc = array();
+        foreach($this->getBccAddresses() as $bccAddress) {
+            $bcc[] = $this->build_recipient($bccAddress[0], $bccAddress[1], $header_to);
+        }
+        return $bcc;
+    }
+
+    /**
+     * Returns the list of CC recipients
+     * @header_to string Optional, shouldn't be used for setting CC in headers
+     * @return array
+     */
+    protected function get_cc($header_to = '')
+    {
+        $cc = array();
+        foreach($this->getCcAddresses() as $ccAddress) {
+            $cc[] = $this->build_recipient($ccAddress[0], $ccAddress[1], $header_to);
+        }
+        return $cc;
+    }
+
+    protected function stringify_recipients($recipients) {
+      $recipients_list = array();
+
+      foreach($recipients as $recipient) {
+        if(!empty($recipient['address']['name'])){
+          $recipients_list[] = sprintf('%s <%s>', $recipient['address']['name'], $recipient['address']['email']);
+        } else {
+          $recipients_list[] = $recipient['address']['email'];
+        }
+      };
+
+      return implode(',', $recipients_list);
+    }
+
     /**
      * Returns a collection that can be sent as headers in body
      * @return array
@@ -271,7 +344,8 @@ class SparkPostHTTPMailer extends PHPMailer
         );
         $headers = $this->createHeader();
 
-        $formatted_headers = new StdClass();
+
+        $formatted_headers = array();
         // split by line separator
         foreach (explode($this->LE, $headers) as $line) {
 
@@ -279,8 +353,14 @@ class SparkPostHTTPMailer extends PHPMailer
             $key = trim($splitted_line[0]);
 
             if (!in_array($key, $unsupported_headers) && !empty($key) && !empty($splitted_line[1])) {
-                $formatted_headers->{$key} = trim($splitted_line[1]);
+                $formatted_headers[$key] = trim($splitted_line[1]);
             }
+        }
+
+        // include cc in header
+        $cc = $this->get_cc();
+        if(!empty($cc)) {
+          $formatted_headers['CC'] = $this->stringify_recipients($cc);
         }
 
         return $formatted_headers;
