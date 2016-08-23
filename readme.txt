@@ -47,7 +47,7 @@ Visit our [support site](https://support.sparkpost.com/) for help.
 
 == Changelog ==
 
-= 2.4.1=
+= 2.4.1 =
 - Fix Reply-To header issue with WordPress 4.6
 
 = 2.4.0 =
