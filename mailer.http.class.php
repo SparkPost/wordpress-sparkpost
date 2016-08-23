@@ -255,12 +255,12 @@ class SparkPostHTTPMailer extends PHPMailer
     }
 
     /**
-     * Returns the list of Reply-To headers
+     * Returns the list of Reply-To recipients
      * For WordPress version below 4.6
      * @return array
      * TODO Remove this when wordpress does not support version below 4.6
      */
-    protected function get_reply_to_below46()
+    protected function parse_reply_to_from_custom_header()
     {
         $replyTos = array();
         foreach ($this->CustomHeader as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
@@ -278,7 +278,7 @@ class SparkPostHTTPMailer extends PHPMailer
     * For WordPress 4.6 and above
     * @return array Formatted list of reply tos
     */
-    protected function get_reply_to_above46()
+    protected function parse_reply_to()
     {
         $replyTos = array();
         foreach ($this->ReplyTo as $reply_to) {
@@ -294,12 +294,13 @@ class SparkPostHTTPMailer extends PHPMailer
         return implode(',', $replyTos);
     }
 
-    protected function get_reply_to() {
+    protected function get_reply_to()
+    {
       $wp_version = get_bloginfo('version');
       if(version_compare($wp_version, '4.6') == -1) { // if lower than 4.6
-        return $this->get_reply_to_below46();
+        return $this->parse_reply_to_from_custom_header();
       } else {
-        return $this->get_reply_to_above46();
+        return $this->parse_reply_to();
       }
     }
 

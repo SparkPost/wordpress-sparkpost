@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.0
 Tested up to: 4.6
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -48,7 +48,7 @@ Visit our [support site](https://support.sparkpost.com/) for help.
 == Changelog ==
 
 = 2.4.1=
-- Fix ReplyTo header issue with WordPress 4.6
+- Fix Reply-To header issue with WordPress 4.6
 
 = 2.4.0 =
 - Add supports for CC and BCC using HTTP API
