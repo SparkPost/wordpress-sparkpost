@@ -25,7 +25,8 @@ class SparkPostSMTPMailer
         $x_msys_api = array(
             'options' => array (
                 'open_tracking' => $tracking_enabled,
-                'click_tracking' => $tracking_enabled
+                'click_tracking' => $tracking_enabled,
+                'transactional' => true
             )
         );
 
@@ -33,7 +34,7 @@ class SparkPostSMTPMailer
         $phpmailer->SMTPSecure = 'tls';
         $phpmailer->Port = !empty($options['port']) ? intval($options['port']) : 587;
         $phpmailer->Host = 'smtp.sparkpostmail.com';
-        
+
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = $options['password'];
