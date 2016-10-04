@@ -17,9 +17,10 @@ class SparkPostHTTPMailer extends PHPMailer
      */
     function __construct($exceptions = false)
     {
-        $this->options = SparkPost::get_options();
+        $this->options = apply_filters('wpsp_get_settings', SparkPost::get_options());
 
         parent::__construct($exceptions);
+        do_action('wpsp_init_http_mailer', $this);
     }
 
     /**
@@ -46,15 +47,23 @@ class SparkPostHTTPMailer extends PHPMailer
             'body' => json_encode($this->get_request_body())
         );
 
-        $http = _wp_http_get_object();
+        $http = apply_filters('wpsp_http_get_lib', _wp_http_get_object());
 
         $this->edebug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
         $this->edebug(sprintf('Request body: %s', $data['body']));
         $this->edebug(sprintf('Making HTTP POST request to %s', $this->endpoint));
+        do_action('wpsp_http_before_send', $this->endpoint, $data);
         $result = $http->request($this->endpoint, $data);
+        do_action('wpsp_http_after_send', $result);
         $this->edebug('Response received');
 
-        return $this->handle_response($result);
+        $result = apply_filters('wpsp_http_handle_response', $result);
+        if(is_bool($result)) { // it means, response been already processed by the hooked filter. so just return the value.
+          $this->edebug('Skipping response processing');
+          return $result;
+        } else {
+          return $this->handle_response($result);
+        }
     }
 
     /**
@@ -68,18 +77,18 @@ class SparkPostHTTPMailer extends PHPMailer
         $body = array();
 
         // add recipients
-        $body['recipients'] = $this->get_recipients();
+        $body['recipients'] = apply_filters('wpsp_recipients', $this->get_recipients());
 
         // enable engagement tracking
         $body['options'] = array(
-            'open_tracking' => $tracking_enabled,
-            'click_tracking' => $tracking_enabled
+            'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
+            'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled)
         );
 
         // pass through either stored template or inline content
         if (!empty($this->options['template'])) {
             // stored template
-            $body['content']['template_id'] = $this->options['template'];
+            $body['content']['template_id'] = apply_filters('wpsp_template_id', $this->options['template']);
 
             // supply substitution data so users can add variables to templates
             $body['substitution_data']['content'] = $this->Body;
@@ -124,6 +133,8 @@ class SparkPostHTTPMailer extends PHPMailer
             $body['content']['attachments'] = $attachments;
         }
 
+        $body = apply_filters( 'wpsp_http_body', $body);
+
         return $body;
     }
 
@@ -131,11 +142,11 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_sender()
     {
         $from = array(
-            'email' => $this->From
+            'email' => apply_filters('wpsp_sender_email', $this->From)
         );
 
         if (!empty($this->FromName)) {
-            $from['name'] = $this->FromName;
+            $from['name'] = apply_filters('wpsp_sender_name', $this->FromName);
         }
 
         return $from;
@@ -173,6 +184,7 @@ class SparkPostHTTPMailer extends PHPMailer
 
     protected function handle_response($response)
     {
+        do_action('wpsp_http_response', $response);
 
         if (is_wp_error($response)) {
             $this->edebug('Request completed with error');
@@ -185,6 +197,8 @@ class SparkPostHTTPMailer extends PHPMailer
         $this->edebug('Response body: ' . print_r($response['body'], true));
 
         $body = json_decode($response['body']);
+        do_action('wpsp_http_response_body', $body);
+
         if (property_exists($body, 'errors')) {
             $this->edebug('Error in transmission');
             $this->setError($body->errors);
@@ -238,20 +252,21 @@ class SparkPostHTTPMailer extends PHPMailer
         // include cc to recipients, they need to included in recipients and in headers (refer to get_headers method)
         $recipients = array_merge($recipients, $this->get_cc($recipients_header_to));
 
-        return $recipients;
+        return apply_filters('wpsp_http_recipients', $recipients);
     }
 
     protected function get_request_headers($hide_api_key = false)
     {
-        $api_key = $this->options['password'];
+        $api_key = apply_filters('wpsp_api_key', $this->options['password']);
         if ($hide_api_key) {
             $api_key = SparkPost::obfuscate_api_key($api_key);
         }
-        return array(
+
+        return apply_filters('wpsp_http_request_headers', array(
             'User-Agent' => 'wordpress-sparkpost',
             'Content-Type' => 'application/json',
             'Authorization' => $api_key
-        );
+        ));
     }
 
     /**
@@ -291,7 +306,7 @@ class SparkPostHTTPMailer extends PHPMailer
             }
         }
 
-        return implode(',', $replyTos);
+        return apply_filters('wpsp_reply_to', implode(',', $replyTos));
     }
 
     protected function get_reply_to()
@@ -396,6 +411,6 @@ class SparkPostHTTPMailer extends PHPMailer
           $formatted_headers['CC'] = $this->stringify_recipients($cc);
         }
 
-        return $formatted_headers;
+        return apply_filters('spwp_http_body_headers', $formatted_headers);
     }
 }
