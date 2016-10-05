@@ -88,10 +88,11 @@ class SparkPostHTTPMailer extends PHPMailer
         // pass through either stored template or inline content
         if (!empty($this->options['template'])) {
             // stored template
-            $body['content']['template_id'] = apply_filters('wpsp_template_id', $this->options['template']);
+            $body['content']['template_id'] = apply_filters('wpsp_http_template_id', $this->options['template']);
 
             // supply substitution data so users can add variables to templates
-            $body['substitution_data']['content'] = $this->Body;
+            $content_substitution_tag_name = apply_filters('wpsp_substitution_content_tag_name', 'content');
+            $body['substitution_data'][$content_substitution_tag_name] = $this->Body;
             $body['substitution_data']['subject'] = $this->Subject;
             $body['substitution_data']['from_name'] = $sender['name'];
             $body['substitution_data']['from'] = $sender['name'] . ' <' . $sender['email'] . '>';
@@ -184,8 +185,6 @@ class SparkPostHTTPMailer extends PHPMailer
 
     protected function handle_response($response)
     {
-        do_action('wpsp_http_response', $response);
-
         if (is_wp_error($response)) {
             $this->edebug('Request completed with error');
             $this->setError($response->get_error_messages()); //WP_Error implements this method
