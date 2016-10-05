@@ -31,8 +31,12 @@ class SparkPostSMTPMailer
 =======
                 'open_tracking' => $tracking_enabled,
                 'click_tracking' => $tracking_enabled,
+<<<<<<< 8afed5dc7c524a0f928b57a5579f50e65216f704
                 'transactional' => true
 >>>>>>> Add transaction option
+=======
+                'transactional' => apply_filters('wpsp_transactional', $options['transactional'])
+>>>>>>> Add transactional support
             )
         );
 
