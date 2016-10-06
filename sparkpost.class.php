@@ -29,9 +29,9 @@ class SparkPost
 
         add_filter('plugin_action_links_' . plugin_basename(WPSP_PLUGIN_PATH), array($this, 'add_settings_link'));
 
-        $this->options = self::get_options();
+        $this->options = self::get_settings();
 
-        if (self::get_option('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
+        if (self::get_setting('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
             add_filter('wp_mail_from', array($this, 'set_from_email'));
             add_filter('wp_mail_from_name', array($this, 'set_from_name'));
         }
@@ -47,15 +47,15 @@ class SparkPost
         delete_option('sp_settings');
     }
 
-    static function get_options()
+    static function get_settings()
     {
         return array_merge(self::$options_default, get_option('sp_settings', array()));
     }
 
-    static function get_option($option)
+    static function get_setting($setting)
     {
-        $options = self::get_options();
-        return $options[$option];
+        $settings = self::get_settings();
+        return $settings[$setting];
     }
 
     public function add_settings_link($links)
