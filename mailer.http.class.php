@@ -134,7 +134,7 @@ class SparkPostHTTPMailer extends PHPMailer
             $body['content']['attachments'] = $attachments;
         }
 
-        $body = apply_filters( 'wpsp_body', $body);
+        $body = apply_filters( 'wpsp_request_body', $body);
 
         return $body;
     }
