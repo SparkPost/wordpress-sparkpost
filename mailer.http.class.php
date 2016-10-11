@@ -17,7 +17,7 @@ class SparkPostHTTPMailer extends PHPMailer
      */
     function __construct($exceptions = false)
     {
-        $this->settings = apply_filters('wpsp_get_settings', SparkPost::get_settings());
+        $this->settings = SparkPost::get_settings();
 
         parent::__construct($exceptions);
         do_action('wpsp_init_mailer', $this);
@@ -143,11 +143,11 @@ class SparkPostHTTPMailer extends PHPMailer
     protected function get_sender()
     {
         $from = array(
-            'email' => apply_filters('wpsp_sender_email', $this->From)
+            'email' => $this->From
         );
 
         if (!empty($this->FromName)) {
-            $from['name'] = apply_filters('wpsp_sender_name', $this->FromName);
+            $from['name'] = $this->FromName;
         }
 
         return $from;

@@ -16,7 +16,7 @@ class SparkPostSMTPMailer
     }
 
     public function configure_phpmailer($phpmailer) {
-        $settings = apply_filters('wpsp_get_settings', SparkPost::get_settings());
+        $settings = SparkPost::get_settings();
 
         if (!$settings['enable_sparkpost'] || empty($settings['password'])) {
             return;

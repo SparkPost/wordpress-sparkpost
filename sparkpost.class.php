@@ -47,9 +47,17 @@ class SparkPost
         delete_option('sp_settings');
     }
 
-    static function get_settings()
+    static function get_settings($apply_filter = true)
     {
-        return array_merge(self::$settings_default, get_option('sp_settings', array()));
+        $settings = array_merge(self::$settings_default, get_option('sp_settings', array()));
+
+        if ($apply_filter) {
+            return apply_filters('wpsp_get_settings', $settings);
+        }
+        else {
+            return $settings;
+        }
+
     }
 
     static function get_setting($setting)
@@ -70,19 +78,19 @@ class SparkPost
     public function set_from_name($name)
     {
         if (!empty($this->settings['from_name'])) {
-            return $this->settings['from_name'];
-        } else {
-            return $name;
+            $name = $this->settings['from_name'];
         }
+
+        return apply_filters('wpsp_sender_name', $name);
     }
 
     public function set_from_email($email)
     {
         if (!empty($this->settings['from_email'])) {
-            return $this->settings['from_email'];
-        } else {
-            return $email;
+            $email = $this->settings['from_email'];
         }
+
+        return apply_filters('wpsp_sender_email', $email);
     }
 
     static function obfuscate_api_key($api_key)

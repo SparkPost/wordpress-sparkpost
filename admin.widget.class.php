@@ -13,7 +13,7 @@ class SparkPostAdmin
 
     public function __construct()
     {
-        $this->settings = SparkPost::get_settings();
+        $this->settings = SparkPost::get_settings(false);
         add_action('admin_menu', array($this, 'add_plugin_page'));
         add_action('admin_init', array($this, 'admin_page_init'));
 
