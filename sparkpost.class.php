@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) exit();
 class SparkPost
 {
 
-    protected static $options_default = array(
+    protected static $settings_default = array(
         'port' => 587,
         'sending_method' => 'api',
         'password' => '',
@@ -20,7 +20,7 @@ class SparkPost
         'template' => ''
     );
 
-    var $options;
+    var $settings;
 
     public function __construct()
     {
@@ -29,9 +29,9 @@ class SparkPost
 
         add_filter('plugin_action_links_' . plugin_basename(WPSP_PLUGIN_PATH), array($this, 'add_settings_link'));
 
-        $this->options = self::get_options();
+        $this->settings = self::get_settings();
 
-        if (self::get_option('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
+        if (self::get_setting('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
             add_filter('wp_mail_from', array($this, 'set_from_email'));
             add_filter('wp_mail_from_name', array($this, 'set_from_name'));
         }
@@ -39,7 +39,7 @@ class SparkPost
 
     public function sp_activate()
     {
-        update_option('sp_settings', self::$options_default);
+        update_option('sp_settings', self::$settings_default);
     }
 
     public function sp_deactivate()
@@ -47,15 +47,23 @@ class SparkPost
         delete_option('sp_settings');
     }
 
-    static function get_options()
+    static function get_settings($apply_filter = true)
     {
-        return array_merge(self::$options_default, get_option('sp_settings', array()));
+        $settings = array_merge(self::$settings_default, get_option('sp_settings', array()));
+
+        if ($apply_filter) {
+            return apply_filters('wpsp_get_settings', $settings);
+        }
+        else {
+            return $settings;
+        }
+
     }
 
-    static function get_option($option)
+    static function get_setting($setting)
     {
-        $options = self::get_options();
-        return $options[$option];
+        $settings = self::get_settings();
+        return $settings[$setting];
     }
 
     public function add_settings_link($links)
@@ -69,20 +77,20 @@ class SparkPost
 
     public function set_from_name($name)
     {
-        if (!empty($this->options['from_name'])) {
-            return $this->options['from_name'];
-        } else {
-            return $name;
+        if (!empty($this->settings['from_name'])) {
+            $name = $this->settings['from_name'];
         }
+
+        return apply_filters('wpsp_sender_name', $name);
     }
 
     public function set_from_email($email)
     {
-        if (!empty($this->options['from_email'])) {
-            return $this->options['from_email'];
-        } else {
-            return $email;
+        if (!empty($this->settings['from_email'])) {
+            $email = $this->settings['from_email'];
         }
+
+        return apply_filters('wpsp_sender_email', $email);
     }
 
     static function obfuscate_api_key($api_key)
