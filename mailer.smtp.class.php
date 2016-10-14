@@ -25,18 +25,9 @@ class SparkPostSMTPMailer
         $tracking_enabled = (bool) $settings['enable_tracking'];
         $x_msys_api = array(
             'options' => array (
-<<<<<<< 23ff7110c4c175f7b92f47caf3662175c6fb88de
                 'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
-                'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled)
-=======
-                'open_tracking' => $tracking_enabled,
-                'click_tracking' => $tracking_enabled,
-<<<<<<< 8afed5dc7c524a0f928b57a5579f50e65216f704
-                'transactional' => true
->>>>>>> Add transaction option
-=======
-                'transactional' => apply_filters('wpsp_transactional', $options['transactional'])
->>>>>>> Add transactional support
+                'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled),
+                'transactional' => (bool) apply_filters('wpsp_transactional', $settings['transactional'])
             )
         );
 
@@ -44,10 +35,6 @@ class SparkPostSMTPMailer
         $phpmailer->SMTPSecure = 'tls';
         $phpmailer->Port = !empty($settings['port']) ? intval($settings['port']) : 587;
         $phpmailer->Host = 'smtp.sparkpostmail.com';
-<<<<<<< 23ff7110c4c175f7b92f47caf3662175c6fb88de
-=======
-
->>>>>>> Add transaction option
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = apply_filters('wpsp_api_key', $settings['password']);

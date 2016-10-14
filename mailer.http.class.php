@@ -83,7 +83,7 @@ class SparkPostHTTPMailer extends PHPMailer
         $body['options'] = array(
             'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
             'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled),
-            'transactional' => apply_filters('wpsp_transactional', $this->options['transactional'])
+            'transactional' => (bool) apply_filters('wpsp_transactional', $this->settings['transactional'])
         );
 
         // pass through either stored template or inline content

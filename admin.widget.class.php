@@ -308,7 +308,7 @@ class SparkPostAdmin
       {
           printf('<label><input type="checkbox" id="transactional" name="sp_settings[transactional]" value="1" %s />Mark emails as transactional</label>
           <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
-           $this->options['transactional'] ? 'checked' : '');
+           $this->settings['transactional'] ? 'checked' : '');
 
       }
 }
