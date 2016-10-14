@@ -26,7 +26,8 @@ class SparkPostSMTPMailer
         $x_msys_api = array(
             'options' => array (
                 'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
-                'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled)
+                'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled),
+                'transactional' => (bool) apply_filters('wpsp_transactional', $settings['transactional'])
             )
         );
 

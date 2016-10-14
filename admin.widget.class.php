@@ -132,6 +132,7 @@ class SparkPostAdmin
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options', 'general');
         add_settings_field('enable_tracking', 'Enable tracking*', array($this, 'render_enable_tracking_field'), 'sp-options', 'general');
         add_settings_field('template', 'Template', array($this, 'render_template_field'), 'sp-options', 'general');
+        add_settings_field('transactional', 'Transactional', array($this, 'render_transactional_field'), 'sp-options', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-overrides');
         add_settings_field('from_name', 'From name', array($this, 'render_from_name_field'), 'sp-overrides', 'overrides');
@@ -199,8 +200,14 @@ class SparkPostAdmin
             $new_input['enable_tracking'] = true;
         } else {
             $new_input['enable_tracking'] = false;
-
         }
+
+        if(!empty($input['transactional'])) {
+          $new_input['transactional'] = true;
+        } else {
+          $new_input['transactional'] = false;
+        }
+
         return $new_input;
     }
 
@@ -296,4 +303,12 @@ class SparkPostAdmin
     {
         echo '<label><input type="checkbox" id="enable_debugging" name="enable_debugging" value="1" checked />Show email debugging messages</label>';
     }
+
+      public function render_transactional_field()
+      {
+          printf('<label><input type="checkbox" id="transactional" name="sp_settings[transactional]" value="1" %s />Mark emails as transactional</label>
+          <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
+           $this->settings['transactional'] ? 'checked' : '');
+
+      }
 }

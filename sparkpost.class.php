@@ -17,7 +17,8 @@ class SparkPost
         'from_email' => '',
         'enable_sparkpost' => false,
         'enable_tracking' => true,
-        'template' => ''
+        'template' => '',
+        'transactional' => false
     );
 
     var $settings;
@@ -39,7 +40,9 @@ class SparkPost
 
     public function sp_activate()
     {
-        update_option('sp_settings', self::$settings_default);
+      $settings = self::$settings_default;
+      $settings['transactional'] = true; // setting it here to apply this default value to new installation only as this is breaking change
+      update_option('sp_settings', $settings);
     }
 
     public function sp_deactivate()

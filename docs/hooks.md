@@ -27,3 +27,4 @@ Hook names are prefixed with `wpsp_`.
 | wpsp_reply_to                | Filter   |
 | wpsp_body_headers            | Filter   |   
 | wpsp_smtp_msys_api           | Filter   |
+| wpsp_transactional           | Filter   | Set whether an email is transactional or not. 
