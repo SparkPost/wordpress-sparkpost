@@ -77,7 +77,7 @@ class SparkPostHTTPMailer extends PHPMailer
         $body = array();
 
         // add recipients
-        $body['recipients'] = apply_filters('wpsp_recipients', $this->get_recipients());
+        $body['recipients'] = $this->get_recipients();
 
         // enable engagement tracking
         $body['options'] = array(
@@ -410,6 +410,6 @@ class SparkPostHTTPMailer extends PHPMailer
           $formatted_headers['CC'] = $this->stringify_recipients($cc);
         }
 
-        return apply_filters('spwp_body_headers', $formatted_headers);
+        return apply_filters('wpsp_body_headers', $formatted_headers);
     }
 }
