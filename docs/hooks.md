@@ -6,26 +6,24 @@ Hook names are prefixed with `wpsp_`.
 
 ### List of hooks
 
-| Hook Name                    | Description (Purpose)
-| -------------                |:----------------:|
-| wpsp_get_settings            | Tap into settings objects  
-| wpsp_init_mailer*            | Modify/replace http mailer instance
-| wpsp_get_http_lib            | Modify/replace http library
-| wpsp_before_send*            |
-| wpsp_after_send*             |  
-| wpsp_handle_response         | Custom handler for http response. **Should return boolean to stop further processing.**
-| wpsp_recipients              |
-| wpsp_open_tracking           |  
-| wpsp_click_tracking          |
-| wpsp_template_id             | Use a different template ID
-| wpsp_substitution_content_tag_name| Use a different tag for content substitution
-| wpsp_sender_email            |
-| wpsp_sender_name             |
-| wpsp_response_body           |
-| wpsp_api_key                 | Use different API Key/Password
-| wpsp_request_headers         |
-| wpsp_reply_to                |
-| wpsp_body_headers            |  
-| wpsp_smtp_msys_api            
-
-\* These are action hooks. So return value is irrelevant.
+| Hook Name                    | Type |  Description (Purpose)
+| -------------                |-------------|:----------------:|
+| wpsp_get_settings            | Filter   | Tap into settings objects  
+| wpsp_init_mailer             | Action   | Modify/replace http mailer instance
+| wpsp_get_http_lib            | Filter   | Modify/replace http library
+| wpsp_before_send             | Action   |
+| wpsp_after_send              | Action   |   
+| wpsp_handle_response         | Filter   |  Custom handler for http response. **Should return boolean to stop further processing.**
+| wpsp_recipients              | Filter   |
+| wpsp_open_tracking           | Filter   |   
+| wpsp_click_tracking          | Filter   |
+| wpsp_template_id             | Filter   |  Use a different template ID
+| wpsp_substitution_content_tag_name| Filter   |  Use a different tag for content substitution. By default you needed to use `content` tag
+| wpsp_sender_email            | Filter   |
+| wpsp_sender_name             | Filter   |
+| wpsp_response_body           | Filter   |
+| wpsp_api_key                 | Filter   |  Use different API Key/Password
+| wpsp_request_headers         | Filter   |
+| wpsp_reply_to                | Filter   |
+| wpsp_body_headers            | Filter   |   
+| wpsp_smtp_msys_api           | Filter   |
