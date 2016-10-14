@@ -13,7 +13,7 @@ Hook names are prefixed with `wpsp_`.
 | wpsp_get_http_lib            | Filter   | Modify/replace http library
 | wpsp_before_send             | Action   |
 | wpsp_after_send              | Action   |   
-| wpsp_handle_response         | Filter   |  Custom handler for http response. **Should return boolean to stop further processing.**
+| wpsp_handle_response         | Filter   |  Custom handler for http response. **Return a boolean to indicate the success or failure of the transmission and to stop further processing.**
 | wpsp_recipients              | Filter   |
 | wpsp_open_tracking           | Filter   |   
 | wpsp_click_tracking          | Filter   |
