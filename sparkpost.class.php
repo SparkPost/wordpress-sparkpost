@@ -40,9 +40,9 @@ class SparkPost
 
     public function sp_activate()
     {
-      $options = self::$options_default;
-      $options['transactional'] = true; // setting it here to apply this default value to new installation only as this is breaking change
-      update_option('sp_settings', $options);
+      $settings = self::$settings_default;
+      $settings['transactional'] = true; // setting it here to apply this default value to new installation only as this is breaking change
+      update_option('sp_settings', $settings);
     }
 
     public function sp_deactivate()
