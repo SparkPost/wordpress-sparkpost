@@ -48,7 +48,7 @@ Visit our [support site](https://support.sparkpost.com/) for help.
 == Changelog ==
 
 = 2.5.0 =
-- Added support for [Transactional email](https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/transactional.md).
+- Add support for [Transactional email](https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/transactional.md).
 - Add support for [hooks](https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/hooks.md).
 
 = 2.4.1 =
