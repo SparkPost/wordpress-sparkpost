@@ -25,6 +25,7 @@ function unsetTransactional() {
 add_filter('wpsp_transactional', 'unsetTransactional');
 
 // now send your email using wp_mail function
+wp_mail(.....)
 
 // as sending is done, let's remove the filter so other emails are not affected
 remove_filter('wpsp_transactional', 'unsetTransactional');
