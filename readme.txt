@@ -42,7 +42,7 @@ You'll need to create an account on SparkPost.com and then generate an API Key w
 Follow [this tutorial](https://support.sparkpost.com/customer/portal/articles/1933377) for creating an API key. **Remember:** your API key must have *Send via SMTP* and *Transmission Read/Write* permissions to be usable by this plugin.
 
 = How do I get further help? =
-Visit our [support site](https://support.sparkpost.com/) for help.
+Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-sparkpost/issues) and create new issue, if appropriate.
 
 
 == Changelog ==
