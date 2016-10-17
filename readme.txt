@@ -1,7 +1,7 @@
 === SparkPost ===
 Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
-Requires at least: 4.0
+Requires at least: 4.3
 Tested up to: 4.6.1
 Stable tag: 2.5.0
 License: GPLv2 or later
