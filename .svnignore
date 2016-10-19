@@ -3,3 +3,7 @@
 readme.md
 .idea
 trunk/.idea
+tests
+bin
+phpunit.xml.dist
+.travis.yml
