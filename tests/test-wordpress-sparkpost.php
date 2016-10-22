@@ -3,20 +3,9 @@
  * @package wp-sparkpost
  */
 
-namespace WPSparkPost {
+namespace WPSparkPost;
 
-require __DIR__ . '/vendor/autoload.php';
-
-class TestWordPressSparkPost extends \WP_UnitTestCase {
-	public static function setUpBeforeClass() {
-      global $globalStub;
-      $globalStub->setNamespace('WPSparkPost');
-  }
-
-	public function tearDown() {
-        echo is_admin()."\n";
-        echo \is_admin()."\n";
-    }
+class TestWordPressSparkPost extends TestSparkPost {
 
 	function test_plugin_dir_constants() {
 		$this->assertTrue( defined('WPSP_PLUGIN_DIR') );
@@ -30,14 +19,4 @@ class TestWordPressSparkPost extends \WP_UnitTestCase {
   function test_SparkPost_class_loaded() {
     $this->assertTrue( class_exists('WPSparkPost\SparkPost'));
   }
-
-	function test_is_admin() {
-		global $globalStub;
-    $globalStub->method('is_admin')->willReturn('local function');
-		$this->assertEquals('local function', is_admin());
-		//
-		$this->assertTrue(class_exists('WPSparkPost\SparkPostSMTPMailer'));
-	}
-
-}
 }
