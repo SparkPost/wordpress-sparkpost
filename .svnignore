@@ -7,3 +7,4 @@ tests
 bin
 phpunit.xml.dist
 .travis.yml
+coverage
