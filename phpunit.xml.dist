@@ -20,4 +20,7 @@
 			<file>admin.widget.class.php</file>
 	</whitelist>
 	</filter>
+	<logging>
+      <log type="coverage-clover" target="coverage/clover.xml"/>
+  </logging>
 </phpunit>
