@@ -1,0 +1,8 @@
+{
+    "require-dev": {
+        "mockery/mockery": "^0.9.5"
+    },
+    "require": {
+        "satooshi/php-coveralls": "^1.0"
+    }
+}
