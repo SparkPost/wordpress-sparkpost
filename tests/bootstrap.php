@@ -25,11 +25,5 @@ tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
+require __DIR__ . '/vendor/autoload.php';
 require __DIR__. '/wp-sparkpost.php';
-
-function get_protected_method($class, $method, $args) {
-	$class = new ReflectionClass($class);
-	$method = $class->getMethod($method);
-	$method->setAccessible(true);
-	return $method;
-}

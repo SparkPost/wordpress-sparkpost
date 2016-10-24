@@ -1,25 +1,28 @@
 <?php
 /**
- * @package wp-sparkpost
- */
+* @package wp-sparkpost
+*/
 
 namespace WPSparkPost;
+use \Mockery;
 
 class TestHttpMailer extends TestSparkPost {
   var $mailer;
+  var $mock;
 
   function setUp() {
     global $phpmailer;
     $this->phpmailer = new SparkPostHTTPMailer();
+    $this->mock = Mockery::mock('SparkPostHTTPMailer');
   }
 
   function call($method) {
     return $this->invokeMethod($this->phpmailer, $method);
   }
 
-	function test_mailer_is_a_phpmailer_instance() {
-		$this->assertTrue( $this->phpmailer instanceof \PHPMailer );
-	}
+  function test_mailer_is_a_phpmailer_instance() {
+    $this->assertTrue( $this->phpmailer instanceof \PHPMailer );
+  }
 
   function test_recipients_list() {
 
@@ -27,24 +30,24 @@ class TestHttpMailer extends TestSparkPost {
     $this->phpmailer->addAddress('def@xyz.com', 'def');
     $this->phpmailer->addAddress('noname@xyz.com');
     $prepared_list = array(
-        array(
-          'address' => array(
-            'email' => 'abc@xyz.com',
-            'name' => 'abc',
-          )
-        ),
-        array(
-          'address' => array(
-            'name' => 'def',
-            'email' => 'def@xyz.com'
-          )
-        ),
-        array(
-          'address' => array(
-            'email' => 'noname@xyz.com',
-            'name' => ''
-          )
+      array(
+        'address' => array(
+          'email' => 'abc@xyz.com',
+          'name' => 'abc',
         )
+      ),
+      array(
+        'address' => array(
+          'name' => 'def',
+          'email' => 'def@xyz.com'
+        )
+      ),
+      array(
+        'address' => array(
+          'email' => 'noname@xyz.com',
+          'name' => ''
+        )
+      )
     );
     $this->assertTrue($this->call('get_recipients') == $prepared_list);
   }

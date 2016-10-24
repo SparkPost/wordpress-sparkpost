@@ -33,10 +33,10 @@ class SparkPostHTTPMailer extends \PHPMailer
      */
     protected function mailSend($header, $body)
     {
-        return $this->sparkpostSend();
+        return $this->sparkpost_send();
     }
 
-    function sparkpostSend()
+    function sparkpost_send()
     {
         $this->edebug('Preparing request data');
 
