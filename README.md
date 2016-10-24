@@ -1,6 +1,6 @@
 # WordPress SparkPost
 
-Use SparkPost emails right from your WordPress site. 
+Use SparkPost emails right from your WordPress site.
 
 ## Usages
 
@@ -8,23 +8,23 @@ Use SparkPost emails right from your WordPress site.
 
 **Option 1**
 
-* Download the plugin from [WordPress's plugins repository](https://wordpress.org/plugins/sparkpost/). 
+* Download the plugin from [WordPress's plugins repository](https://wordpress.org/plugins/sparkpost/).
 * Upload to plugins directory of your WordPress installation which, usually, is `wp-content/plugins`.
-* Activate the plugin from admin panel. 
+* Activate the plugin from admin panel.
 
 **Option 2**
-* From your WordPress site's admin panel go to **Plugins -> Add New**. 
-* Enter *sparkpost* in *Search Plugins* text field and hit Enter. 
-* It should show pluging titled *SparkPost SMTP*. Click **Install Now** button. 
-* In next page, upon successful downloading click **Activate Plugin**. 
+* From your WordPress site's admin panel go to **Plugins -> Add New**.
+* Enter *sparkpost* in *Search Plugins* text field and hit Enter.
+* It should show pluging titled *SparkPost SMTP*. Click **Install Now** button.
+* In next page, upon successful downloading click **Activate Plugin**.
 
 ### Configuration
 Once plugin is installed, you need some quick **but important** configuration. Click **SparkPost SMTP** from Settings menu
-* In the form put SparkPost API key, sender name and email. 
+* In the form put SparkPost API key, sender name and email.
 * Click **Save Changes**
 
 ### Test Email
-From Test Email section, try sending a test email to yourself to make sure the credentials are working fine. 
+From Test Email section, try sending a test email to yourself to make sure the credentials are working fine.
 
 
 ## Development
@@ -36,6 +36,13 @@ git clone git@github.com:SparkPost/wordpress-sparkpost.git ~/src/wordpress/wp-co
 ```
 
 * Activate the plugin from admin panel
+
+## Running Tests
+* Follow the steps in [wp-cli](http://wp-cli.org/docs/plugin-unit-tests/)
+* Install [composer](https://getcomposer.org/doc/00-intro.md)
+* Go to `./tests` directory and run `composer install`
+* Return to project root (`cd ../`) and run `phpunit`
+* Add you tests in `tests` directory. Upon pushing the branch, Travis will automatically run it and generate reports (tests and coverage)
 
 ## Releasing
 

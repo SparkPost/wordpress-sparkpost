@@ -2,18 +2,14 @@
 /**
 * @package wp-sparkpost
 */
-
 namespace WPSparkPost;
-use \Mockery;
 
 class TestHttpMailer extends TestSparkPost {
   var $mailer;
-  var $mock;
 
   function setUp() {
     global $phpmailer;
     $this->phpmailer = new SparkPostHTTPMailer();
-    $this->mock = Mockery::mock('SparkPostHTTPMailer');
   }
 
   function call($method) {

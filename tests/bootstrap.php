@@ -19,8 +19,8 @@ require_once $_tests_dir . '/includes/functions.php';
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/wordpress-sparkpost.php';
 	require dirname( dirname( __FILE__ ) ) . '/mailer.http.class.php';
-
 }
+
 tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
