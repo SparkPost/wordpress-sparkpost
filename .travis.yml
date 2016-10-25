@@ -22,9 +22,10 @@ env:
 
 before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-  - cd tests; composer install --no-interaction
+  - cd tests
+  - composer install --no-interaction
 
 script: composer test
 
 after_success:
-  - php vendor/bin/coveralls  -c ./.coveralls.yml
+  - cd ../; php tests/vendor/bin/coveralls  -c ./.coveralls.yml
