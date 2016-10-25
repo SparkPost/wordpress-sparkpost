@@ -38,10 +38,12 @@ git clone git@github.com:SparkPost/wordpress-sparkpost.git ~/src/wordpress/wp-co
 * Activate the plugin from admin panel
 
 ## Running Tests
-* Follow the steps in [wp-cli](http://wp-cli.org/docs/plugin-unit-tests/)
+* Install test files by running `bash bin/install-wp-tests.sh wordpress_test root '' localhost latest`
 * Install [composer](https://getcomposer.org/doc/00-intro.md)
-* Go to `./tests` directory and run `composer install`
-* Return to project root (`cd ../`) and run `phpunit`
+*
+* Go to `./tests` directory
+* Run `composer install` to install required packages
+* To run tests, run `composer test`
 * Add you tests in `tests` directory. Upon pushing the branch, Travis will automatically run it and generate reports (tests and coverage)
 
 ## Releasing

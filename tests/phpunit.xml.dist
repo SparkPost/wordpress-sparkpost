@@ -1,5 +1,5 @@
 <phpunit
-	bootstrap="tests/bootstrap.php"
+	bootstrap="specs/bootstrap.php"
 	backupGlobals="false"
 	colors="true"
 	convertErrorsToExceptions="true"
@@ -8,16 +8,15 @@
 	>
 	<testsuites>
 		<testsuite>
-			<directory prefix="test-" suffix=".php">./tests/</directory>
+			<directory prefix="test-" suffix=".php">./specs</directory>
 		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist>
-			<file>wordpress-sparkpost.php</file>
-			<file>sparkpost.class.php</file>
-			<file>mailer.smtp.class.php</file>
-			<file>mailer.http.class.php</file>
-			<file>admin.widget.class.php</file>
+			<file>../sparkpost.class.php</file>
+			<file>../mailer.smtp.class.php</file>
+			<file>../mailer.http.class.php</file>
+			<file>../admin.widget.class.php</file>
 	</whitelist>
 	</filter>
 	<logging>
