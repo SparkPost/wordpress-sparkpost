@@ -27,4 +27,4 @@ before_script:
 script: composer test
 
 after_success:
-  - php tests/vendor/bin/coveralls  -c ./.coveralls.yml
+  - php vendor/bin/coveralls  -c ./.coveralls.yml
