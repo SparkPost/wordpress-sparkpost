@@ -40,11 +40,10 @@ git clone git@github.com:SparkPost/wordpress-sparkpost.git ~/src/wordpress/wp-co
 ## Running Tests
 * Install test files by running `bash bin/install-wp-tests.sh wordpress_test root '' localhost latest`
 * Install [composer](https://getcomposer.org/doc/00-intro.md)
-*
 * Go to `./tests` directory
 * Run `composer install` to install required packages
 * To run tests, run `composer test`
-* Add you tests in `tests` directory. Upon pushing the branch, Travis will automatically run it and generate reports (tests and coverage)
+* Add you tests in `tests/specs` directory. Upon pushing the branch, Travis will automatically run it and generate reports (tests and coverage)
 
 ## Releasing
 
