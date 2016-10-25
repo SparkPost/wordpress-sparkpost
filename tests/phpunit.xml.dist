@@ -13,6 +13,7 @@
 	</testsuites>
 	<filter>
 		<whitelist>
+			<file>../wordpress-sparkpost.php</file>
 			<file>../sparkpost.class.php</file>
 			<file>../mailer.smtp.class.php</file>
 			<file>../mailer.http.class.php</file>
