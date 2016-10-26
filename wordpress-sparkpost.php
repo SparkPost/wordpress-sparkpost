@@ -17,14 +17,15 @@ if (!defined('ABSPATH')) exit();
 
 define('WPSP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPSP_PLUGIN_PATH', WPSP_PLUGIN_DIR . basename(__FILE__));
+define('WPSP_PLUGIN_VERSION', '2.5.0');
 
 require_once(WPSP_PLUGIN_DIR . 'sparkpost.class.php');
+
 if (is_admin()) {
     require_once(WPSP_PLUGIN_DIR . 'admin.widget.class.php');
     new SparkPostAdmin();
 }
 $sp = new SparkPost();
-
 if (SparkPost::get_setting('enable_sparkpost')) {
     if (SparkPost::get_setting('sending_method') == 'smtp') {
         require_once(WPSP_PLUGIN_DIR . 'mailer.smtp.class.php');

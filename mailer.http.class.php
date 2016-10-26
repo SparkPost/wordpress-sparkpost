@@ -262,7 +262,7 @@ class SparkPostHTTPMailer extends \PHPMailer
         }
 
         return apply_filters('wpsp_request_headers', array(
-            'User-Agent' => 'wordpress-sparkpost',
+            'User-Agent' => 'wordpress-sparkpost/' . WPSP_PLUGIN_VERSION,
             'Content-Type' => 'application/json',
             'Authorization' => $api_key
         ));
