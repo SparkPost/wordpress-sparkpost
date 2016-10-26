@@ -5,15 +5,11 @@
 namespace WPSparkPost;
 use \Nyholm\NSA;
 
-class TestHttpMailer extends TestSparkPost {
+class TestHttpMailer extends \WP_UnitTestCase {
   var $mailer;
 
   function setUp() {
     $this->mailer = new SparkPostHTTPMailer();
-  }
-
-  function call($method) {
-    return $this->invokeMethod($this->mailer, $method);
   }
 
   function test_mailer_is_a_mailer_instance() {
@@ -45,7 +41,7 @@ class TestHttpMailer extends TestSparkPost {
         )
       )
     );
-    $this->assertTrue($this->call('get_recipients') == $prepared_list);
+    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_recipients') == $prepared_list);
   }
 
   function test_sender_with_name() {
@@ -55,7 +51,7 @@ class TestHttpMailer extends TestSparkPost {
       'email' => 'me@hello.com'
     );
 
-    $this->assertTrue($this->call('get_sender') == $sender);
+    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_sender') == $sender);
   }
 
   function test_sender_without_name() {
@@ -64,7 +60,7 @@ class TestHttpMailer extends TestSparkPost {
       'email' => 'me@hello.com'
     );
 
-    $this->assertTrue($this->call('get_sender') == $sender);
+    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_sender') == $sender);
   }
 
   function test_get_request_headers() {
@@ -73,7 +69,7 @@ class TestHttpMailer extends TestSparkPost {
       'Content-Type' => 'application/json',
       'Authorization' => ''
     );
-    $this->assertTrue( $this->call('get_request_headers') == $expected);
+    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers') == $expected);
 
     NSA::setProperty($this->mailer, 'settings', array('password' => 'abcd1234'));
     $expected = array(
@@ -93,5 +89,4 @@ class TestHttpMailer extends TestSparkPost {
     );
     $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers', true) == $expected);
   }
-
 }

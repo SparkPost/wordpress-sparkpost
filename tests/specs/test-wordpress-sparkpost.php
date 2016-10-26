@@ -5,7 +5,7 @@
 
 namespace WPSparkPost;
 
-class TestWordPressSparkPost extends TestSparkPost {
+class TestWordPressSparkPost extends \WP_UnitTestCase {
 
 	function test_plugin_dir_constants() {
 		$this->assertTrue( defined('WPSP_PLUGIN_DIR') );

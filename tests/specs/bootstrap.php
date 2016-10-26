@@ -25,5 +25,4 @@ tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
-require __DIR__. '/wp-sparkpost.php';
 require dirname(__DIR__) . '/vendor/autoload.php';
