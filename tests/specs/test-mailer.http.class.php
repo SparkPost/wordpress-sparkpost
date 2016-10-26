@@ -4,6 +4,7 @@
 */
 namespace WPSparkPost;
 use \Nyholm\NSA;
+use \Mockery;
 
 class TestHttpMailer extends \WP_UnitTestCase {
   var $mailer;
@@ -88,5 +89,46 @@ class TestHttpMailer extends \WP_UnitTestCase {
       'Authorization' => 'abcd'.str_repeat('*', 36)
     );
     $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers', true) == $expected);
+  }
+
+  function test_get_headers() {
+    $raw_headers = "Date: Wed, 26 Oct 2016 23:45:32 +0000
+    To: undisclosed-recipients:;
+    From: Root User <root@localhost>
+    Subject: Hello
+    Reply-To: replyto@mydomain.com
+    Message-ID: <abcd@example.org>
+    MIME-Version: 1.0
+    Content-Type: text/plain; charset=iso-8859-1
+    Content-Transfer-Encoding: 8bit";
+
+    $expected = array(
+      'Message-ID' => '<abcd@example.org>',
+      'Date' => 'Wed, 26 Oct 2016 23:45:32 +0000'
+    );
+    $stub = Mockery::mock($this->mailer);
+    $stub->shouldReceive('createHeader')->andReturn($raw_headers);
+    $formatted_headers = NSA::invokeMethod($stub, 'get_headers');
+
+    $this->assertTrue($formatted_headers == $expected);
+  }
+
+
+  function test_get_headers_should_include_cc_if_exists() {
+    $raw_headers = "Date: Wed, 26 Oct 2016 23:45:32 +0000
+    Reply-To: replyto@mydomain.com";
+
+    $expected = array(
+      'Date' => 'Wed, 26 Oct 2016 23:45:32 +0000',
+      'CC' => 'hello@abc.com,Name <name@domain.com>'
+    );
+    $stub = Mockery::mock($this->mailer);
+    $stub->shouldReceive('createHeader')->andReturn($raw_headers);
+    $stub->addCc('hello@abc.com');
+    $stub->addCc('name@domain.com', 'Name');
+
+    $formatted_headers = NSA::invokeMethod($stub, 'get_headers');
+
+    $this->assertTrue($formatted_headers == $expected);
   }
 }
