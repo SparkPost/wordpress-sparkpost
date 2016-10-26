@@ -8,23 +8,22 @@ class TestHttpMailer extends TestSparkPost {
   var $mailer;
 
   function setUp() {
-    global $phpmailer;
-    $this->phpmailer = new SparkPostHTTPMailer();
+    $this->mailer = new SparkPostHTTPMailer();
   }
 
   function call($method) {
-    return $this->invokeMethod($this->phpmailer, $method);
+    return $this->invokeMethod($this->mailer, $method);
   }
 
-  function test_mailer_is_a_phpmailer_instance() {
-    $this->assertTrue( $this->phpmailer instanceof \PHPMailer );
+  function test_mailer_is_a_mailer_instance() {
+    $this->assertTrue( $this->mailer instanceof \PHPMailer );
   }
 
   function test_recipients_list() {
 
-    $this->phpmailer->addAddress('abc@xyz.com', 'abc');
-    $this->phpmailer->addAddress('def@xyz.com', 'def');
-    $this->phpmailer->addAddress('noname@xyz.com');
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $this->mailer->addAddress('def@xyz.com', 'def');
+    $this->mailer->addAddress('noname@xyz.com');
     $prepared_list = array(
       array(
         'address' => array(
@@ -49,7 +48,7 @@ class TestHttpMailer extends TestSparkPost {
   }
 
   function test_sender_with_name() {
-    $this->phpmailer->setFrom( 'me@hello.com', 'me' );
+    $this->mailer->setFrom( 'me@hello.com', 'me' );
     $sender = array(
       'name' => 'me',
       'email' => 'me@hello.com'
@@ -59,12 +58,22 @@ class TestHttpMailer extends TestSparkPost {
   }
 
   function test_sender_without_name() {
-    $this->phpmailer->setFrom( 'me@hello.com', '' );
+    $this->mailer->setFrom( 'me@hello.com', '' );
     $sender = array(
       'email' => 'me@hello.com'
     );
 
     $this->assertTrue($this->call('get_sender') == $sender);
+  }
+
+  function test_get_request_headers() {
+    $settings = $this->getProperty($this->mailer, 'settings');
+    $expected = array(
+      'User-Agent' => 'wordpress-sparkpost/' . WPSP_PLUGIN_VERSION,
+      'Content-Type' => 'application/json',
+      'Authorization' => $settings['password']
+    );
+    $this->assertTrue( $this->call('get_request_headers') == $expected);
   }
 
 }
