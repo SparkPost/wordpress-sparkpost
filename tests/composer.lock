@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c7a89bae470d464e1a5e582865f234b9",
-    "content-hash": "fb011e976bce22a50bca6d4271e7c79d",
+    "hash": "817c8773b3a9ec7b45c5d77b3cc92810",
+    "content-hash": "9aee5ce72d0dad0c85ad6fb95eea2856",
     "packages": [],
     "packages-dev": [
         {
@@ -199,6 +199,53 @@
                 "object graph"
             ],
             "time": "2016-09-16 13:37:59"
+        },
+        {
+            "name": "nyholm/nsa",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nyholm/NSA.git",
+                "reference": "59018cf7fdf68bf9184ed07d36013a3775e30d1b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Nyholm/NSA/zipball/59018cf7fdf68bf9184ed07d36013a3775e30d1b",
+                "reference": "59018cf7fdf68bf9184ed07d36013a3775e30d1b",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3 || ^7.0",
+                "webmozart/assert": "^1.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Nyholm\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com"
+                }
+            ],
+            "description": "See everything and do whatever you want. No privacy rule will stop us. Used in tests, debugging and fixtures to access properties and methods.",
+            "homepage": "http://tnyholm.se",
+            "keywords": [
+                "Fixture",
+                "debug",
+                "reflection",
+                "test"
+            ],
+            "time": "2016-08-09 15:29:14"
         },
         {
             "name": "phpdocumentor/reflection-common",

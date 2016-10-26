@@ -3,6 +3,7 @@
 * @package wp-sparkpost
 */
 namespace WPSparkPost;
+use \Nyholm\NSA;
 
 class TestHttpMailer extends TestSparkPost {
   var $mailer;
@@ -67,11 +68,18 @@ class TestHttpMailer extends TestSparkPost {
   }
 
   function test_get_request_headers() {
-    $settings = $this->getProperty($this->mailer, 'settings');
     $expected = array(
       'User-Agent' => 'wordpress-sparkpost/' . WPSP_PLUGIN_VERSION,
       'Content-Type' => 'application/json',
-      'Authorization' => $settings['password']
+      'Authorization' => ''
+    );
+    $this->assertTrue( $this->call('get_request_headers') == $expected);
+
+    NSA::setProperty($this->mailer, 'settings', array('password' => 'abcd1234'));
+    $expected = array(
+      'User-Agent' => 'wordpress-sparkpost/' . WPSP_PLUGIN_VERSION,
+      'Content-Type' => 'application/json',
+      'Authorization' => 'abcd1234'
     );
     $this->assertTrue( $this->call('get_request_headers') == $expected);
   }
