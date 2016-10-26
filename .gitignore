@@ -1,3 +1,6 @@
 .idea
 .DS_Store
 .svn
+coverage
+tmp
+tests/vendor

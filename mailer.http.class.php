@@ -1,12 +1,12 @@
 <?php
+namespace WPSparkPost;
 // If ABSPATH is defined, we assume WP is calling us.
 // Otherwise, this could be an illicit direct request.
 if (!defined('ABSPATH')) exit();
 
-
 require_once ABSPATH . WPINC . '/class-phpmailer.php';
 
-class SparkPostHTTPMailer extends PHPMailer
+class SparkPostHTTPMailer extends \PHPMailer
 {
     protected $endpoint = 'https://api.sparkpost.com/api/v1/transmissions';
     private $settings;
@@ -33,10 +33,10 @@ class SparkPostHTTPMailer extends PHPMailer
      */
     protected function mailSend($header, $body)
     {
-        return $this->sparkpostSend();
+        return $this->sparkpost_send();
     }
 
-    function sparkpostSend()
+    function sparkpost_send()
     {
         $this->edebug('Preparing request data');
 

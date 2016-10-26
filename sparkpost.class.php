@@ -1,4 +1,6 @@
 <?php
+namespace WPSparkPost;
+
 // If ABSPATH is defined, we assume WP is calling us.
 // Otherwise, this could be an illicit direct request.
 if (!defined('ABSPATH')) exit();

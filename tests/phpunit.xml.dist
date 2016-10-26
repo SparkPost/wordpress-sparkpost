@@ -1,0 +1,26 @@
+<phpunit
+	bootstrap="specs/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+	<testsuites>
+		<testsuite>
+			<directory prefix="test-" suffix=".php">./specs</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist>
+			<file>../wordpress-sparkpost.php</file>
+			<file>../sparkpost.class.php</file>
+			<file>../mailer.smtp.class.php</file>
+			<file>../mailer.http.class.php</file>
+			<file>../admin.widget.class.php</file>
+		</whitelist>
+	</filter>
+	<logging>
+      <log type="coverage-clover" target="coverage/clover.xml"/>
+  </logging>
+</phpunit>
