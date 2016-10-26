@@ -92,8 +92,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             $body['content']['template_id'] = apply_filters('wpsp_template_id', $this->settings['template']);
 
             // supply substitution data so users can add variables to templates
-            $content_substitution_tag_name = apply_filters('wpsp_substitution_content_tag_name', 'content');
-            $body['substitution_data'][$content_substitution_tag_name] = $this->Body;
+            $body['substitution_data']['content'] = $this->Body;
             $body['substitution_data']['subject'] = $this->Subject;
             $body['substitution_data']['from_name'] = $sender['name'];
             $body['substitution_data']['from'] = $sender['name'] . ' <' . $sender['email'] . '>';
