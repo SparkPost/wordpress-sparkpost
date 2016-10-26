@@ -81,7 +81,17 @@ class TestHttpMailer extends TestSparkPost {
       'Content-Type' => 'application/json',
       'Authorization' => 'abcd1234'
     );
-    $this->assertTrue( $this->call('get_request_headers') == $expected);
+    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers') == $expected);
+  }
+
+  function test_get_request_headers_obfuscate_key() {
+    NSA::setProperty($this->mailer, 'settings', array('password' => 'abcd1234'));
+    $expected = array(
+      'User-Agent' => 'wordpress-sparkpost/' . WPSP_PLUGIN_VERSION,
+      'Content-Type' => 'application/json',
+      'Authorization' => 'abcd'.str_repeat('*', 36)
+    );
+    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers', true) == $expected);
   }
 
 }
