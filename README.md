@@ -2,9 +2,9 @@
 
 Use SparkPost emails right from your WordPress site.
 
-## Usages
+[![Travis CI](https://travis-ci.org/SparkPost/wordpress-sparkpost.svg?branch=master)](https://travis-ci.org/SparkPost/wordpress-sparkpost) [![Coverage Status](https://coveralls.io/repos/github/SparkPost/wordpress-sparkpost/badge.svg)](https://coveralls.io/github/SparkPost/wordpress-sparkpost) [![Slack Status](http://slack.sparkpost.com/badge.svg)](http://slack.sparkpost.com)
 
-### Installation
+## Installation
 
 **Option 1**
 
@@ -18,12 +18,12 @@ Use SparkPost emails right from your WordPress site.
 * It should show pluging titled *SparkPost SMTP*. Click **Install Now** button.
 * In next page, upon successful downloading click **Activate Plugin**.
 
-### Configuration
+## Configuration
 Once plugin is installed, you need some quick **but important** configuration. Click **SparkPost SMTP** from Settings menu
 * In the form put SparkPost API key, sender name and email.
 * Click **Save Changes**
 
-### Test Email
+## Test Email
 From Test Email section, try sending a test email to yourself to make sure the credentials are working fine.
 
 
