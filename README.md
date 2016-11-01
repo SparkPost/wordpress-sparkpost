@@ -49,7 +49,7 @@ git clone git@github.com:SparkPost/wordpress-sparkpost.git ~/src/wordpress/wp-co
 ## Releasing
 
 * Create a branch off master: `git checkout -b bump`
-* Update the version in [wordpress-sparkpost.php](wordpress-sparkpost.php)
+* Update the version in plugin meta and `WPSP_PLUGIN_VERSION` constant in [wordpress-sparkpost.php](wordpress-sparkpost.php)
 * Update the version and change log in [readme.txt](readme.txt)
 * Commit the changes and push the branch
 * Create a pull request
