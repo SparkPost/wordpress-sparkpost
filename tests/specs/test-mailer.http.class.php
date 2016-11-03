@@ -131,4 +131,59 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     $this->assertTrue($formatted_headers == $expected);
   }
+
+  function test_get_recipients() {
+    $this->mailer->addAddress('to@abc.com');
+    $this->mailer->addAddress('to1@abc.com', 'to1');
+    $this->mailer->addCc('cc@abc.com');
+    $this->mailer->addCc('cc1@abc.com', 'cc1');
+    $this->mailer->addBcc('bcc@abc.com');
+    $this->mailer->addBcc('bcc1@abc.com', 'bcc1');
+
+    $header_to = implode(',', [
+      'to@abc.com',
+      'to1 <to1@abc.com>',
+    ]);
+
+    $expected = [
+      [
+        'address' => [
+          'email' => 'to@abc.com',
+          'name' => ''
+        ]
+      ],
+      [
+        'address' => [
+          'email' => 'to1@abc.com',
+          'name' => 'to1'
+        ]
+      ],
+      [
+        'address' => [
+        'email' => 'bcc@abc.com',
+        'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+        'email' => 'bcc1@abc.com',
+        'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+        'email' => 'cc@abc.com',
+        'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+        'email' => 'cc1@abc.com',
+        'header_to' => $header_to
+        ]
+      ]
+    ];
+
+    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_recipients') == $expected);
+  }
 }
