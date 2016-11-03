@@ -17,34 +17,6 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue( $this->mailer instanceof \PHPMailer );
   }
 
-  function test_recipients_list() {
-
-    $this->mailer->addAddress('abc@xyz.com', 'abc');
-    $this->mailer->addAddress('def@xyz.com', 'def');
-    $this->mailer->addAddress('noname@xyz.com');
-    $prepared_list = array(
-      array(
-        'address' => array(
-          'email' => 'abc@xyz.com',
-          'name' => 'abc',
-        )
-      ),
-      array(
-        'address' => array(
-          'name' => 'def',
-          'email' => 'def@xyz.com'
-        )
-      ),
-      array(
-        'address' => array(
-          'email' => 'noname@xyz.com',
-          'name' => ''
-        )
-      )
-    );
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_recipients') == $prepared_list);
-  }
-
   function test_sender_with_name() {
     $this->mailer->setFrom( 'me@hello.com', 'me' );
     $sender = array(
@@ -140,7 +112,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->mailer->addBcc('bcc@abc.com');
     $this->mailer->addBcc('bcc1@abc.com', 'bcc1');
 
-    $header_to = implode(',', [
+    $header_to = implode(', ', [
       'to@abc.com',
       'to1 <to1@abc.com>',
     ]);
@@ -149,13 +121,13 @@ class TestHttpMailer extends \WP_UnitTestCase {
       [
         'address' => [
           'email' => 'to@abc.com',
-          'name' => ''
+          'header_to' => $header_to
         ]
       ],
       [
         'address' => [
           'email' => 'to1@abc.com',
-          'name' => 'to1'
+          'header_to' => $header_to
         ]
       ],
       [
@@ -184,6 +156,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
       ]
     ];
 
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_recipients') == $expected);
+    $recipients = NSA::invokeMethod($this->mailer, 'get_recipients');
+    $this->assertTrue($recipients == $expected);
   }
 }
