@@ -13,11 +13,18 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->mailer = new SparkPostHTTPMailer();
   }
 
+  function test_mailSend_calls_sparkpost_send() {
+    $stub = Mockery::mock($this->mailer);
+    $stub->shouldReceive('sparkpost_send')->andReturn('woowoo');
+
+    $this->assertTrue(NSA::invokeMethod($stub, 'mailSend', null, null) == 'woowoo');
+  }
+
   function test_mailer_is_a_mailer_instance() {
     $this->assertTrue( $this->mailer instanceof \PHPMailer );
   }
 
-  function test_sender_with_name() {
+  function test_get_sender_with_name() {
     $this->mailer->setFrom( 'me@hello.com', 'me' );
     $sender = array(
       'name' => 'me',
@@ -27,7 +34,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_sender') == $sender);
   }
 
-  function test_sender_without_name() {
+  function test_get_sender_without_name() {
     $this->mailer->setFrom( 'me@hello.com', '' );
     $sender = array(
       'email' => 'me@hello.com'
@@ -158,5 +165,15 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     $recipients = NSA::invokeMethod($this->mailer, 'get_recipients');
     $this->assertTrue($recipients == $expected);
+  }
+
+  function test_get_attachments() {
+    $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
+    file_put_contents($temp, 'TEST');
+    $this->mailer->addAttachment($temp);
+    $attachments = NSA::invokeMethod($this->mailer, 'get_attachments');
+    $this->assertTrue($attachments[0]['type'] === 'application/octet-stream');
+    $this->assertTrue($attachments[0]['name'] === basename($temp));
+    $this->assertTrue($attachments[0]['data'] === base64_encode('TEST'));
   }
 }
