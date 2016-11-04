@@ -176,4 +176,12 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($attachments[0]['name'] === basename($temp));
     $this->assertTrue($attachments[0]['data'] === base64_encode('TEST'));
   }
+
+  function test_isMail() {
+    // test if isMail sets correct mailer
+    $this->mailer->Mailer = 'abc';
+    $this->assertTrue($this->mailer->Mailer === 'abc');
+    $this->mailer->isMail();
+    $this->assertTrue($this->mailer->Mailer === 'sparkpost');
+  }
 }
