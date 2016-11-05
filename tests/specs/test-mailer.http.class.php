@@ -184,4 +184,58 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->mailer->isMail();
     $this->assertTrue($this->mailer->Mailer === 'sparkpost');
   }
+
+  function test_get_request_body_without_template() {
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $this->mailer->addBcc('bcc@xyz.com', 'bcc');
+    $this->mailer->addCc('cc@xyz.com', 'cc');
+    $this->mailer->setFrom( 'me@hello.com', 'me');
+
+    NSA::setProperty($this->mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false
+    ]);
+
+    $header_to = 'abc <abc@xyz.com>';
+    $expected_request_body = [
+      'recipients' => [
+        [
+          'address' => [
+            'email' => 'abc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+          'email' => 'bcc@xyz.com',
+          'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+            'email' => 'cc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ]
+      ],
+      'options' => [
+          'open_tracking' => (bool) true,
+          'click_tracking' => (bool) true,
+          'transactional' => (bool) false
+      ],
+      'content' => [
+          'from' => [
+            'name' => 'me',
+            'email' =>'me@hello.com'
+          ],
+          'subject' => '',
+          'headers' => [],
+          'text' => ''
+      ]
+    ];
+
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $actual['content']['headers'] = []; // for simpler $expected_request_body. alternatively stub get_headers
+    $this->assertTrue($expected_request_body == $actual);
+  }
 }
