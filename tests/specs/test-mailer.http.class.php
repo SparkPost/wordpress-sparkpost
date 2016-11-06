@@ -175,6 +175,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($attachments[0]['type'] === 'application/octet-stream');
     $this->assertTrue($attachments[0]['name'] === basename($temp));
     $this->assertTrue($attachments[0]['data'] === base64_encode('TEST'));
+    unlink($temp);
   }
 
   function test_isMail() {
@@ -185,7 +186,8 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($this->mailer->Mailer === 'sparkpost');
   }
 
-  function test_get_request_body_without_template() {
+  function test_get_request_body() {
+    // WITHOUT TEMPLATE
     $this->mailer->addAddress('abc@xyz.com', 'abc');
     $this->mailer->addBcc('bcc@xyz.com', 'bcc');
     $this->mailer->addCc('cc@xyz.com', 'cc');
@@ -235,7 +237,30 @@ class TestHttpMailer extends \WP_UnitTestCase {
     ];
 
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
-    $actual['content']['headers'] = []; // for simpler $expected_request_body. alternatively stub get_headers
+    // for simpler expectation reset content.headers to empty array.
+    // alternative is to stub get_headers which isn't working expectedly
+    $actual['content']['headers'] = [];
+    $this->assertTrue($expected_request_body == $actual);
+
+    //WITH TEMPLATE - reuse previous setup
+    NSA::setProperty($this->mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'   => 'hello'
+    ]);
+
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $expected_request_body['content'] = [
+      'template_id' => 'hello',
+    ];
+    $expected_request_body['substitution_data'] = [
+      'content' => '',
+      'subject' => '',
+      'from_name' => 'me',
+      'from' => 'me <me@hello.com>',
+      'from_localpart'  => 'me'
+    ];
+    
     $this->assertTrue($expected_request_body == $actual);
   }
 }
