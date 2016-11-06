@@ -278,7 +278,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     protected function parse_reply_to_from_custom_header()
     {
         $replyTos = array();
-        foreach ($this->CustomHeader as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
+        foreach ($this->getCustomHeaders() as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
             list($name, $value) = $header;
             if ($name === 'Reply-To' && !empty($value)) {
                 $replyTos[] = trim($value);
