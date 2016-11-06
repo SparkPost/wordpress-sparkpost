@@ -244,6 +244,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     //INCLUDE REPLYTO
     $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
+    $this->mailer->addCustomHeader('Reply-To', 'reply-to <reply@abc.com>'); //for below version v4.6
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $actual['content']['headers'] = []; //see note above
     $expected_request_body['content']['reply_to'] = 'reply-to <reply@abc.com>';
@@ -305,6 +306,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     //INCLUDE REPLYTO
     $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
+    $this->mailer->addCustomHeader('Reply-To', 'reply-to <reply@abc.com>'); //for below version v4.6
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
     $this->assertTrue($expected_request_body == $actual);
