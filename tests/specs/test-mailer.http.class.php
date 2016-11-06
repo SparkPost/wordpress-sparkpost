@@ -139,26 +139,26 @@ class TestHttpMailer extends \WP_UnitTestCase {
       ],
       [
         'address' => [
-        'email' => 'bcc@abc.com',
-        'header_to' => $header_to
+          'email' => 'bcc@abc.com',
+          'header_to' => $header_to
         ]
       ],
       [
         'address' => [
-        'email' => 'bcc1@abc.com',
-        'header_to' => $header_to
+          'email' => 'bcc1@abc.com',
+          'header_to' => $header_to
         ]
       ],
       [
         'address' => [
-        'email' => 'cc@abc.com',
-        'header_to' => $header_to
+          'email' => 'cc@abc.com',
+          'header_to' => $header_to
         ]
       ],
       [
         'address' => [
-        'email' => 'cc1@abc.com',
-        'header_to' => $header_to
+          'email' => 'cc1@abc.com',
+          'header_to' => $header_to
         ]
       ]
     ];
@@ -186,7 +186,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($this->mailer->Mailer === 'sparkpost');
   }
 
-  function test_get_request_body() {
+  function test_get_request_body_without_template() {
     // WITHOUT TEMPLATE
     $this->mailer->addAddress('abc@xyz.com', 'abc');
     $this->mailer->addBcc('bcc@xyz.com', 'bcc');
@@ -209,8 +209,8 @@ class TestHttpMailer extends \WP_UnitTestCase {
         ],
         [
           'address' => [
-          'email' => 'bcc@xyz.com',
-          'header_to' => $header_to
+            'email' => 'bcc@xyz.com',
+            'header_to' => $header_to
           ]
         ],
         [
@@ -221,18 +221,18 @@ class TestHttpMailer extends \WP_UnitTestCase {
         ]
       ],
       'options' => [
-          'open_tracking' => (bool) true,
-          'click_tracking' => (bool) true,
-          'transactional' => (bool) false
+        'open_tracking' => (bool) true,
+        'click_tracking' => (bool) true,
+        'transactional' => (bool) false
       ],
       'content' => [
-          'from' => [
-            'name' => 'me',
-            'email' =>'me@hello.com'
-          ],
-          'subject' => '',
-          'headers' => [],
-          'text' => ''
+        'from' => [
+          'name' => 'me',
+          'email' =>'me@hello.com'
+        ],
+        'subject' => '',
+        'headers' => [],
+        'text' => ''
       ]
     ];
 
@@ -242,25 +242,71 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $actual['content']['headers'] = [];
     $this->assertTrue($expected_request_body == $actual);
 
-    //WITH TEMPLATE - reuse previous setup
+    //INCLUDE REPLYTO
+    $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $actual['content']['headers'] = []; //see note above
+    $expected_request_body['content']['reply_to'] = 'reply-to <reply@abc.com>';
+    $this->assertTrue($expected_request_body == $actual);
+  }
+
+  function test_get_request_body_with_template() {
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $this->mailer->addBcc('bcc@xyz.com', 'bcc');
+    $this->mailer->addCc('cc@xyz.com', 'cc');
+    $this->mailer->setFrom( 'me@hello.com', 'me');
+    $header_to = 'abc <abc@xyz.com>';
     NSA::setProperty($this->mailer, 'settings', [
       'enable_tracking' => true,
       'transactional' => false,
       'template'   => 'hello'
     ]);
 
+    $expected_request_body = [
+      'recipients' => [
+        [
+          'address' => [
+            'email' => 'abc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+            'email' => 'bcc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+            'email' => 'cc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ]
+      ],
+      'options' => [
+        'open_tracking' => (bool) true,
+        'click_tracking' => (bool) true,
+        'transactional' => (bool) false
+      ],
+      'content' => [
+        'template_id' => 'hello',
+      ],
+      'substitution_data' => [
+        'content' => '',
+        'subject' => '',
+        'from_name' => 'me',
+        'from' => 'me <me@hello.com>',
+        'from_localpart'  => 'me'
+      ]
+    ];
+
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
-    $expected_request_body['content'] = [
-      'template_id' => 'hello',
-    ];
-    $expected_request_body['substitution_data'] = [
-      'content' => '',
-      'subject' => '',
-      'from_name' => 'me',
-      'from' => 'me <me@hello.com>',
-      'from_localpart'  => 'me'
-    ];
-    
+    $this->assertTrue($expected_request_body == $actual);
+
+    //INCLUDE REPLYTO
+    $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
     $this->assertTrue($expected_request_body == $actual);
   }
 }
