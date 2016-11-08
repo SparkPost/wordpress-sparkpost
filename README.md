@@ -40,7 +40,7 @@ git clone git@github.com:SparkPost/wordpress-sparkpost.git ~/src/wordpress/wp-co
 ## Running Tests
 * Make sure you're using PHP 5.6 or above.
 * Go to `./tests` directory.
-* Install test files by running `bash bin/install-wp-tests.sh wordpress_test root '' localhost latest`. Details on [wp-cli.org](http://wp-cli.org/docs/plugin-unit-tests/).
+* Install test files by running `bash bin/install-wp-tests.sh wordpress_test root '' localhost latest` (Try `127.0.0.1` instead of `localhost` if you're getting error). Details on [wp-cli.org](http://wp-cli.org/docs/plugin-unit-tests/).
 * [Install composer](https://getcomposer.org/doc/00-intro.md)
 * Run `composer install` to install required packages.
 * To run tests, run `composer test`.
