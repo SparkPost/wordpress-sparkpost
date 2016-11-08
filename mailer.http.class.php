@@ -232,20 +232,21 @@ class SparkPostHTTPMailer extends \PHPMailer
         $recipients = array();
         $recipients_header_to = array();
 
+        //prepare header_to
         foreach ($this->to as $to) {
-            $recipients[] = $this->build_recipient($to[0], $to[1]);
-
-            // prepare for header_to
-            if(!empty($to[1])) {
-              $recipients_header_to[] = sprintf('%s <%s>', $to[1], $to[0]);
-            } else {
+            if(empty($to[1])) { // if name is empty use only address
               $recipients_header_to[] = $to[0];
+            } else { // otherwise, use name and email
+              $recipients_header_to[] = sprintf('%s <%s>', $to[1], $to[0]);
             }
         }
-        $recipients_header_to = implode(',', $recipients_header_to);
+        $recipients_header_to = implode(', ', $recipients_header_to);
+
+        foreach ($this->to as $to) {
+            $recipients[] = $this->build_recipient($to[0], $to[1], $recipients_header_to);
+        }
 
         // include bcc to recipients
-        // sparkposts recipients list acts as bcc by default
         $recipients = array_merge($recipients, $this->get_bcc($recipients_header_to));
 
         // include cc to recipients, they need to included in recipients and in headers (refer to get_headers method)
@@ -277,7 +278,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     protected function parse_reply_to_from_custom_header()
     {
         $replyTos = array();
-        foreach ($this->CustomHeader as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
+        foreach ($this->getCustomHeaders() as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
             list($name, $value) = $header;
             if ($name === 'Reply-To' && !empty($value)) {
                 $replyTos[] = trim($value);

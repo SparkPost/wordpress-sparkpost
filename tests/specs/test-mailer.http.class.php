@@ -13,39 +13,18 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->mailer = new SparkPostHTTPMailer();
   }
 
+  function test_mailSend_calls_sparkpost_send() {
+    $stub = Mockery::mock($this->mailer);
+    $stub->shouldReceive('sparkpost_send')->andReturn('woowoo');
+
+    $this->assertTrue(NSA::invokeMethod($stub, 'mailSend', null, null) == 'woowoo');
+  }
+
   function test_mailer_is_a_mailer_instance() {
     $this->assertTrue( $this->mailer instanceof \PHPMailer );
   }
 
-  function test_recipients_list() {
-
-    $this->mailer->addAddress('abc@xyz.com', 'abc');
-    $this->mailer->addAddress('def@xyz.com', 'def');
-    $this->mailer->addAddress('noname@xyz.com');
-    $prepared_list = array(
-      array(
-        'address' => array(
-          'email' => 'abc@xyz.com',
-          'name' => 'abc',
-        )
-      ),
-      array(
-        'address' => array(
-          'name' => 'def',
-          'email' => 'def@xyz.com'
-        )
-      ),
-      array(
-        'address' => array(
-          'email' => 'noname@xyz.com',
-          'name' => ''
-        )
-      )
-    );
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_recipients') == $prepared_list);
-  }
-
-  function test_sender_with_name() {
+  function test_get_sender_with_name() {
     $this->mailer->setFrom( 'me@hello.com', 'me' );
     $sender = array(
       'name' => 'me',
@@ -55,7 +34,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_sender') == $sender);
   }
 
-  function test_sender_without_name() {
+  function test_get_sender_without_name() {
     $this->mailer->setFrom( 'me@hello.com', '' );
     $sender = array(
       'email' => 'me@hello.com'
@@ -130,5 +109,206 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $formatted_headers = NSA::invokeMethod($stub, 'get_headers');
 
     $this->assertTrue($formatted_headers == $expected);
+  }
+
+  function test_get_recipients() {
+    $this->mailer->addAddress('to@abc.com');
+    $this->mailer->addAddress('to1@abc.com', 'to1');
+    $this->mailer->addCc('cc@abc.com');
+    $this->mailer->addCc('cc1@abc.com', 'cc1');
+    $this->mailer->addBcc('bcc@abc.com');
+    $this->mailer->addBcc('bcc1@abc.com', 'bcc1');
+
+    $header_to = implode(', ', [
+      'to@abc.com',
+      'to1 <to1@abc.com>',
+    ]);
+
+    $expected = [
+      [
+        'address' => [
+          'email' => 'to@abc.com',
+          'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+          'email' => 'to1@abc.com',
+          'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+          'email' => 'bcc@abc.com',
+          'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+          'email' => 'bcc1@abc.com',
+          'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+          'email' => 'cc@abc.com',
+          'header_to' => $header_to
+        ]
+      ],
+      [
+        'address' => [
+          'email' => 'cc1@abc.com',
+          'header_to' => $header_to
+        ]
+      ]
+    ];
+
+    $recipients = NSA::invokeMethod($this->mailer, 'get_recipients');
+    $this->assertTrue($recipients == $expected);
+  }
+
+  function test_get_attachments() {
+    $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
+    file_put_contents($temp, 'TEST');
+    $this->mailer->addAttachment($temp);
+    $attachments = NSA::invokeMethod($this->mailer, 'get_attachments');
+    $this->assertTrue($attachments[0]['type'] === 'application/octet-stream');
+    $this->assertTrue($attachments[0]['name'] === basename($temp));
+    $this->assertTrue($attachments[0]['data'] === base64_encode('TEST'));
+    unlink($temp);
+  }
+
+  function test_isMail() {
+    // test if isMail sets correct mailer
+    $this->mailer->Mailer = 'abc';
+    $this->assertTrue($this->mailer->Mailer === 'abc');
+    $this->mailer->isMail();
+    $this->assertTrue($this->mailer->Mailer === 'sparkpost');
+  }
+
+  function test_get_request_body_without_template() {
+    // WITHOUT TEMPLATE
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $this->mailer->addBcc('bcc@xyz.com', 'bcc');
+    $this->mailer->addCc('cc@xyz.com', 'cc');
+    $this->mailer->setFrom( 'me@hello.com', 'me');
+
+    NSA::setProperty($this->mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false
+    ]);
+
+    $header_to = 'abc <abc@xyz.com>';
+    $expected_request_body = [
+      'recipients' => [
+        [
+          'address' => [
+            'email' => 'abc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+            'email' => 'bcc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+            'email' => 'cc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ]
+      ],
+      'options' => [
+        'open_tracking' => (bool) true,
+        'click_tracking' => (bool) true,
+        'transactional' => (bool) false
+      ],
+      'content' => [
+        'from' => [
+          'name' => 'me',
+          'email' =>'me@hello.com'
+        ],
+        'subject' => '',
+        'headers' => [],
+        'text' => ''
+      ]
+    ];
+
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    // for simpler expectation reset content.headers to empty array.
+    // alternative is to stub get_headers which isn't working expectedly
+    $actual['content']['headers'] = [];
+    $this->assertTrue($expected_request_body == $actual);
+
+    //INCLUDE REPLYTO
+    $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
+    $this->mailer->addCustomHeader('Reply-To', 'reply-to <reply@abc.com>'); //for below version v4.6
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $actual['content']['headers'] = []; //see note above
+    $expected_request_body['content']['reply_to'] = 'reply-to <reply@abc.com>';
+    $this->assertTrue($expected_request_body == $actual);
+  }
+
+  function test_get_request_body_with_template() {
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $this->mailer->addBcc('bcc@xyz.com', 'bcc');
+    $this->mailer->addCc('cc@xyz.com', 'cc');
+    $this->mailer->setFrom( 'me@hello.com', 'me');
+    $header_to = 'abc <abc@xyz.com>';
+    NSA::setProperty($this->mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'   => 'hello'
+    ]);
+
+    $expected_request_body = [
+      'recipients' => [
+        [
+          'address' => [
+            'email' => 'abc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+            'email' => 'bcc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ],
+        [
+          'address' => [
+            'email' => 'cc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ]
+      ],
+      'options' => [
+        'open_tracking' => (bool) true,
+        'click_tracking' => (bool) true,
+        'transactional' => (bool) false
+      ],
+      'content' => [
+        'template_id' => 'hello',
+      ],
+      'substitution_data' => [
+        'content' => '',
+        'subject' => '',
+        'from_name' => 'me',
+        'from' => 'me <me@hello.com>',
+        'from_localpart'  => 'me'
+      ]
+    ];
+
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $this->assertTrue($expected_request_body == $actual);
+
+    //INCLUDE REPLYTO
+    $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
+    $this->mailer->addCustomHeader('Reply-To', 'reply-to <reply@abc.com>'); //for below version v4.6
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
+    $this->assertTrue($expected_request_body == $actual);
   }
 }
