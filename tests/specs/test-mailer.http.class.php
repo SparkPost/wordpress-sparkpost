@@ -5,12 +5,19 @@
 namespace WPSparkPost;
 use \Nyholm\NSA;
 use \Mockery;
+use phpmock\phpunit\PHPMock;
 
 class TestHttpMailer extends \WP_UnitTestCase {
+  use PHPMock;
+
   var $mailer;
 
   function setUp() {
     $this->mailer = new SparkPostHTTPMailer();
+  }
+
+  public function tearDown() {
+     \Mockery::close();
   }
 
   function test_mailSend_calls_sparkpost_send() {
@@ -310,5 +317,32 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
     $this->assertTrue($expected_request_body == $actual);
+  }
+
+  function sparkpost_send($num_rejected) {
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'results' => array(
+          'total_rejected_recipients' => $num_rejected,
+          'total_accepted_recipients' => 1,
+          'id'  => 88388383737373
+        )
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $lib_mock = $this->getFunctionMock(__NAMESPACE__, '_wp_http_get_object');
+    $lib_mock->expects($this->at(0))->willReturn($http_lib_mock);
+
+    return $this->mailer->sparkpost_send();
+  }
+
+  function test_sparkpost_send_success() {
+    $this->assertTrue($this->sparkpost_send(0));
+  }
+
+  function test_sparkpost_send_failure() {
+    $this->assertFalse($this->sparkpost_send(1));
   }
 }

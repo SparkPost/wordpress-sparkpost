@@ -204,7 +204,6 @@ class SparkPostHTTPMailer extends \PHPMailer
             return false;
         }
 
-
         if (property_exists($body, 'results')) {
             $data = $body->results;
         } else {
