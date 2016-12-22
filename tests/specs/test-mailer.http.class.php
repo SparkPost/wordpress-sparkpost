@@ -394,7 +394,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this
       ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
       ->expects($this->at(0))->willReturn($http_lib_mock);
-    $this->mailer->addAddress('abc@xyz.com', 'abc');
+
 
     $this->assertFalse($this->mailer->sparkpost_send());
   }
@@ -426,4 +426,60 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     $this->assertFalse($this->mailer->sparkpost_send());
   }
+
+  function test_sparkpost_send_response_unknown_api_response() {
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'something_else' => array()
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
+
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_response_uncaught() {
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'results' => array(
+          'total_rejected_recipients' => 0,
+          'total_accepted_recipients' => 0
+        )
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
+
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_parse_reply_to_from_custom_header() {
+    NSA::setProperty($this->mailer, 'CustomHeader', array(array('Reply-To', 'abc@xyz.com')));
+
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'parse_reply_to_from_custom_header'), 'abc@xyz.com');
+  }
+
+  function test_parse_reply_to() {
+    NSA::setProperty($this->mailer, 'ReplyTo', array(
+      array('abc@xyz.com', 'abc'),
+      array('def@xyz.com', '')
+    ));
+    $actual = 'abc <abc@xyz.com>,def@xyz.com';
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'parse_reply_to'), $actual);
+  }
+
+  function test_get_reply_to_below_wp46(){
+    NSA::setProperty($this->mailer, 'CustomHeader', array(array('Reply-To', 'abc@xyz.com')));
+    $GLOBALS['wp_version'] = '4.5';
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_reply_to'), 'abc@xyz.com');
+  }
+
+
 }
