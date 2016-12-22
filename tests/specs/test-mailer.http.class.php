@@ -319,6 +319,36 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($expected_request_body == $actual);
   }
 
+  function test_get_request_body_content_type_text_plain() {
+    $this->mailer->ContentType = 'text/plain';
+    $this->mailer->Body = '<h1>hello world</h1>';
+    $this->mailer->AltBody = 'hello world';
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+
+    $this->assertFalse(array_key_exists('html', $actual['content']));
+    $this->assertEquals($actual['content']['text'], '<h1>hello world</h1>');
+  }
+
+  function test_get_request_body_content_type_multipart() {
+    $this->mailer->ContentType = 'multipart/alternative';
+    $this->mailer->Body = '<h1>hello world</h1>';
+    $this->mailer->AltBody = 'hello world';
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+
+    $this->assertEquals($actual['content']['html'], '<h1>hello world</h1>');
+    $this->assertEquals($actual['content']['text'], 'hello world');
+  }
+
+  function test_get_request_body_content_type_default() {
+    $this->mailer->ContentType = null;
+    $this->mailer->Body = '<h1>hello world</h1>';
+    $this->mailer->AltBody = 'hello world';
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+
+    $this->assertEquals($actual['content']['html'], '<h1>hello world</h1>');
+    $this->assertFalse(array_key_exists('text', $actual['content']));
+  }
+
   function sparkpost_send_prepare_mocks($num_rejected) {
     $this->mailer->addAddress('abc@xyz.com', 'abc');
     $response = array(
@@ -354,7 +384,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $lib_mock = $this->getFunctionMock(__NAMESPACE__, '_wp_http_get_object');
     $lib_mock->expects($this->at(0))->willReturn($http_lib_mock);
     $this->mailer->addAddress('abc@xyz.com', 'abc');
-    
+
     $this->assertFalse($this->mailer->sparkpost_send());
   }
 
