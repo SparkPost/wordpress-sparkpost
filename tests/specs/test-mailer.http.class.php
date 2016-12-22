@@ -319,7 +319,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($expected_request_body == $actual);
   }
 
-  function sparkpost_send($num_rejected) {
+  function sparkpost_send_prepare_mocks($num_rejected) {
     $this->mailer->addAddress('abc@xyz.com', 'abc');
     $response = array(
       'headers' => array(),
@@ -335,14 +335,37 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $lib_mock = $this->getFunctionMock(__NAMESPACE__, '_wp_http_get_object');
     $lib_mock->expects($this->at(0))->willReturn($http_lib_mock);
 
-    return $this->mailer->sparkpost_send();
+    return;
   }
 
   function test_sparkpost_send_success() {
-    $this->assertTrue($this->sparkpost_send(0));
+    $this->sparkpost_send_prepare_mocks(0);
+    $this->assertTrue($this->mailer->sparkpost_send());
   }
 
   function test_sparkpost_send_failure() {
-    $this->assertFalse($this->sparkpost_send(1));
+    $this->sparkpost_send_prepare_mocks(1);
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_false_on_wp_error() {
+    $response = new \WP_Error(500, 'some error');
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $lib_mock = $this->getFunctionMock(__NAMESPACE__, '_wp_http_get_object');
+    $lib_mock->expects($this->at(0))->willReturn($http_lib_mock);
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_skip_processing() {
+    // Testing that it should not handle response if wpsp_handle_response hook returns boolean
+    $this->sparkpost_send_prepare_mocks(1); // set to return false; will override below
+    $callback = function(){
+      return true; // returns true even if http response (mock) was supposed to cause it return false
+    };
+    add_filter('wpsp_handle_response', $callback);
+    $this->assertTrue($this->mailer->sparkpost_send());
+    remove_filter('wpsp_handle_response', $callback);
   }
 }
