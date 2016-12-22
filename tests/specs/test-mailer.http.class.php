@@ -356,16 +356,20 @@ class TestHttpMailer extends \WP_UnitTestCase {
         'type' => 'text/plain',
         'data' =>  'c29tZS1jb250ZW50'
     );
-    $stub = Mockery::mock($this->mailer);
-    $stub->shouldReceive('getAttachments')->andReturn(
-      array(
-        array('/tmp/does-not-exist.txt', 'does-not-exist.txt', 'does-not-exist', 'base64', 'text/plain')
-      )
-    );
-    $function_mock = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
-    $function_mock->expects($this->at(0))->willReturn('some-content');
+    $file_contents = 'some-content';
+    $this->getFunctionMock(__NAMESPACE__, 'file_get_contents')
+      ->expects($this->at(0))
+      ->with('/tmp/does-not-exist.txt')
+      ->willReturn($file_contents);
 
-    $actual = NSA::invokeMethod($stub, 'get_request_body');
+    /* Using this because addAttachment validates for file exists
+      also mocking file_get_contents does not work (not sure why) if I stub getAttachments method
+    */
+    NSA::setProperty($this->mailer, 'attachment', array(
+      array('/tmp/does-not-exist.txt', 'does-not-exist.txt', 'does-not-exist', 'base64', 'text/plain', 'attachment')
+    ));
+
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $this->assertEquals(count($actual['content']['attachments']), 1);
     $this->assertEquals($actual['content']['attachments'][0], $expected);
   }
@@ -402,8 +406,9 @@ class TestHttpMailer extends \WP_UnitTestCase {
   function test_sparkpost_send_false_on_wp_error() {
     $response = new \WP_Error(500, 'some error');
     $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
-    $lib_mock = $this->getFunctionMock(__NAMESPACE__, '_wp_http_get_object');
-    $lib_mock->expects($this->at(0))->willReturn($http_lib_mock);
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
     $this->mailer->addAddress('abc@xyz.com', 'abc');
 
     $this->assertFalse($this->mailer->sparkpost_send());
@@ -418,5 +423,22 @@ class TestHttpMailer extends \WP_UnitTestCase {
     add_filter('wpsp_handle_response', $callback);
     $this->assertTrue($this->mailer->sparkpost_send());
     remove_filter('wpsp_handle_response', $callback);
+  }
+
+  function test_sparkpost_send_response_with_errors() {
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'errors' => array(
+          'you are done'
+        )
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
+
+    $this->assertFalse($this->mailer->sparkpost_send());
   }
 }
