@@ -156,8 +156,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     protected function get_attachments()
     {
         $attachments = array();
-
-        foreach ($this->attachment as $attachment) {
+        foreach ($this->getAttachments() as $attachment) {
             $attachments[] = array(
                 'name' => $attachment[2],
                 'type' => $attachment[4],
