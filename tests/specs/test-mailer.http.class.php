@@ -175,7 +175,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
   }
 
   function test_get_attachments() {
-    /* TODO avoid writing to actual file. See test_get_request_body_with_attachments */
+    /* TODO avoid writing to actual file. */
     $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
     file_put_contents($temp, 'TEST');
     $this->mailer->addAttachment($temp);
@@ -351,27 +351,12 @@ class TestHttpMailer extends \WP_UnitTestCase {
   }
 
   function test_get_request_body_with_attachments() {
-    $expected = array(
-        'name' => 'does-not-exist',
-        'type' => 'text/plain',
-        'data' =>  'c29tZS1jb250ZW50'
-    );
-    $file_contents = 'some-content';
-    $this->getFunctionMock(__NAMESPACE__, 'file_get_contents')
-      ->expects($this->at(0))
-      ->with('/tmp/does-not-exist.txt')
-      ->willReturn($file_contents);
-
-    /* Using this because addAttachment validates for file exists
-      also mocking file_get_contents does not work (not sure why) if I stub getAttachments method
-    */
-    NSA::setProperty($this->mailer, 'attachment', array(
-      array('/tmp/does-not-exist.txt', 'does-not-exist.txt', 'does-not-exist', 'base64', 'text/plain', 'attachment')
-    ));
-
+    /* TODO avoid creating actual file */
+    $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
+    $this->mailer->addAttachment($temp);
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $this->assertEquals(count($actual['content']['attachments']), 1);
-    $this->assertEquals($actual['content']['attachments'][0], $expected);
+    unlink($temp);
   }
 
   function sparkpost_send_prepare_mocks($num_rejected) {
