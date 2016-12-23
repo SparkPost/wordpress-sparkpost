@@ -5,12 +5,19 @@
 namespace WPSparkPost;
 use \Nyholm\NSA;
 use \Mockery;
+use phpmock\phpunit\PHPMock;
 
 class TestHttpMailer extends \WP_UnitTestCase {
+  use PHPMock;
+
   var $mailer;
 
   function setUp() {
     $this->mailer = new SparkPostHTTPMailer();
+  }
+
+  public function tearDown() {
+     \Mockery::close();
   }
 
   function test_mailSend_calls_sparkpost_send() {
@@ -168,6 +175,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
   }
 
   function test_get_attachments() {
+    /* TODO avoid writing to actual file. */
     $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
     file_put_contents($temp, 'TEST');
     $this->mailer->addAttachment($temp);
@@ -311,4 +319,167 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
     $this->assertTrue($expected_request_body == $actual);
   }
+
+  function test_get_request_body_content_type_text_plain() {
+    $this->mailer->ContentType = 'text/plain';
+    $this->mailer->Body = '<h1>hello world</h1>';
+    $this->mailer->AltBody = 'hello world';
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+
+    $this->assertFalse(array_key_exists('html', $actual['content']));
+    $this->assertEquals($actual['content']['text'], '<h1>hello world</h1>');
+  }
+
+  function test_get_request_body_content_type_multipart() {
+    $this->mailer->ContentType = 'multipart/alternative';
+    $this->mailer->Body = '<h1>hello world</h1>';
+    $this->mailer->AltBody = 'hello world';
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+
+    $this->assertEquals($actual['content']['html'], '<h1>hello world</h1>');
+    $this->assertEquals($actual['content']['text'], 'hello world');
+  }
+
+  function test_get_request_body_content_type_default() {
+    $this->mailer->ContentType = null;
+    $this->mailer->Body = '<h1>hello world</h1>';
+    $this->mailer->AltBody = 'hello world';
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+
+    $this->assertEquals($actual['content']['html'], '<h1>hello world</h1>');
+    $this->assertFalse(array_key_exists('text', $actual['content']));
+  }
+
+  function test_get_request_body_with_attachments() {
+    /* TODO avoid creating actual file */
+    $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
+    $this->mailer->addAttachment($temp);
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $this->assertEquals(count($actual['content']['attachments']), 1);
+    unlink($temp);
+  }
+
+  function sparkpost_send_prepare_mocks($num_rejected) {
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'results' => array(
+          'total_rejected_recipients' => $num_rejected,
+          'total_accepted_recipients' => 1,
+          'id'  => 88388383737373
+        )
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $lib_mock = $this->getFunctionMock(__NAMESPACE__, '_wp_http_get_object');
+    $lib_mock->expects($this->at(0))->willReturn($http_lib_mock);
+
+    return;
+  }
+
+  function test_sparkpost_send_success() {
+    $this->sparkpost_send_prepare_mocks(0);
+    $this->assertTrue($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_failure() {
+    $this->sparkpost_send_prepare_mocks(1);
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_false_on_wp_error() {
+    $response = new \WP_Error(500, 'some error');
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
+
+
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_skip_processing() {
+    // Testing that it should not handle response if wpsp_handle_response hook returns boolean
+    $this->sparkpost_send_prepare_mocks(1); // set to return false; will override below
+    $callback = function(){
+      return true; // returns true even if http response (mock) was supposed to cause it return false
+    };
+    add_filter('wpsp_handle_response', $callback);
+    $this->assertTrue($this->mailer->sparkpost_send());
+    remove_filter('wpsp_handle_response', $callback);
+  }
+
+  function test_sparkpost_send_response_with_errors() {
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'errors' => array(
+          'you are done'
+        )
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
+
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_response_unknown_api_response() {
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'something_else' => array()
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
+
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_sparkpost_send_response_uncaught() {
+    $response = array(
+      'headers' => array(),
+      'body' => json_encode(array(
+        'results' => array(
+          'total_rejected_recipients' => 0,
+          'total_accepted_recipients' => 0
+        )
+      ))
+    );
+    $http_lib_mock = Mockery::mock('httplib', array('request' => $response ));
+    $this
+      ->getFunctionMock(__NAMESPACE__, '_wp_http_get_object')
+      ->expects($this->at(0))->willReturn($http_lib_mock);
+
+    $this->assertFalse($this->mailer->sparkpost_send());
+  }
+
+  function test_parse_reply_to_from_custom_header() {
+    NSA::setProperty($this->mailer, 'CustomHeader', array(array('Reply-To', 'abc@xyz.com')));
+
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'parse_reply_to_from_custom_header'), 'abc@xyz.com');
+  }
+
+  function test_parse_reply_to() {
+    NSA::setProperty($this->mailer, 'ReplyTo', array(
+      array('abc@xyz.com', 'abc'),
+      array('def@xyz.com', '')
+    ));
+    $actual = 'abc <abc@xyz.com>,def@xyz.com';
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'parse_reply_to'), $actual);
+  }
+
+  function test_get_reply_to_below_wp46(){
+    NSA::setProperty($this->mailer, 'CustomHeader', array(array('Reply-To', 'abc@xyz.com')));
+    $GLOBALS['wp_version'] = '4.5';
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_reply_to'), 'abc@xyz.com');
+  }
+
+
 }
