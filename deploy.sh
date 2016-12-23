@@ -65,7 +65,7 @@ echo "Pushing latest commit to origin, with tags"
 git push origin master
 git push origin master --tags
 
-echo
+
 echo "Creating local copy of SVN repo ..."
 if [ -d $SVNPATH ]; then rm -rf $SVNPATH; fi
 svn co $SVNURL $SVNPATH
