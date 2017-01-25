@@ -49,6 +49,8 @@ class SparkPost
 
     static function get_options()
     {
+        $switched = false;
+
         if ( bp_get_root_blog_id() !== get_current_blog_id() ) {
             switch_to_blog( bp_get_root_blog_id() );
             $switched = true;
