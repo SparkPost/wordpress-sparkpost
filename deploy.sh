@@ -18,11 +18,11 @@ SVNUSER="sparkpost" # your svn username
 
 # Let's begin...
 echo ".........................................."
-echo 
+echo
 echo "Preparing to deploy wordpress plugin"
-echo 
+echo
 echo ".........................................."
-echo 
+echo
 
 # Check if subversion is installed before getting all worked up
 if ! which svn >/dev/null; then
@@ -35,15 +35,20 @@ NEWVERSION1=`grep "^Stable tag:" $GITPATH/readme.txt | awk -F' ' '{print $NF}'`
 echo "readme.txt version: $NEWVERSION1"
 NEWVERSION2=`grep "^Version:" $GITPATH/$MAINFILE | awk -F' ' '{print $NF}'`
 echo "$MAINFILE version: $NEWVERSION2"
+NEWVERSION3=`grep "^define('WPSP_PLUGIN_VERSION', '2.5.0');"  $GITPATH/wordpress-sparkpost.php | awk -F"'" '{print $4}'`
+echo "$MAINFILE version constant : $NEWVERSION3"
 
-if [ "$NEWVERSION1" != "$NEWVERSION2" ]; then echo "Version in readme.txt & $MAINFILE don't match. Exiting...."; exit 1; fi
+if [[ "$NEWVERSION1" != "$NEWVERSION2" || "$NEWVERSION2" != "$NEWVERSION3" ]]; then
+	echo "Version in readme.txt, $MAINFILE (in comment or constant) don't match. Exiting....";
+	exit 1
+fi
 
 echo "Versions match in readme.txt and $MAINFILE. Let's proceed..."
 
 if git show-ref --tags --quiet --verify -- "refs/tags/$NEWVERSION1"
-  then 
-    echo "Version $NEWVERSION1 already exists as git tag. Exiting...."; 
-    exit 1; 
+  then
+    echo "Version $NEWVERSION1 already exists as git tag. Exiting....";
+    exit 1;
   else
     echo "Git version does not exist. Let's proceed..."
 fi
@@ -60,7 +65,7 @@ echo "Pushing latest commit to origin, with tags"
 git push origin master
 git push origin master --tags
 
-echo 
+
 echo "Creating local copy of SVN repo ..."
 if [ -d $SVNPATH ]; then rm -rf $SVNPATH; fi
 svn co $SVNURL $SVNPATH

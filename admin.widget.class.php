@@ -87,7 +87,7 @@ class SparkPostAdmin
                 $this->render_message('Test email sent successfully', 'updated');
             }
         } else {
-            $this->render_message('Test email could not be sent.  Please check your plugin settings and refer to <a href="https://support.sparkpost.com/customer/en/portal/topics/770787-getting-started/articles" target="_blank">Getting Started</a> in the <a href="https://support.sparkpost.com/" target="_blank">SparkPost Support Center</a>.');
+            $this->render_message('Test email could not be sent.  Please check your plugin settings and refer to <a href="https://support.sparkpost.com/customer/portal/articles/2670627-sparkpost-new-user-guide" target="_blank">Getting Started</a> in the <a href="https://support.sparkpost.com/" target="_blank">SparkPost Support Center</a>.');
         }
     }
 
