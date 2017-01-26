@@ -46,8 +46,8 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 
 == Changelog ==
-= 2.6.0 =
-- Tested for WordPress v4.7.1
+= 2.6.1 =
+- Tested in WordPress v4.7.1
 
 = 2.6.0 =
 - Handle multiple recipients correctly
