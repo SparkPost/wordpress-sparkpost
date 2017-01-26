@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.3
 Tested up to: 4.6.1
-Stable tag: 2.5.0
+Stable tag: 2.6.0
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -47,9 +47,14 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 == Changelog ==
 
+= 2.6.0 =
+- Handle multiple recipients correctly
+- Fix getting started link
+- Send assoc array to `wpsp_smtp_msys_api` filter
+
 = 2.5.0 =
-- Add support for [Transactional email](https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/transactional.md).
-- Add support for [hooks](https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/hooks.md).
+- Add support for [Transactional email](https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/transactional.md)
+- Add support for [hooks](https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/hooks.md)
 
 = 2.4.1 =
 - Fix Reply-To header issue with WordPress 4.6
@@ -108,4 +113,4 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 == Upgrade Notice ==
 
-This is initial version.
+From WordPress plugins list, click `update now`. 
