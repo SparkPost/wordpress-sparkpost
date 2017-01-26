@@ -22,7 +22,7 @@ class SparkPostSMTPMailer
             return;
         }
 
-        $tracking_enabled = (bool) $settings['enable_tracking'];
+        $tracking_enabled = $settings['enable_tracking'];
         $x_msys_api = array(
             'options' => array (
                 'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
@@ -39,7 +39,7 @@ class SparkPostSMTPMailer
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = apply_filters('wpsp_api_key', $settings['password']);
 
-        $json_x_msys_api = apply_filters('wpsp_smtp_msys_api', json_encode($x_msys_api));
-        $phpmailer->addCustomHeader('X-MSYS-API', $json_x_msys_api);
+        $json_x_msys_api = apply_filters('wpsp_smtp_msys_api', $x_msys_api);
+        $phpmailer->addCustomHeader('X-MSYS-API', json_encode($json_x_msys_api));
     }
 }
