@@ -35,7 +35,7 @@ NEWVERSION1=`grep "^Stable tag:" $GITPATH/readme.txt | awk -F' ' '{print $NF}'`
 echo "readme.txt version: $NEWVERSION1"
 NEWVERSION2=`grep "^Version:" $GITPATH/$MAINFILE | awk -F' ' '{print $NF}'`
 echo "$MAINFILE version: $NEWVERSION2"
-NEWVERSION3=`grep "^define('WPSP_PLUGIN_VERSION', '2.5.0');"  $GITPATH/wordpress-sparkpost.php | awk -F"'" '{print $4}'`
+NEWVERSION3=`grep "^define('WPSP_PLUGIN_VERSION'" $GITPATH/wordpress-sparkpost.php | awk -F"'" '{print $4}'`
 echo "$MAINFILE version constant : $NEWVERSION3"
 
 if [[ "$NEWVERSION1" != "$NEWVERSION2" || "$NEWVERSION2" != "$NEWVERSION3" ]]; then
