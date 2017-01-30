@@ -2,7 +2,7 @@
 Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.3
-Tested up to: 4.7.1
+Tested up to: 4.7.2
 Stable tag: 2.6.2
 License: GPLv2 or later
 
