@@ -16,6 +16,8 @@ class SparkPostSMTPMailer
     }
 
     public function configure_phpmailer($phpmailer) {
+        $xmailer = 'wordpress-sparkpost/' . WPSP_PLUGIN_VERSION . ' on PHPMailer ' . $phpmailer->Version . ' (https://github.com/PHPMailer/PHPMailer)';
+
         $settings = SparkPost::get_settings();
 
         if (!$settings['enable_sparkpost'] || empty($settings['password'])) {
@@ -38,6 +40,7 @@ class SparkPostSMTPMailer
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = apply_filters('wpsp_api_key', $settings['password']);
+        $phpmailer->XMailer = $xmailer; 
 
         $json_x_msys_api = apply_filters('wpsp_smtp_msys_api', $x_msys_api);
         $phpmailer->addCustomHeader('X-MSYS-API', json_encode($json_x_msys_api));
