@@ -86,16 +86,18 @@ class SparkPostHTTPMailer extends \PHPMailer
             'transactional' => (bool) apply_filters('wpsp_transactional', $this->settings['transactional'])
         );
 
+        $template_id = apply_filters('wpsp_template_id', $this->settings['template']);
+
         // pass through either stored template or inline content
-        if (!empty($this->settings['template'])) {
+        if (!empty($template_id)) { 
             // stored template
-            $body['content']['template_id'] = apply_filters('wpsp_template_id', $this->settings['template']);
+            $body['content']['template_id'] = $template_id;
 
             // supply substitution data so users can add variables to templates
             $body['substitution_data']['content'] = $this->Body;
             $body['substitution_data']['subject'] = $this->Subject;
             $body['substitution_data']['from_name'] = $sender['name'];
-            $body['substitution_data']['from'] = $sender['name'] . ' <' . $sender['email'] . '>';
+            $body['substitution_data']['from'] = $sender['email'];
             if ($replyTo) {
                 $body['substitution_data']['reply_to'] = $replyTo;
             }
