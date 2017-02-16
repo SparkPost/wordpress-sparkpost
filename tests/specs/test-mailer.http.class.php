@@ -203,7 +203,8 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     NSA::setProperty($this->mailer, 'settings', [
       'enable_tracking' => true,
-      'transactional' => false
+      'transactional' => false,
+      'template' => ''
     ]);
 
     $header_to = 'abc <abc@xyz.com>';
@@ -259,6 +260,27 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($expected_request_body == $actual);
   }
 
+  function test_get_request_body_template_in_hook_but_not_in_settings() {
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    $this->mailer->setFrom( 'me@hello.com', 'me');
+
+    $callback = function(){
+      return 'test-template'; 
+    };
+
+    add_filter('wpsp_template_id', $callback);
+
+    NSA::setProperty($this->mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template' => ''
+    ]);
+
+    $body = NSA::invokeMethod($this->mailer, 'get_request_body');
+    remove_filter('wpsp_template_id', $callback);
+    $this->assertTrue($body['content']['template_id'] == 'test-template');
+  }
+
   function test_get_request_body_with_template() {
     $this->mailer->addAddress('abc@xyz.com', 'abc');
     $this->mailer->addBcc('bcc@xyz.com', 'bcc');
@@ -304,7 +326,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
         'content' => '',
         'subject' => '',
         'from_name' => 'me',
-        'from' => 'me <me@hello.com>',
+        'from' => 'me@hello.com',
         'from_localpart'  => 'me'
       ]
     ];
