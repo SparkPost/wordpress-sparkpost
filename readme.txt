@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.3
 Tested up to: 4.7.2
-Stable tag: 2.6.3
+Stable tag: 2.6.4
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -46,6 +46,11 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 
 == Changelog ==
+= 2.6.4 =
+- Fix the issue to use template hook when not set in settings ([#95](https://github.com/SparkPost/wordpress-sparkpost/issues/95))
+- Clarify attachment can't be sent with template and include workaround example ([#96](https://github.com/SparkPost/wordpress-sparkpost/issues/96))
+- Include attachment in test email
+
 = 2.6.3 =
 - Add plugin name to XMailer (for SMTP)
 - Tested in WordPress v4.7.2
@@ -119,4 +124,4 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 == Upgrade Notice ==
 
-From WordPress plugins list, click `update now`. 
+From WordPress plugins list, click `update now`.

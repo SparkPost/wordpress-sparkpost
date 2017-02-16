@@ -247,8 +247,8 @@ class SparkPostAdmin
             <ul>
                 <li>- Please see <a href="https://support.sparkpost.com/customer/portal/articles/2409547-using-templates-with-the-sparkpost-wordpress-plugin" target="_blank">this article</a> for detailed information about using templates with this plugin.</li>
                 <li>- Templates can only be used with the HTTP API.</li>
-                <li>- <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/templates-attachments.md" target="_blank">Does not work with attachment</a>.
-                <li>- Leave this field blank to disable use of a template or use it dynamically (i.e. <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/hooks.md" target="_blank">using hooks</a>).</li>
+                <li>- <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/templates-attachments.md" target="_blank">Does not work with attachment.</a>
+                <li>- Leave this field blank to disable use of a template. You can still specify it by <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/hooks.md" target="_blank">using hooks</a>.</li>
             </ul>
         </small>
     <?php
