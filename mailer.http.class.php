@@ -40,6 +40,10 @@ class SparkPostHTTPMailer extends \PHPMailer
     {
         $this->edebug('Preparing request data');
 
+        if (!empty($this->settings['api_endpoint'])) {
+            $this->endpoint = $this->settings['api_endpoint'];
+        }
+
         $data = array(
             'method' => 'POST',
             'timeout' => 15,
@@ -79,6 +83,11 @@ class SparkPostHTTPMailer extends \PHPMailer
         // add recipients
         $body['recipients'] = $this->get_recipients();
 
+        // set required return path for enterprise customers
+        if (strpos($this->endpoint, '.sparkpostelite.com') !== false || strpos($this->endpoint, '.msyscloud.com')) {
+            $body['return_path'] = $sender['email'];
+        }
+
         // enable engagement tracking
         $body['options'] = array(
             'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
@@ -86,10 +95,14 @@ class SparkPostHTTPMailer extends \PHPMailer
             'transactional' => (bool) apply_filters('wpsp_transactional', $this->settings['transactional'])
         );
 
+        if (!empty($this->settings['ip_pool'])) {
+            $body['options']['ip_pool'] = $this->settings['ip_pool'];
+        }
+
         $template_id = apply_filters('wpsp_template_id', $this->settings['template']);
 
         // pass through either stored template or inline content
-        if (!empty($template_id)) { 
+        if (!empty($template_id)) {
             // stored template
             $body['content']['template_id'] = $template_id;
 

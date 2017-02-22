@@ -33,14 +33,18 @@ class SparkPostSMTPMailer
             )
         );
 
+        if (!empty($this->settings['ip_pool'])) {
+            $x_msys_api['options']['ip_pool'] = $this->settings['ip_pool'];
+        }
+
         $phpmailer->isSMTP();
         $phpmailer->SMTPSecure = 'tls';
         $phpmailer->Port = !empty($settings['port']) ? intval($settings['port']) : 587;
-        $phpmailer->Host = 'smtp.sparkpostmail.com';
+        $phpmailer->Host = !empty($settings['smtp_host']) ? $settings['smtp_host'] : 'smtp.sparkpostmail.com';
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = apply_filters('wpsp_api_key', $settings['password']);
-        $phpmailer->XMailer = $xmailer; 
+        $phpmailer->XMailer = $xmailer;
 
         $json_x_msys_api = apply_filters('wpsp_smtp_msys_api', $x_msys_api);
         $phpmailer->addCustomHeader('X-MSYS-API', json_encode($json_x_msys_api));
