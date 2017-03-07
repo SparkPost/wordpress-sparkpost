@@ -8,7 +8,7 @@ require_once ABSPATH . WPINC . '/class-phpmailer.php';
 
 class SparkPostHTTPMailer extends \PHPMailer
 {
-    protected $endpoint = 'https://api.sparkpost.com/api/v1/transmissions';
+    public $endpoint = 'https://api.sparkpost.com/api/v1/transmissions';
     private $settings;
 
     /**
@@ -89,7 +89,7 @@ class SparkPostHTTPMailer extends \PHPMailer
         $template_id = apply_filters('wpsp_template_id', $this->settings['template']);
 
         // pass through either stored template or inline content
-        if (!empty($template_id)) { 
+        if (!empty($template_id)) {
             // stored template
             $body['content']['template_id'] = $template_id;
 

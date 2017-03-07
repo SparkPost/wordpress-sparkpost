@@ -18,7 +18,6 @@ Hook names are prefixed with `wpsp_`.
 | wpsp_open_tracking           | Filter   |   
 | wpsp_click_tracking          | Filter   |
 | wpsp_template_id             | Filter   |  Use a different template ID
-| wpsp_substitution_content_tag_name| Filter   |  Use a different tag for content substitution. By default you needed to use `content` tag. **IMPORTANT: DO NOT USE IT. IT'LL BE REMOVED IN NEXT RELEASE** 
 | wpsp_sender_email            | Filter   |
 | wpsp_sender_name             | Filter   |
 | wpsp_response_body           | Filter   |
