@@ -12,8 +12,7 @@ class SparkPostTemplates {
     $this->settings = SparkPost::get_settings();
   }
 
-  protected function get_request_headers($hide_api_key = false)
-  {
+  protected function get_request_headers($hide_api_key = false){
       $api_key = apply_filters('wpsp_api_key', $this->settings['password']);
 
       return apply_filters('wpsp_request_headers', array(
@@ -32,28 +31,27 @@ class SparkPostTemplates {
     );
 
     $data = array(
-        'method' => 'POST',
-        'timeout' => 15,
-        'headers' => $this->get_request_headers(),
-        'body' => json_encode($body)
+      'method' => 'POST',
+      'timeout' => 15,
+      'headers' => $this->get_request_headers(),
+      'body' => json_encode($body)
     );
 
     $response = $http->request($url, $data);
     $body = json_decode($response['body']);
 
     if (property_exists($body, 'errors')) {
-        $this->edebug('Error in getting template data');
-        $this->setError($body->errors);
-        return false;
+      $this->edebug('Error in getting template data');
+      $this->setError($body->errors);
+      return false;
     }
 
     if (property_exists($body, 'results')) {
       return $body->results;
-        return $body->results;
     } else {
-        $this->edebug('API response is unknown');
-        $this->setError('Unknown response');
-        return false;
+      $this->edebug('API response is unknown');
+      $this->setError('Unknown response');
+      return false;
     }
   }
 
