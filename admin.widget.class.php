@@ -56,8 +56,8 @@ class SparkPostAdmin
         $result = wp_mail($recipient,
             'SparkPost email test',
             '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>',
-            $headers,
-            $attachments
+            $headers
+            , $attachments
         );
         remove_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         return $result;

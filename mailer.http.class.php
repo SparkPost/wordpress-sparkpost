@@ -5,6 +5,7 @@ namespace WPSparkPost;
 if (!defined('ABSPATH')) exit();
 
 require_once ABSPATH . WPINC . '/class-phpmailer.php';
+require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 
 class SparkPostHTTPMailer extends \PHPMailer
 {
@@ -67,6 +68,31 @@ class SparkPostHTTPMailer extends \PHPMailer
     }
 
     /**
+    * Prepare substitution data to be used in template
+    */
+    protected function get_template_substitutes($sender, $replyTo){
+      $substitution_data = array();
+      $substitution_data['content'] = $this->Body;
+      $substitution_data['subject'] = $this->Subject;
+      $substitution_data['from_name'] = $sender['name'];
+      $substitution_data['from'] = $sender['email'];
+      if ($replyTo) {
+          $substitution_data['reply_to'] = $replyTo;
+      }
+      $localpart = explode('@', $sender['email']);
+      if (!empty($localpart)) {
+          $substitution_data['from_localpart'] = $localpart[0];
+      }
+
+      return $substitution_data;
+    }
+
+    function get_template_preview($template_id, $substitution_data) {
+        $template = new SparkPostTemplates();
+        return $template->preview($template_id, $substitution_data);
+    }
+
+    /**
      * Build the request body to be sent to the SparkPost API.
      */
     protected function get_request_body()
@@ -88,23 +114,36 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         $template_id = apply_filters('wpsp_template_id', $this->settings['template']);
 
+        $attachments = $this->get_attachments();
+
         // pass through either stored template or inline content
         if (!empty($template_id)) {
-            // stored template
-            $body['content']['template_id'] = $template_id;
+          // stored template
+          $substitution_data = $this->get_template_substitutes($sender, $replyTo);
+          if(sizeof($attachments) > 0){ //get template preview data and then send it as inline
+            $preview_contents = $this->get_template_preview($template_id, $substitution_data);
+            $body['content'] = array(
+                'from' => $preview_contents->from,
+                'subject' => $preview_contents->subject,
+                'headers' => $this->get_headers()
+            );
+            
+            if(property_exists($preview_contents, 'text')) {
+                $body['content']['text'] = $preview_contents->text;
+            }
 
-            // supply substitution data so users can add variables to templates
-            $body['substitution_data']['content'] = $this->Body;
-            $body['substitution_data']['subject'] = $this->Subject;
-            $body['substitution_data']['from_name'] = $sender['name'];
-            $body['substitution_data']['from'] = $sender['email'];
-            if ($replyTo) {
-                $body['substitution_data']['reply_to'] = $replyTo;
+            if(property_exists($preview_contents, 'html')){
+              $body['content']['html'] = $preview_contents->html;
             }
-            $localpart = explode('@', $sender['email']);
-            if (!empty($localpart)) {
-                $body['substitution_data']['from_localpart'] = $localpart[0];
+
+            if(property_exists($preview_contents, 'reply_to')) {
+                $body['content']['reply_to'] = $preview_contents->reply_to;
             }
+
+          } else { // simply subsititute template tags
+            $body['content']['template_id'] = $template_id;
+            $body['substitution_data'] = $substitution_data;
+          }
         } else {
             // inline content
             $body['content'] = array(
@@ -131,8 +170,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             }
         }
 
-        $attachments = $this->get_attachments();
-        if (count($attachments)) {
+        if (sizeof($attachments)) {
             $body['content']['attachments'] = $attachments;
         }
 
