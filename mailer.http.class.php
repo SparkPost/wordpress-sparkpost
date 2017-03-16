@@ -136,6 +136,10 @@ class SparkPostHTTPMailer extends \PHPMailer
             $body['content']['attachments'] = $attachments;
         }
 
+        if (isset($body['content']['from']['email']) && SparkPost::is_sandbox($body['content']['from']['email'])) {
+            $body['options']['sandbox'] = true;
+        }
+
         $body = apply_filters( 'wpsp_request_body', $body);
 
         return $body;
