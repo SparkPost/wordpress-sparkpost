@@ -234,7 +234,7 @@ class SparkPostAdmin
         printf(
             '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/>
             <small><ul><li>For SMTP, set up an API key with the <strong>Send via SMTP</strong> permission</li>
-            <li>For HTTP API, set up an API Key with the <strong>Transmissions: Read/Write, Templates: Preview</strong> permissions</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
+            <li>For HTTP API, set up an API Key with the <strong>Transmissions: Read/Write, Templates: Read/Write</strong> permissions</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
             isset($api_key) ? $api_key : ''
         );
     }
