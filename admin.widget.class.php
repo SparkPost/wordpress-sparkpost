@@ -53,10 +53,10 @@ class SparkPostAdmin
         add_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         $headers = array();
         $attachments= array(__DIR__ . '/sample.txt');
-        $result = wp_mail($recipient,
-            'SparkPost email test',
-            '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>',
-            $headers
+        $result = wp_mail($recipient
+            , 'SparkPost email test'
+            , '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>'
+            , $headers
             , $attachments
         );
         remove_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
@@ -233,7 +233,8 @@ class SparkPostAdmin
 
         printf(
             '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/>
-            <small><ul><li>For SMTP, set up an API key with the <strong>Send via SMTP</strong> permission</li> <li>For HTTP API, set up an API Key with the <strong>Transmissions: Read/Write</strong> permission</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
+            <small><ul><li>For SMTP, set up an API key with the <strong>Send via SMTP</strong> permission</li>
+            <li>For HTTP API, set up an API Key with the <strong>Transmissions: Read/Write, Templates: Preview</strong> permissions</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
             isset($api_key) ? $api_key : ''
         );
     }
@@ -247,7 +248,6 @@ class SparkPostAdmin
             <ul>
                 <li>- Please see <a href="https://support.sparkpost.com/customer/portal/articles/2409547-using-templates-with-the-sparkpost-wordpress-plugin" target="_blank">this article</a> for detailed information about using templates with this plugin.</li>
                 <li>- Templates can only be used with the HTTP API.</li>
-                <li>- <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/templates-attachments.md" target="_blank">Does not work with attachment.</a>
                 <li>- Leave this field blank to disable use of a template. You can still specify it by <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/hooks.md" target="_blank">using hooks</a>.</li>
             </ul>
         </small>
@@ -256,7 +256,7 @@ class SparkPostAdmin
 
     public function render_from_email_field()
     {
-        $hint = 'Important: Domain must match with one of your verified sending domains.';
+        $hint = '<strong>Important:</strong> Domain must match with one of your verified sending domains.';
         if(empty($this->settings['from_email'])){
             $hostname = parse_url(get_bloginfo('url'), PHP_URL_HOST);
             $hint .= sprintf(' When left blank, <strong>%s</strong> will be used as email domain', $hostname);
