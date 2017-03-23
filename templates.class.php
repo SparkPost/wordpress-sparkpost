@@ -3,7 +3,6 @@ namespace WPSparkPost;
 // If ABSPATH is defined, we assume WP is calling us.
 // Otherwise, this could be an illicit direct request.
 if (!defined('ABSPATH')) exit();
-// require_once WPSP_PLUGIN_DIR '/sparkpost.class.php';
 
 class SparkPostTemplates {
   public $endpoint = 'https://api.sparkpost.com/api/v1/templates';
@@ -12,6 +11,7 @@ class SparkPostTemplates {
     $this->mailer = $mailer;
     $this->settings = SparkPost::get_settings();
   }
+
 
   public function preview($id, $substitution_data){
     $url = "{$this->endpoint}/{$id}/preview?draft=false";
@@ -28,20 +28,26 @@ class SparkPostTemplates {
       'body' => json_encode($body)
     );
 
+    $this->mailer->debug('Making template API request');
+    $this->mailer->debug(print_r($data, true));
+
     $response = $http->request($url, $data);
+    $this->mailer->debug('Template API request completed');
+    $this->mailer->check_permission_error($response, 'Templates: Read/Write');
+
     $body = json_decode($response['body']);
 
     if (property_exists($body, 'errors')) {
-      $this->mailer->edebug('Error in getting template data');
-      $this->mailer->setError($body->errors);
+      $this->mailer->debug('Error in getting template data');
+      $this->mailer->error($body->errors);
       return false;
     }
 
     if (property_exists($body, 'results')) {
       return $body->results;
     } else {
-      $this->mailer->edebug('API response is unknown');
-      $this->mailer->setError('Unknown response');
+      $this->mailer->debug('API response is unknown');
+      $this->mailer->error('Unknown response');
       return false;
     }
   }
