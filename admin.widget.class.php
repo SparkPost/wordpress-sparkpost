@@ -48,22 +48,21 @@ class SparkPostAdmin
         return 'text/html';
     }
 
-    private function send_email($recipient)
+    private function send_email($recipient, $attachments = array())
     {
         add_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         $headers = array();
-        $attachments= array(__DIR__ . '/sample.txt');
-        $result = wp_mail($recipient
-            , 'SparkPost email test'
-            , '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>'
-            , $headers
-            , $attachments
+        $result = wp_mail($recipient,
+            'SparkPost email test',
+            '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>',
+            $headers,
+            $attachments
         );
         remove_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         return $result;
     }
 
-    public function test_email_sending($recipient, $debug = false)
+    public function test_email_sending($recipient, $debug = false, $include_attachment = false)
     {
         if (empty($recipient)) {
             return $this->render_message('Please enter a valid email address in the recipient field below.');
@@ -73,14 +72,21 @@ class SparkPostAdmin
             return $this->render_message('Recipient is not a valid email address.');
         }
 
+
+        if($include_attachment) {
+            $attachments = array(__DIR__ . '/sample.txt');
+        } else {
+            $attachments = array();
+        }
+
         if ($debug) {
             add_action('phpmailer_init', array($this, 'phpmailer_enable_debugging'));
             echo '<div class="notice is-dismissible">';
             echo '<h4>Debug Messages</h4>';
-            $result = $this->send_email($recipient);
+            $result = $this->send_email($recipient, $attachments);
             echo '</div>';
         } else {
-            $result = $this->send_email($recipient);
+            $result = $this->send_email($recipient, $attachments);
         }
 
         if ($result) {
@@ -111,7 +117,7 @@ class SparkPostAdmin
                 <h3>Test Email</h3>
                 <?php
                 if (isset($_POST['sp_test_email'])) {
-                    $this->test_email_sending($_POST['to_email'], !empty($_POST['enable_debugging']));
+                    $this->test_email_sending($_POST['to_email'], !empty($_POST['enable_debugging']), !empty($_POST['include_attachment']));
                 }
                 ?>
 
@@ -144,6 +150,7 @@ class SparkPostAdmin
 
         add_settings_section('test_email', '', null, 'sp-test-email');
         add_settings_field('to_email', 'Recipient*', array($this, 'render_to_email_field'), 'sp-test-email', 'test_email');
+        add_settings_field('include_attachment', '', array($this, 'render_include_attachment_field'), 'sp-test-email', 'test_email');
         add_settings_field('debug_messages', 'Debug', array($this, 'render_enable_debugging_field'), 'sp-test-email', 'test_email');
     }
 
@@ -309,11 +316,17 @@ class SparkPostAdmin
         echo '<label><input type="checkbox" id="enable_debugging" name="enable_debugging" value="1" checked />Show email debugging messages</label>';
     }
 
-      public function render_transactional_field()
-      {
-          printf('<label><input type="checkbox" id="transactional" name="sp_settings[transactional]" value="1" %s />Mark emails as transactional</label>
-          <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
-           $this->settings['transactional'] ? 'checked' : '');
+    public function render_transactional_field()
+    {
+        printf('<label><input type="checkbox" id="transactional" name="sp_settings[transactional]" value="1" %s />Mark emails as transactional</label>
+        <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
+         $this->settings['transactional'] ? 'checked' : '');
 
-      }
+    }
+
+
+    public function render_include_attachment_field()
+    {
+        echo '<label><input type="checkbox" id="include_attachment" name="include_attachment" value="1" %s />Include Attachment</label>';
+    }
 }
