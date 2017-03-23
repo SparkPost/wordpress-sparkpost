@@ -29,7 +29,8 @@ class SparkPostSMTPMailer
             'options' => array (
                 'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
                 'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled),
-                'transactional' => (bool) apply_filters('wpsp_transactional', $settings['transactional'])
+                'transactional' => (bool) apply_filters('wpsp_transactional', $settings['transactional']),
+                'sandbox' => SparkPost::is_sandbox($phpmailer->From),
             )
         );
 
@@ -40,7 +41,7 @@ class SparkPostSMTPMailer
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = apply_filters('wpsp_api_key', $settings['password']);
-        $phpmailer->XMailer = $xmailer; 
+        $phpmailer->XMailer = $xmailer;
 
         $json_x_msys_api = apply_filters('wpsp_smtp_msys_api', $x_msys_api);
         $phpmailer->addCustomHeader('X-MSYS-API', json_encode($json_x_msys_api));
