@@ -265,7 +265,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->mailer->setFrom( 'me@hello.com', 'me');
 
     $callback = function(){
-      return 'test-template'; 
+      return 'test-template';
     };
 
     add_filter('wpsp_template_id', $callback);
@@ -332,6 +332,56 @@ class TestHttpMailer extends \WP_UnitTestCase {
     ];
 
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $this->assertTrue($expected_request_body == $actual);
+
+    //INCLUDE REPLYTO
+    $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
+    $this->mailer->addCustomHeader('Reply-To', 'reply-to <reply@abc.com>'); //for below version v4.6
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
+    $this->assertTrue($expected_request_body == $actual);
+  }
+
+  function test_get_request_body_with_template_and_attachments() {
+    $this->mailer->addAddress('abc@xyz.com', 'abc');
+    /* TODO avoid creating actual file */
+    $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
+    $this->mailer->addAttachment($temp);
+    NSA::setProperty($this->mailer, 'settings', [
+      'template'   => 'hello',
+      'enable_tracking' => false,
+      'transactional' => false
+    ]);
+    $header_to = 'abc <abc@xyz.com>';
+
+    $expected_request_body = [
+      'recipients' => [
+        [
+          'address' => [
+            'email' => 'abc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ]
+      ],
+      'options' => [
+        'open_tracking' => (bool) false,
+        'click_tracking' => (bool) false,
+        'transactional' => (bool) false
+      ],
+      'content' => [
+        'template_id' => 'hello',
+      ],
+      'substitution_data' => [
+        'content' => 'abc content',
+        'subject' => 'abc subject',
+        'from_name' => 'me',
+        'from' => 'me@hello.com',
+        'from_localpart'  => 'me'
+      ]
+    ];
+
+    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
+    unlink($temp);
     $this->assertTrue($expected_request_body == $actual);
 
     //INCLUDE REPLYTO
