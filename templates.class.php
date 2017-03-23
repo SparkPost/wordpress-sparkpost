@@ -15,7 +15,6 @@ class SparkPostTemplates {
 
   public function preview($id, $substitution_data){
     $url = "{$this->endpoint}/{$id}/preview?draft=false";
-    $http = $this->mailer->get_http_lib();
 
     $body = array(
       'substitution_data' => $substitution_data
@@ -31,7 +30,7 @@ class SparkPostTemplates {
     $this->mailer->debug('Making template API request');
     $this->mailer->debug(print_r($data, true));
 
-    $response = $http->request($url, $data);
+    $response = $this->mailer->request($url, $data);
     $this->mailer->debug('Template API request completed');
     $this->mailer->check_permission_error($response, 'Templates: Read/Write');
 
