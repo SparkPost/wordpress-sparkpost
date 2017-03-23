@@ -8,23 +8,14 @@ if (!defined('ABSPATH')) exit();
 class SparkPostTemplates {
   public $endpoint = 'https://api.sparkpost.com/api/v1/templates';
 
-  public function __construct(){
+  public function __construct($mailer){
+    $this->mailer = $mailer;
     $this->settings = SparkPost::get_settings();
-  }
-
-  protected function get_request_headers($hide_api_key = false){
-      $api_key = apply_filters('wpsp_api_key', $this->settings['password']);
-
-      return apply_filters('wpsp_request_headers', array(
-          'User-Agent' => 'wordpress-sparkpost/' . WPSP_PLUGIN_VERSION,
-          'Content-Type' => 'application/json',
-          'Authorization' => $api_key
-      ));
   }
 
   public function preview($id, $substitution_data){
     $url = "{$this->endpoint}/{$id}/preview?draft=false";
-    $http = apply_filters('wpsp_get_http_lib', _wp_http_get_object());
+    $http = $this->mailer->get_http_lib();
 
     $body = array(
       'substitution_data' => $substitution_data
@@ -33,7 +24,7 @@ class SparkPostTemplates {
     $data = array(
       'method' => 'POST',
       'timeout' => 15,
-      'headers' => $this->get_request_headers(),
+      'headers' => $this->mailer->get_request_headers(),
       'body' => json_encode($body)
     );
 
@@ -41,16 +32,16 @@ class SparkPostTemplates {
     $body = json_decode($response['body']);
 
     if (property_exists($body, 'errors')) {
-      $this->edebug('Error in getting template data');
-      $this->setError($body->errors);
+      $this->mailer->edebug('Error in getting template data');
+      $this->mailer->setError($body->errors);
       return false;
     }
 
     if (property_exists($body, 'results')) {
       return $body->results;
     } else {
-      $this->edebug('API response is unknown');
-      $this->setError('Unknown response');
+      $this->mailer->edebug('API response is unknown');
+      $this->mailer->setError('Unknown response');
       return false;
     }
   }
