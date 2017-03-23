@@ -37,6 +37,10 @@ class SparkPostHTTPMailer extends \PHPMailer
         return $this->sparkpost_send();
     }
 
+    function get_http_lib() {
+      return apply_filters('wpsp_get_http_lib', _wp_http_get_object());
+    }
+
     function sparkpost_send()
     {
         $this->edebug('Preparing request data');
@@ -48,7 +52,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             'body' => json_encode($this->get_request_body())
         );
 
-        $http = apply_filters('wpsp_get_http_lib', _wp_http_get_object());
+        $http = $this->get_http_lib();
 
         $this->edebug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
         $this->edebug(sprintf('Request body: %s', $data['body']));
@@ -88,7 +92,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     }
 
     function get_template_preview($template_id, $substitution_data) {
-        $template = new SparkPostTemplates();
+        $template = new SparkPostTemplates($this);
         return $template->preview($template_id, $substitution_data);
     }
 
@@ -123,11 +127,11 @@ class SparkPostHTTPMailer extends \PHPMailer
           if(sizeof($attachments) > 0){ //get template preview data and then send it as inline
             $preview_contents = $this->get_template_preview($template_id, $substitution_data);
             $body['content'] = array(
-                'from' => $preview_contents->from,
-                'subject' => $preview_contents->subject,
-                'headers' => $this->get_headers()
+                'from' => (array) $preview_contents->from,
+                'subject' => (string) $preview_contents->subject,
+                'headers' => (array) $this->get_headers()
             );
-            
+
             if(property_exists($preview_contents, 'text')) {
                 $body['content']['text'] = $preview_contents->text;
             }
@@ -174,6 +178,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             $body['content']['attachments'] = $attachments;
         }
 
+        var_dump($body['content']['from']);
         if (isset($body['content']['from']['email']) && SparkPost::is_sandbox($body['content']['from']['email'])) {
             $body['options']['sandbox'] = true;
         }
@@ -297,7 +302,7 @@ class SparkPostHTTPMailer extends \PHPMailer
         return apply_filters('wpsp_recipients', $recipients);
     }
 
-    protected function get_request_headers($hide_api_key = false)
+    function get_request_headers($hide_api_key = false)
     {
         $api_key = apply_filters('wpsp_api_key', $this->settings['password']);
         if ($hide_api_key) {
