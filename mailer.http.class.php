@@ -300,7 +300,7 @@ class SparkPostHTTPMailer extends \PHPMailer
         return apply_filters('wpsp_recipients', $recipients);
     }
 
-    function get_request_headers($hide_api_key = false)
+    public function get_request_headers($hide_api_key = false)
     {
         $api_key = apply_filters('wpsp_api_key', $this->settings['password']);
         if ($hide_api_key) {
