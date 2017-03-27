@@ -344,11 +344,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
   }
 
   function test_get_request_body_with_template_and_attachments() {
-    $mock = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
-      ->setMethods(array('get_template_preview', 'get_attachments'))
-      ->getMock();
-
-    $template_preview = (object) array(
+    $template_data =  (object) array(
         'from' => array(
             'from' =>   'me@hello.com',
             'from_name' => 'me'
@@ -357,25 +353,38 @@ class TestHttpMailer extends \WP_UnitTestCase {
         'headers' => array(),
         'html'  => '<h1>Hello there<h1>'
     );
-    $mock->addAddress('abc@xyz.com', 'abc');
-    $mock->setFrom( 'me@hello.com', 'me');
-
-    $mock->expects($this->once())
-      ->method('get_template_preview')
-      ->will($this->returnValue($template_preview));
-
-    $attachments = [
+    $attachments_data = [
       'name'  => 'php-wordpress-sparkpost.txt',
       'type'  => 'plain/text',
       'data'  => base64_encode('TEST')
     ];
 
-    $mock->expects($this->once())
+
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_attachments'))
+      ->getMock();
+
+    $template = $this->getMockBuilder('WPSparkPost\SparkPostTemplates')
+      ->setConstructorArgs(array($mailer))
+      ->setMethods(array('preview'))
+      ->getMock();
+
+    $template->expects($this->once())
+      ->method('preview')
+      ->will($this->returnValue($template_data));
+
+    $mailer->template = $template;
+
+    $mailer->addAddress('abc@xyz.com', 'abc');
+    $mailer->setFrom( 'me@hello.com', 'me');
+
+
+    $mailer->expects($this->once())
       ->method('get_attachments')
-      ->will($this->returnValue($attachments));
+      ->will($this->returnValue($attachments_data));
 
     $header_to = 'abc <abc@xyz.com>';
-    NSA::setProperty($mock, 'settings', [
+    NSA::setProperty($mailer, 'settings', [
       'enable_tracking' => true,
       'transactional' => false,
       'template'   => 'hello'
@@ -402,11 +411,11 @@ class TestHttpMailer extends \WP_UnitTestCase {
         ],
         'subject' => 'test subject',
         'html'  => '<h1>Hello there<h1>',
-        'attachments' => $attachments
+        'attachments' => $attachments_data
       ]
     ];
 
-    $actual = NSA::invokeMethod($mock, 'get_request_body');
+    $actual = NSA::invokeMethod($mailer, 'get_request_body');
     unset($actual['content']['headers']); //to simplify assertion
     $this->assertTrue($expected_request_body == $actual);
 

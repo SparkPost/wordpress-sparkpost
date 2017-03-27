@@ -19,6 +19,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     function __construct($exceptions = false)
     {
         $this->settings = SparkPost::get_settings();
+        $this->template = new SparkPostTemplates($this);
 
         parent::__construct($exceptions);
         do_action('wpsp_init_mailer', $this);
@@ -121,7 +122,7 @@ class SparkPostHTTPMailer extends \PHPMailer
           // stored template
           $substitution_data = $this->get_template_substitutes($sender, $replyTo);
           if(sizeof($attachments) > 0){ //get template preview data and then send it as inline
-            $preview_contents = $this->get_template_preview($template_id, $substitution_data);
+            $preview_contents = $this->template->preview($template_id, $substitution_data);
             if($preview_contents === false) {
               return false;
             }
