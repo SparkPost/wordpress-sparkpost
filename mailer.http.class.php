@@ -88,11 +88,6 @@ class SparkPostHTTPMailer extends \PHPMailer
       return apply_filters('wpsp_substitution_data', $substitution_data);
     }
 
-    function get_template_preview($template_id, $substitution_data) {
-        $template = new SparkPostTemplates($this);
-        return $template->preview($template_id, $substitution_data);
-    }
-
     /**
      * Build the request body to be sent to the SparkPost API.
      */

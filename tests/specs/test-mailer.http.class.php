@@ -351,7 +351,9 @@ class TestHttpMailer extends \WP_UnitTestCase {
         ),
         'subject' => 'test subject',
         'headers' => array(),
-        'html'  => '<h1>Hello there<h1>'
+        'html'  => '<h1>Hello there<h1>',
+        'text'  => 'hello there',
+        'reply_to'  => 'me@hello.com'
     );
     $attachments_data = [
       'name'  => 'php-wordpress-sparkpost.txt',
@@ -411,6 +413,8 @@ class TestHttpMailer extends \WP_UnitTestCase {
         ],
         'subject' => 'test subject',
         'html'  => '<h1>Hello there<h1>',
+        'text'  => 'hello there',
+        'reply_to'  => 'me@hello.com',
         'attachments' => $attachments_data
       ]
     ];
