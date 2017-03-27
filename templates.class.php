@@ -11,7 +11,6 @@ class SparkPostTemplates {
     $this->mailer = $mailer;
   }
 
-
   public function preview($id, $substitution_data){
     $url = "{$this->endpoint}/{$id}/preview?draft=false";
 

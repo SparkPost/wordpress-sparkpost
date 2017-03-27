@@ -18,6 +18,7 @@
 			<file>../mailer.smtp.class.php</file>
 			<file>../mailer.http.class.php</file>
 			<file>../admin.widget.class.php</file>
+			<file>../templates.class.php</file>
 		</whitelist>
 	</filter>
 	<logging>
