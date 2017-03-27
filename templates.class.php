@@ -9,7 +9,6 @@ class SparkPostTemplates {
 
   public function __construct($mailer){
     $this->mailer = $mailer;
-    $this->settings = SparkPost::get_settings();
   }
 
 

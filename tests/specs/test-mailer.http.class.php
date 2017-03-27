@@ -7,6 +7,7 @@ use \Nyholm\NSA;
 use \Mockery;
 use phpmock\phpunit\PHPMock;
 
+
 class TestHttpMailer extends \WP_UnitTestCase {
   use PHPMock;
 
@@ -343,16 +344,42 @@ class TestHttpMailer extends \WP_UnitTestCase {
   }
 
   function test_get_request_body_with_template_and_attachments() {
-    $this->mailer->addAddress('abc@xyz.com', 'abc');
-    /* TODO avoid creating actual file */
-    $temp = tempnam('/tmp', 'php-wordpress-sparkpost');
-    $this->mailer->addAttachment($temp);
-    NSA::setProperty($this->mailer, 'settings', [
-      'template'   => 'hello',
-      'enable_tracking' => false,
-      'transactional' => false
-    ]);
+    $mock = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_template_preview', 'get_attachments'))
+      ->getMock();
+
+    $template_preview = (object) array(
+        'from' => array(
+            'from' =>   'me@hello.com',
+            'from_name' => 'me'
+        ),
+        'subject' => 'test subject',
+        'headers' => array(),
+        'html'  => '<h1>Hello there<h1>'
+    );
+    $mock->addAddress('abc@xyz.com', 'abc');
+    $mock->setFrom( 'me@hello.com', 'me');
+
+    $mock->expects($this->once())
+      ->method('get_template_preview')
+      ->will($this->returnValue($template_preview));
+
+    $attachments = [
+      'name'  => 'php-wordpress-sparkpost.txt',
+      'type'  => 'plain/text',
+      'data'  => base64_encode('TEST')
+    ];
+
+    $mock->expects($this->once())
+      ->method('get_attachments')
+      ->will($this->returnValue($attachments));
+
     $header_to = 'abc <abc@xyz.com>';
+    NSA::setProperty($mock, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'   => 'hello'
+    ]);
 
     $expected_request_body = [
       'recipients' => [
@@ -364,32 +391,25 @@ class TestHttpMailer extends \WP_UnitTestCase {
         ]
       ],
       'options' => [
-        'open_tracking' => (bool) false,
-        'click_tracking' => (bool) false,
+        'open_tracking' => (bool) true,
+        'click_tracking' => (bool) true,
         'transactional' => (bool) false
       ],
       'content' => [
-        'template_id' => 'hello',
-      ],
-      'substitution_data' => [
-        'content' => 'abc content',
-        'subject' => 'abc subject',
-        'from_name' => 'me',
-        'from' => 'me@hello.com',
-        'from_localpart'  => 'me'
+        'from'  =>  [
+          'from_name'  => 'me',
+          'from'  => 'me@hello.com'
+        ],
+        'subject' => 'test subject',
+        'html'  => '<h1>Hello there<h1>',
+        'attachments' => $attachments
       ]
     ];
 
-    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
-    unlink($temp);
+    $actual = NSA::invokeMethod($mock, 'get_request_body');
+    unset($actual['content']['headers']); //to simplify assertion
     $this->assertTrue($expected_request_body == $actual);
 
-    //INCLUDE REPLYTO
-    $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
-    $this->mailer->addCustomHeader('Reply-To', 'reply-to <reply@abc.com>'); //for below version v4.6
-    $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
-    $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
-    $this->assertTrue($expected_request_body == $actual);
   }
 
   function test_get_request_body_content_type_text_plain() {

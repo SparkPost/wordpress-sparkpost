@@ -18,6 +18,7 @@ require_once $_tests_dir . '/includes/functions.php';
  */
 function _manually_load_plugin() {
 	require BASE_DIR . '/wordpress-sparkpost.php';
+	require BASE_DIR . '/templates.class.php';
 	require BASE_DIR . '/mailer.http.class.php';
 }
 
