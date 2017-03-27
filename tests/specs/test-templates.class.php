@@ -41,6 +41,12 @@ class TestTemplates extends \WP_UnitTestCase {
         ->method('request')
         ->will($this->returnValue($response));
 
+      $mailer->expects($this->never())
+        ->method('error');
+
+      $mailer->expects($this->exactly(3))
+        ->method('debug');
+
       $templateObj = new SparkPostTemplates($mailer);
       $result = $templateObj->preview('abcd', array());
       $this->assertEquals($result->subject, 'test subject');
@@ -69,6 +75,13 @@ class TestTemplates extends \WP_UnitTestCase {
         ->method('request')
         ->will($this->returnValue($response));
 
+      $mailer->expects($this->once())
+        ->method('error');
+
+      $mailer->expects($this->exactly(4))
+        ->method('debug');
+
+
       $templateObj = new SparkPostTemplates($mailer);
       $result = $templateObj->preview('abcd', array());
       $this->assertEquals($result, false);
@@ -90,6 +103,12 @@ class TestTemplates extends \WP_UnitTestCase {
       $mailer->expects($this->once())
         ->method('request')
         ->will($this->returnValue($response));
+
+      $mailer->expects($this->once())
+        ->method('error');
+
+      $mailer->expects($this->exactly(4))
+        ->method('debug');
 
       $templateObj = new SparkPostTemplates($mailer);
       $result = $templateObj->preview('abcd', array());
