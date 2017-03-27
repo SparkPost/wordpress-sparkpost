@@ -361,7 +361,6 @@ class TestHttpMailer extends \WP_UnitTestCase {
       'data'  => base64_encode('TEST')
     ];
 
-
     $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
       ->setMethods(array('get_attachments'))
       ->getMock();
@@ -424,7 +423,20 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($expected_request_body == $actual);
   }
 
-  function test_get_request_body_false_on_error() {
+  function test_sparkpost_send_false_on_error() {
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_request_body'))
+      ->getMock();
+
+    $mailer->expects($this->once())
+      ->method('get_request_body')
+      ->will($this->returnValue(false));
+
+    $result = NSA::invokeMethod($mailer, 'sparkpost_send');
+    $this->assertEquals($result, false);
+  }
+
+  function test_get_request_body_with_attachments_returns_false_on_error() {
     $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
       ->setMethods(array('get_attachments', 'get_sender','get_reply_to', 'get_template_substitutes'))
       ->getMock();
@@ -491,6 +503,23 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $this->assertEquals(count($actual['content']['attachments']), 1);
     unlink($temp);
+  }
+
+  function test_get_request_body_with_sandbox() {
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_attachments', 'get_reply_to', 'get_recipients'))
+      ->getMock();
+
+    $mailer->addAddress('abc@xyz.com', 'abc');
+    $mailer->setFrom( 'me@sparkpostbox.com', 'me');
+    NSA::setProperty($mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'  => null
+    ]);
+
+    $body = NSA::invokeMethod($mailer, 'get_request_body');
+    $this->assertTrue($body['options']['sandbox'] == true);
   }
 
   function sparkpost_send_prepare_mocks($num_rejected) {
@@ -616,6 +645,23 @@ class TestHttpMailer extends \WP_UnitTestCase {
     NSA::setProperty($this->mailer, 'CustomHeader', array(array('Reply-To', 'abc@xyz.com')));
     $GLOBALS['wp_version'] = '4.5';
     $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_reply_to'), 'abc@xyz.com');
+  }
+
+  function test_check_permission_error(){
+    $response = [
+      'response' => [
+        'code' => 403
+      ]
+    ];
+
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('debug', 'error'))
+      ->getMock();
+
+    $this->assertTrue($mailer->check_permission_error($response, 'test_perm') === true);
+
+    $response['response']['code'] = 200;
+    $this->assertTrue($mailer->check_permission_error($response, 'test_perm') === false);
   }
 
 

@@ -461,8 +461,9 @@ class SparkPostHTTPMailer extends \PHPMailer
       if(!empty($response['response']) && $response['response']['code'] === 403) {
         $this->debug("API Key might not have {$permission} permission. Actual Error: " . print_r($response['response'], true));
         $this->error("API Key might not have {$permission} permission");
-        return false;
+        return true;
       }
+      return false;
     }
 
     public function debug($msg) {
