@@ -59,6 +59,7 @@ class SparkPostHTTPMailer extends \PHPMailer
         $result = $this->request($this->endpoint, $data);
 
         $result = apply_filters('wpsp_handle_response', $result);
+        $this->check_permission_error($result, 'Transmissions: Read/Write');
         if(is_bool($result)) { // it means, response been already processed by the hooked filter. so just return the value.
           $this->debug('Skipping response processing');
           return $result;
@@ -456,9 +457,11 @@ class SparkPostHTTPMailer extends \PHPMailer
     }
 
     function check_permission_error($response, $permission) {
-      if($response['response']['code'] === 403) {
+      $response = (array) $response;
+      if(!empty($response['response']) && $response['response']['code'] === 403) {
         $this->debug("API Key might not have {$permission} permission. Actual Error: " . print_r($response['response'], true));
         $this->error("API Key might not have {$permission} permission");
+        return false;
       }
     }
 

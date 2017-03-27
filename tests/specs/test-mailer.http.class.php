@@ -422,7 +422,36 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $actual = NSA::invokeMethod($mailer, 'get_request_body');
     unset($actual['content']['headers']); //to simplify assertion
     $this->assertTrue($expected_request_body == $actual);
+  }
 
+  function test_get_request_body_false_on_error() {
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_attachments', 'get_sender','get_reply_to', 'get_template_substitutes'))
+      ->getMock();
+
+    $mailer->expects($this->once())
+      ->method('get_attachments')
+      ->will($this->returnValue(array('name' => 'test-attachment.txt')));
+
+    $template = $this->getMockBuilder('WPSparkPost\SparkPostTemplates')
+      ->setConstructorArgs(array($mailer))
+      ->setMethods(array('preview'))
+      ->getMock();
+
+    $template->expects($this->once())
+      ->method('preview')
+      ->will($this->returnValue(false));
+
+    NSA::setProperty($mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'   => 'hello'
+    ]);
+
+    $mailer->template = $template;
+
+    $result = NSA::invokeMethod($mailer, 'get_request_body');
+    $this->assertEquals($result, false);
   }
 
   function test_get_request_body_content_type_text_plain() {
@@ -467,6 +496,9 @@ class TestHttpMailer extends \WP_UnitTestCase {
   function sparkpost_send_prepare_mocks($num_rejected) {
     $this->mailer->addAddress('abc@xyz.com', 'abc');
     $response = array(
+      'response'  => array(
+        'code'  => 200
+      ),
       'headers' => array(),
       'body' => json_encode(array(
         'results' => array(
