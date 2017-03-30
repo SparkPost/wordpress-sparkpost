@@ -5,6 +5,7 @@ namespace WPSparkPost;
 if (!defined('ABSPATH')) exit();
 
 require_once ABSPATH . WPINC . '/class-phpmailer.php';
+require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 
 class SparkPostHTTPMailer extends \PHPMailer
 {
@@ -18,6 +19,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     function __construct($exceptions = false)
     {
         $this->settings = SparkPost::get_settings();
+        $this->template = new SparkPostTemplates($this);
 
         parent::__construct($exceptions);
         do_action('wpsp_init_mailer', $this);
@@ -38,32 +40,53 @@ class SparkPostHTTPMailer extends \PHPMailer
 
     function sparkpost_send()
     {
-        $this->edebug('Preparing request data');
+        $this->debug('Preparing request data');
+
+        $request_body = $this->get_request_body();
+
+        if(!$request_body) {
+          $this->error('Failed to prepare transmission request body');
+          return false;
+        }
 
         $data = array(
             'method' => 'POST',
             'timeout' => 15,
             'headers' => $this->get_request_headers(),
-            'body' => json_encode($this->get_request_body())
+            'body' => json_encode($request_body)
         );
 
-        $http = apply_filters('wpsp_get_http_lib', _wp_http_get_object());
-
-        $this->edebug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
-        $this->edebug(sprintf('Request body: %s', $data['body']));
-        $this->edebug(sprintf('Making HTTP POST request to %s', $this->endpoint));
-        do_action('wpsp_before_send', $this->endpoint, $data);
-        $result = $http->request($this->endpoint, $data);
-        do_action('wpsp_after_send', $result);
-        $this->edebug('Response received');
+        $result = $this->request($this->endpoint, $data);
 
         $result = apply_filters('wpsp_handle_response', $result);
+        $this->check_permission_error($result, 'Transmissions: Read/Write');
         if(is_bool($result)) { // it means, response been already processed by the hooked filter. so just return the value.
-          $this->edebug('Skipping response processing');
+          $this->debug('Skipping response processing');
           return $result;
         } else {
           return $this->handle_response($result);
         }
+    }
+
+    /**
+    * Prepare substitution data to be used in template
+    */
+    protected function get_template_substitutes($sender, $replyTo){
+      $substitution_data = array();
+      $substitution_data['content'] = $this->Body;
+      $substitution_data['subject'] = $this->Subject;
+      $substitution_data['from_name'] = $sender['name'];
+      $substitution_data['from'] = $sender['email'];
+      if ($replyTo) {
+          $substitution_data['reply_to'] = $replyTo;
+      }
+      $localpart = explode('@', $sender['email']);
+
+      if (!empty($localpart)) {
+          $substitution_data['from_localpart'] = $localpart[0];
+      }
+
+      return apply_filters('wpsp_substitution_data', $substitution_data);
     }
 
     /**
@@ -88,23 +111,39 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         $template_id = apply_filters('wpsp_template_id', $this->settings['template']);
 
+        $attachments = $this->get_attachments();
+
         // pass through either stored template or inline content
         if (!empty($template_id)) {
-            // stored template
-            $body['content']['template_id'] = $template_id;
+          // stored template
+          $substitution_data = $this->get_template_substitutes($sender, $replyTo);
+          if(sizeof($attachments) > 0){ //get template preview data and then send it as inline
+            $preview_contents = $this->template->preview($template_id, $substitution_data);
+            if($preview_contents === false) {
+              return false;
+            }
+            $body['content'] = array(
+                'from' => (array) $preview_contents->from,
+                'subject' => (string) $preview_contents->subject,
+                'headers' => (array) $this->get_headers()
+            );
 
-            // supply substitution data so users can add variables to templates
-            $body['substitution_data']['content'] = $this->Body;
-            $body['substitution_data']['subject'] = $this->Subject;
-            $body['substitution_data']['from_name'] = $sender['name'];
-            $body['substitution_data']['from'] = $sender['email'];
-            if ($replyTo) {
-                $body['substitution_data']['reply_to'] = $replyTo;
+            if(property_exists($preview_contents, 'text')) {
+                $body['content']['text'] = $preview_contents->text;
             }
-            $localpart = explode('@', $sender['email']);
-            if (!empty($localpart)) {
-                $body['substitution_data']['from_localpart'] = $localpart[0];
+
+            if(property_exists($preview_contents, 'html')){
+              $body['content']['html'] = $preview_contents->html;
             }
+
+            if(property_exists($preview_contents, 'reply_to')) {
+                $body['content']['reply_to'] = $preview_contents->reply_to;
+            }
+
+          } else { // simply subsititute template tags
+            $body['content']['template_id'] = $template_id;
+            $body['substitution_data'] = $substitution_data;
+          }
         } else {
             // inline content
             $body['content'] = array(
@@ -131,8 +170,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             }
         }
 
-        $attachments = $this->get_attachments();
-        if (count($attachments)) {
+        if (sizeof($attachments)) {
             $body['content']['attachments'] = $attachments;
         }
 
@@ -191,41 +229,41 @@ class SparkPostHTTPMailer extends \PHPMailer
     protected function handle_response($response)
     {
         if (is_wp_error($response)) {
-            $this->edebug('Request completed with error');
-            $this->setError($response->get_error_messages()); //WP_Error implements this method
-            $this->edebug($response->get_error_messages());
+            $this->debug('Request completed with error');
+            $this->error($response->get_error_messages()); //WP_Error implements this method
+            $this->debug($response->get_error_messages());
             return false;
         }
 
-        $this->edebug('Response headers: ' . print_r($response['headers'], true));
-        $this->edebug('Response body: ' . print_r($response['body'], true));
+        $this->debug('Response headers: ' . print_r($response['headers'], true));
+        $this->debug('Response body: ' . print_r($response['body'], true));
 
         $body = json_decode($response['body']);
         do_action('wpsp_response_body', $body);
 
         if (property_exists($body, 'errors')) {
-            $this->edebug('Error in transmission');
-            $this->setError($body->errors);
+            $this->debug('Error in transmission');
+            $this->error($body->errors);
             return false;
         }
 
         if (property_exists($body, 'results')) {
             $data = $body->results;
         } else {
-            $this->edebug('API response is unknown');
-            $this->setError('Unknown response');
+            $this->debug('API response is unknown');
+            $this->error('Unknown response');
             return false;
         }
 
         if ($data->total_rejected_recipients > 0) {
-            $this->edebug(sprintf('Sending to %d recipient(s) failed', $data->total_rejected_recipients));
-            $this->setError($data);
+            $this->debug(sprintf('Sending to %d recipient(s) failed', $data->total_rejected_recipients));
+            $this->error($data);
             return false;
         }
 
         if ($data->total_accepted_recipients > 0) {
-            $this->edebug(sprintf('Successfully sent to %d recipient(s)', $data->total_accepted_recipients));
-            $this->edebug(sprintf('Transmission ID is %s', $data->id));
+            $this->debug(sprintf('Successfully sent to %d recipient(s)', $data->total_accepted_recipients));
+            $this->debug(sprintf('Transmission ID is %s', $data->id));
             return true;
         }
         return false;
@@ -259,7 +297,7 @@ class SparkPostHTTPMailer extends \PHPMailer
         return apply_filters('wpsp_recipients', $recipients);
     }
 
-    protected function get_request_headers($hide_api_key = false)
+    public function get_request_headers($hide_api_key = false)
     {
         $api_key = apply_filters('wpsp_api_key', $this->settings['password']);
         if ($hide_api_key) {
@@ -416,5 +454,36 @@ class SparkPostHTTPMailer extends \PHPMailer
         }
 
         return apply_filters('wpsp_body_headers', $formatted_headers);
+    }
+
+    function check_permission_error($response, $permission) {
+      $response = (array) $response;
+      if(!empty($response['response']) && $response['response']['code'] === 403) {
+        $this->debug("API Key might not have {$permission} permission. Actual Error: " . print_r($response['response'], true));
+        $this->error("API Key might not have {$permission} permission");
+        return true;
+      }
+      return false;
+    }
+
+    public function debug($msg) {
+      $this->edebug($msg);
+    }
+
+    public function error($msg) {
+      $this->setError($msg);
+    }
+
+    public function request($endpoint, $data) {
+      $http = apply_filters('wpsp_get_http_lib', _wp_http_get_object());
+
+      $this->debug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
+      $this->debug(sprintf('Request body: %s', $data['body']));
+      $this->debug(sprintf('Making HTTP POST request to %s', $endpoint));
+      do_action('wpsp_before_send', $this->endpoint, $data);
+      $result = $http->request($endpoint, $data);
+      do_action('wpsp_after_send', $result);
+      $this->debug('Response received');
+      return $result;
     }
 }

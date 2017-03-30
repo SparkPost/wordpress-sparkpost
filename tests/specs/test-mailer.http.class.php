@@ -7,6 +7,7 @@ use \Nyholm\NSA;
 use \Mockery;
 use phpmock\phpunit\PHPMock;
 
+
 class TestHttpMailer extends \WP_UnitTestCase {
   use PHPMock;
 
@@ -265,7 +266,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->mailer->setFrom( 'me@hello.com', 'me');
 
     $callback = function(){
-      return 'test-template'; 
+      return 'test-template';
     };
 
     add_filter('wpsp_template_id', $callback);
@@ -342,6 +343,129 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $this->assertTrue($expected_request_body == $actual);
   }
 
+  function test_get_request_body_with_template_and_attachments() {
+    $template_data =  (object) array(
+        'from' => array(
+            'from' =>   'me@hello.com',
+            'from_name' => 'me'
+        ),
+        'subject' => 'test subject',
+        'headers' => array(),
+        'html'  => '<h1>Hello there<h1>',
+        'text'  => 'hello there',
+        'reply_to'  => 'me@hello.com'
+    );
+    $attachments_data = [
+      'name'  => 'php-wordpress-sparkpost.txt',
+      'type'  => 'plain/text',
+      'data'  => base64_encode('TEST')
+    ];
+
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_attachments'))
+      ->getMock();
+
+    $template = $this->getMockBuilder('WPSparkPost\SparkPostTemplates')
+      ->setConstructorArgs(array($mailer))
+      ->setMethods(array('preview'))
+      ->getMock();
+
+    $template->expects($this->once())
+      ->method('preview')
+      ->will($this->returnValue($template_data));
+
+    $mailer->template = $template;
+
+    $mailer->addAddress('abc@xyz.com', 'abc');
+    $mailer->setFrom( 'me@hello.com', 'me');
+
+
+    $mailer->expects($this->once())
+      ->method('get_attachments')
+      ->will($this->returnValue($attachments_data));
+
+    $header_to = 'abc <abc@xyz.com>';
+    NSA::setProperty($mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'   => 'hello'
+    ]);
+
+    $expected_request_body = [
+      'recipients' => [
+        [
+          'address' => [
+            'email' => 'abc@xyz.com',
+            'header_to' => $header_to
+          ]
+        ]
+      ],
+      'options' => [
+        'open_tracking' => (bool) true,
+        'click_tracking' => (bool) true,
+        'transactional' => (bool) false
+      ],
+      'content' => [
+        'from'  =>  [
+          'from_name'  => 'me',
+          'from'  => 'me@hello.com'
+        ],
+        'subject' => 'test subject',
+        'html'  => '<h1>Hello there<h1>',
+        'text'  => 'hello there',
+        'reply_to'  => 'me@hello.com',
+        'attachments' => $attachments_data
+      ]
+    ];
+
+    $actual = NSA::invokeMethod($mailer, 'get_request_body');
+    unset($actual['content']['headers']); //to simplify assertion
+    $this->assertTrue($expected_request_body == $actual);
+  }
+
+  function test_sparkpost_send_false_on_error() {
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_request_body'))
+      ->getMock();
+
+    $mailer->expects($this->once())
+      ->method('get_request_body')
+      ->will($this->returnValue(false));
+
+    $result = NSA::invokeMethod($mailer, 'sparkpost_send');
+    $this->assertEquals($result, false);
+  }
+
+  function test_get_request_body_with_attachments_returns_false_on_error() {
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_attachments', 'get_sender','get_reply_to', 'get_template_substitutes'))
+      ->getMock();
+
+    $mailer->expects($this->once())
+      ->method('get_attachments')
+      ->will($this->returnValue(array('name' => 'test-attachment.txt')));
+
+    $template = $this->getMockBuilder('WPSparkPost\SparkPostTemplates')
+      ->setConstructorArgs(array($mailer))
+      ->setMethods(array('preview'))
+      ->getMock();
+
+    $template->expects($this->once())
+      ->method('preview')
+      ->will($this->returnValue(false));
+
+    NSA::setProperty($mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'   => 'hello'
+    ]);
+
+    $mailer->template = $template;
+
+    $result = NSA::invokeMethod($mailer, 'get_request_body');
+    $this->assertEquals($result, false);
+  }
+
   function test_get_request_body_content_type_text_plain() {
     $this->mailer->ContentType = 'text/plain';
     $this->mailer->Body = '<h1>hello world</h1>';
@@ -381,9 +505,29 @@ class TestHttpMailer extends \WP_UnitTestCase {
     unlink($temp);
   }
 
+  function test_get_request_body_with_sandbox() {
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('get_attachments', 'get_reply_to', 'get_recipients'))
+      ->getMock();
+
+    $mailer->addAddress('abc@xyz.com', 'abc');
+    $mailer->setFrom( 'me@sparkpostbox.com', 'me');
+    NSA::setProperty($mailer, 'settings', [
+      'enable_tracking' => true,
+      'transactional' => false,
+      'template'  => null
+    ]);
+
+    $body = NSA::invokeMethod($mailer, 'get_request_body');
+    $this->assertTrue($body['options']['sandbox'] == true);
+  }
+
   function sparkpost_send_prepare_mocks($num_rejected) {
     $this->mailer->addAddress('abc@xyz.com', 'abc');
     $response = array(
+      'response'  => array(
+        'code'  => 200
+      ),
       'headers' => array(),
       'body' => json_encode(array(
         'results' => array(
@@ -501,6 +645,23 @@ class TestHttpMailer extends \WP_UnitTestCase {
     NSA::setProperty($this->mailer, 'CustomHeader', array(array('Reply-To', 'abc@xyz.com')));
     $GLOBALS['wp_version'] = '4.5';
     $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_reply_to'), 'abc@xyz.com');
+  }
+
+  function test_check_permission_error(){
+    $response = [
+      'response' => [
+        'code' => 403
+      ]
+    ];
+
+    $mailer = $this->getMockBuilder('WPSparkPost\SparkPostHTTPMailer')
+      ->setMethods(array('debug', 'error'))
+      ->getMock();
+
+    $this->assertTrue($mailer->check_permission_error($response, 'test_perm') === true);
+
+    $response['response']['code'] = 200;
+    $this->assertTrue($mailer->check_permission_error($response, 'test_perm') === false);
   }
 
 

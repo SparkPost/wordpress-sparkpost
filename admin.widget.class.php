@@ -48,11 +48,10 @@ class SparkPostAdmin
         return 'text/html';
     }
 
-    private function send_email($recipient)
+    private function send_email($recipient, $attachments = array())
     {
         add_filter('wp_mail_content_type', array($this, 'set_html_content_type'));
         $headers = array();
-        $attachments= array(__DIR__ . '/sample.txt');
         $result = wp_mail($recipient,
             'SparkPost email test',
             '<h3>Hurray!!</h3><p>You\'ve got mail! <br/><br> Regards,<br/><a href="https://www.sparkpost.com">SparkPost</a> WordPress plugin</p>',
@@ -63,7 +62,7 @@ class SparkPostAdmin
         return $result;
     }
 
-    public function test_email_sending($recipient, $debug = false)
+    public function test_email_sending($recipient, $debug = false, $include_attachment = false)
     {
         if (empty($recipient)) {
             return $this->render_message('Please enter a valid email address in the recipient field below.');
@@ -73,14 +72,21 @@ class SparkPostAdmin
             return $this->render_message('Recipient is not a valid email address.');
         }
 
+
+        if($include_attachment) {
+            $attachments = array(__DIR__ . '/sample.txt');
+        } else {
+            $attachments = array();
+        }
+
         if ($debug) {
             add_action('phpmailer_init', array($this, 'phpmailer_enable_debugging'));
             echo '<div class="notice is-dismissible">';
             echo '<h4>Debug Messages</h4>';
-            $result = $this->send_email($recipient);
+            $result = $this->send_email($recipient, $attachments);
             echo '</div>';
         } else {
-            $result = $this->send_email($recipient);
+            $result = $this->send_email($recipient, $attachments);
         }
 
         if ($result) {
@@ -111,7 +117,7 @@ class SparkPostAdmin
                 <h3>Test Email</h3>
                 <?php
                 if (isset($_POST['sp_test_email'])) {
-                    $this->test_email_sending($_POST['to_email'], !empty($_POST['enable_debugging']));
+                    $this->test_email_sending($_POST['to_email'], !empty($_POST['enable_debugging']), !empty($_POST['include_attachment']));
                 }
                 ?>
 
@@ -144,6 +150,7 @@ class SparkPostAdmin
 
         add_settings_section('test_email', '', null, 'sp-test-email');
         add_settings_field('to_email', 'Recipient*', array($this, 'render_to_email_field'), 'sp-test-email', 'test_email');
+        add_settings_field('include_attachment', '', array($this, 'render_include_attachment_field'), 'sp-test-email', 'test_email');
         add_settings_field('debug_messages', 'Debug', array($this, 'render_enable_debugging_field'), 'sp-test-email', 'test_email');
     }
 
@@ -233,7 +240,8 @@ class SparkPostAdmin
 
         printf(
             '<input type="text" id="password" name="sp_settings[password]" class="regular-text" value="%s" /><br/>
-            <small><ul><li>For SMTP, set up an API key with the <strong>Send via SMTP</strong> permission</li> <li>For HTTP API, set up an API Key with the <strong>Transmissions: Read/Write</strong> permission</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
+            <small><ul><li>For SMTP, set up an API key with the <strong>Send via SMTP</strong> permission</li>
+            <li>For HTTP API, set up an API Key with the <strong>Transmissions: Read/Write, Templates: Read/Write</strong> permissions</li><a href="https://support.sparkpost.com/customer/portal/articles/1933377-create-api-keys" target="_blank">Need help creating a SparkPost API key?</a></small>',
             isset($api_key) ? $api_key : ''
         );
     }
@@ -247,7 +255,6 @@ class SparkPostAdmin
             <ul>
                 <li>- Please see <a href="https://support.sparkpost.com/customer/portal/articles/2409547-using-templates-with-the-sparkpost-wordpress-plugin" target="_blank">this article</a> for detailed information about using templates with this plugin.</li>
                 <li>- Templates can only be used with the HTTP API.</li>
-                <li>- <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/templates-attachments.md" target="_blank">Does not work with attachment.</a>
                 <li>- Leave this field blank to disable use of a template. You can still specify it by <a href="https://github.com/SparkPost/wordpress-sparkpost/blob/master/docs/hooks.md" target="_blank">using hooks</a>.</li>
             </ul>
         </small>
@@ -256,7 +263,7 @@ class SparkPostAdmin
 
     public function render_from_email_field()
     {
-        $hint = 'Important: Domain must match with one of your verified sending domains.';
+        $hint = '<strong>Important:</strong> Domain must match with one of your verified sending domains.';
         if(empty($this->settings['from_email'])){
             $hostname = parse_url(get_bloginfo('url'), PHP_URL_HOST);
             $hint .= sprintf(' When left blank, <strong>%s</strong> will be used as email domain', $hostname);
@@ -309,11 +316,17 @@ class SparkPostAdmin
         echo '<label><input type="checkbox" id="enable_debugging" name="enable_debugging" value="1" checked />Show email debugging messages</label>';
     }
 
-      public function render_transactional_field()
-      {
-          printf('<label><input type="checkbox" id="transactional" name="sp_settings[transactional]" value="1" %s />Mark emails as transactional</label>
-          <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
-           $this->settings['transactional'] ? 'checked' : '');
+    public function render_transactional_field()
+    {
+        printf('<label><input type="checkbox" id="transactional" name="sp_settings[transactional]" value="1" %s />Mark emails as transactional</label>
+        <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
+         $this->settings['transactional'] ? 'checked' : '');
 
-      }
+    }
+
+
+    public function render_include_attachment_field()
+    {
+        echo '<label><input type="checkbox" id="include_attachment" name="include_attachment" value="1" />Include Attachment</label>';
+    }
 }
