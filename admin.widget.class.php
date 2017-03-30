@@ -327,6 +327,6 @@ class SparkPostAdmin
 
     public function render_include_attachment_field()
     {
-        echo '<label><input type="checkbox" id="include_attachment" name="include_attachment" value="1" %s />Include Attachment</label>';
+        echo '<label><input type="checkbox" id="include_attachment" name="include_attachment" value="1" />Include Attachment</label>';
     }
 }
