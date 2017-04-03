@@ -121,7 +121,9 @@ class SparkPost
         return $args;
     }
 
-    static function is_sandbox($email) {
-        return array_slice(explode('@', $email), -1)[0] === 'sparkpostbox.com';
+    static function is_sandbox($email)
+    {
+        $email_splitted = array_slice(explode('@', $email), -1);
+        return $email_splitted[0] === 'sparkpostbox.com';
     }
 }
