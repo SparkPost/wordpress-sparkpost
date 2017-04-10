@@ -1,7 +1,7 @@
 # Sending Attachments with Template
 
 Currently, SparkPost API [does not support attachments with templates](https://support.sparkpost.com/customer/portal/articles/2458261-can-attachments-be-sent-when-using-templates-).
-So the plugin can't send emails with templates when a template is specified out-of-the-box.
+So the plugin can't send emails out-of-the-box with attachments when a template is specified.
 
 SparkPost API has no immediate plan to add this feature.
 
@@ -10,6 +10,6 @@ In WordPress plugin v3.0.0, we've added a work around. The plugin uses Templates
 
 ## Caveats
 - You'll need additional permission (`Templates: Read/Write`) to your API Key.
-- Your metrics will be affected. You can no longer filter your data by Template ID.
+- Your metrics will be affected. Filtering by Template ID will not include the emails sent using this mechanism.
 
 **Note: This is done ONLY WHEN a template is specified in plugin settings (or using hook) and the email contains attachments.** If you are never going to send attachment or never going to use Template, you don't need to do anything extra.
