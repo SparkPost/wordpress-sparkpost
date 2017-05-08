@@ -17,18 +17,27 @@ class SparkPostAdmin
         $this->settings = SparkPost::get_settings(false);
         add_action('admin_menu', array($this, 'add_plugin_page'));
         add_action('admin_init', array($this, 'admin_page_init'));
+    }
 
+    public function asset_url($relative_asset_path){
+      return plugins_url($relative_asset_path, __FILE__);
+    }
+
+    public function add_assets($relative_asset_path){
+      wp_enqueue_style( 'sp-admin-css' );
     }
 
     public function add_plugin_page()
     {
-        add_options_page(
+        $page = add_options_page(
             'SparkPost Settings',
             'SparkPost',
             'manage_options',
             'wpsp-setting-admin',
             array($this, 'wpsp_admin_page')
         );
+
+        add_action( "admin_print_styles-{$page}", array($this, 'add_assets'));
     }
 
     protected function render_message($msg, $msg_type = 'error')
@@ -133,10 +142,16 @@ class SparkPostAdmin
         <?php
     }
 
+    public function admin_page_header($arg) {
+      $image_path = sprintf('%s/assets/logo-40.png', $this->asset_url());
+      printf('<div class="sp-heading"><img src="%s" alt="SparkPost"> &nbsp;&nbsp; <h2>%s</h2></div>', $image_path, 'SparkPost');
+    }
+
     public function admin_page_init()
     {
+        wp_register_style('sp-admin-css', $this->asset_url( 'assets/styles.css'));
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
-        add_settings_section('general', 'SparkPost Settings', null, 'sp-options');
+        add_settings_section('general', null, array($this, 'admin_page_header'), 'sp-options');
         add_settings_field('enable_sparkpost', '', array($this, 'render_enable_sparkpost_field'), 'sp-options', 'general');
         add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options', 'general');
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options', 'general');
