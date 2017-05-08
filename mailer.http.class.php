@@ -235,6 +235,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             return false;
         }
 
+        $this->debug('Response headers: ' . print_r($response['response'], true));
         $this->debug('Response headers: ' . print_r($response['headers'], true));
         $this->debug('Response body: ' . print_r($response['body'], true));
 
