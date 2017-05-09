@@ -23,7 +23,7 @@ class SparkPostAdmin
       return plugins_url($relative_asset_path, __FILE__);
     }
 
-    public function add_assets($relative_asset_path){
+    public function add_assets(){
       wp_enqueue_style( 'sp-admin-css' );
     }
 
@@ -143,8 +143,8 @@ class SparkPostAdmin
     }
 
     public function admin_page_header($arg) {
-      $image_path = sprintf('%s/assets/logo-40.png', $this->asset_url());
-      printf('<div class="sp-heading"><img src="%s" alt="SparkPost"> &nbsp;&nbsp; <h2>%s</h2></div>', $image_path, 'SparkPost');
+      $image_url = $this->asset_url('assets/logo-40.png');
+      printf('<div class="sp-heading"><img src="%s" alt="SparkPost"> &nbsp;&nbsp; <h2>%s</h2></div>', $image_url, 'SparkPost');
     }
 
     public function admin_page_init()
