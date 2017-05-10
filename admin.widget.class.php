@@ -24,7 +24,7 @@ class SparkPostAdmin
     }
 
     public function add_assets(){
-      wp_enqueue_style( 'sp-admin-css' );
+      wp_enqueue_style('sp-admin-css', $this->asset_url( 'assets/styles.css'));
     }
 
     public function add_plugin_page()
@@ -149,9 +149,8 @@ class SparkPostAdmin
 
     public function admin_page_init()
     {
-        wp_register_style('sp-admin-css', $this->asset_url( 'assets/styles.css'));
         register_setting('sp_settings_group', 'sp_settings', array($this, 'sanitize'));
-        add_settings_section('general', null, array($this, 'admin_page_header'), 'sp-options');
+        add_settings_section('general', '', array($this, 'admin_page_header'), 'sp-options');
         add_settings_field('enable_sparkpost', '', array($this, 'render_enable_sparkpost_field'), 'sp-options', 'general');
         add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options', 'general');
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options', 'general');
