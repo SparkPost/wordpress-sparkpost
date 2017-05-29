@@ -54,7 +54,12 @@ class SparkPost
 
     static function get_settings($apply_filter = true)
     {
-        $settings = array_merge(self::$settings_default, get_option('sp_settings', array()));
+        $settings = array_merge(
+            self::$settings_default,
+            get_option('sp_settings', array()),
+            get_option('sp_settings_basic', array()),
+            get_option('sp_settings_overrides', array())
+        );
 
         if ($apply_filter) {
             return apply_filters('wpsp_get_settings', $settings);
