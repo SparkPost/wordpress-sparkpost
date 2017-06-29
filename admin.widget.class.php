@@ -334,11 +334,6 @@ class SparkPostAdmin
         );
     }
 
-    public function render_username_field()
-    {
-        echo '<input type="text" id="username" name="sp_settings_basic[username]" class="regular-text" value="SMTP_Injection" readonly />';
-    }
-
     public function render_password_field()
     {
         $api_key = SparkPost::obfuscate_api_key($this->settings['password']);
