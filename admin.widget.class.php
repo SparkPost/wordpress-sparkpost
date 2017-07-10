@@ -130,6 +130,11 @@ class SparkPostAdmin
                 'href' => admin_url(add_query_arg(array('page' => 'wpsp-setting-admin', 'tab' => 'test'), 'admin.php')),
                 'name' => 'Test'
             ),
+            '3' => array(
+              'slug'  => 'logs',
+              'href'  => admin_url(add_query_arg(array('page' => 'wpsp-setting-admin', 'tab'  => 'logs'), 'admin.php')),
+              'name'  =>  'Email Logs'
+            )
         );
 
         $inactive_class = 'nav-tab';
@@ -195,6 +200,14 @@ class SparkPostAdmin
         <?php
     }
 
+      protected function render_logs_section()
+      {
+         $logsTable = new SparkPostEmailLogs();
+         $logsTable->prepare_items();
+
+         $logsTable->display();
+      }
+
     public function wpsp_admin_page()
     {
         $image_url = $this->asset_url('assets/logo-40.png');
@@ -205,7 +218,7 @@ class SparkPostAdmin
         <div class="sp-heading"><img src="<?php echo $image_url ?>" alt="SparkPost"> &nbsp;&nbsp;
             <h2>SparkPost</h2>
         </div>
-        <div class="wrap">
+        <div class="wrap sparkpost">
 
             <?php
 
@@ -215,6 +228,8 @@ class SparkPostAdmin
                 $this->render_overrides();
             } else if ($active_tab == 'test') {
                 $this->render_test_section();
+            } else if ($active_tab == 'logs') {
+                $this->render_logs_section();
             } else {
                 $this->render_basic_settings();
             }

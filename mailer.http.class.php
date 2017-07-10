@@ -10,6 +10,7 @@ require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 class SparkPostHTTPMailer extends \PHPMailer
 {
     public $endpoint = 'https://api.sparkpost.com/api/v1/transmissions';
+    public $wp_mail_args;
     private $settings;
 
     /**
@@ -484,6 +485,7 @@ class SparkPostHTTPMailer extends \PHPMailer
       $result = $http->request($endpoint, $data);
       do_action('wpsp_after_send', $result);
       $this->debug('Response received');
+      SparkPost::add_log($this->wp_mail_args, $data['body'], $result);
       return $result;
     }
 }
