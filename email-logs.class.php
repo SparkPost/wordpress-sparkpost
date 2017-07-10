@@ -42,7 +42,7 @@ class SparkPostEmailLogs extends \WP_List_Table {
   function get_columns() {
     $columns = [
       'subject' => 'Subject',
-      'wp_mail_args'  => 'wp_mail args',
+      'wp_mail_args'  => 'wp_mail Arguments',
       'sent_at' =>  'Generated At',
       'content' =>  'Request',
       'response'  =>  'SparkPost Response'
@@ -89,7 +89,7 @@ class SparkPostEmailLogs extends \WP_List_Table {
   function prepare_items() {
     global $wpdb;
 
-    $per_page = 2;
+    $per_page = 10;
     $page = $this->get_pagenum();
     $columns = $this->get_columns();
     $this->_column_headers = array($columns);
