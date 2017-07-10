@@ -269,6 +269,8 @@ class SparkPostAdmin
 
         if (!empty($input['template'])) {
             $new_input['template'] = sanitize_text_field($input['template']);
+        } else {
+            $new_input['template'] = '';
         }
 
         if (empty($input['password'])) {
@@ -321,10 +323,6 @@ class SparkPostAdmin
 
         if (!empty($input['from_name'])) {
             $new_input['from_name'] = sanitize_text_field($input['from_name']);
-        }
-
-        if (!empty($input['template'])) {
-            $new_input['template'] = sanitize_text_field($input['template']);
         }
 
         if (!empty($input['enable_tracking'])) {
