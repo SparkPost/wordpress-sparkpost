@@ -89,17 +89,18 @@ class SparkPostEmailLogs extends \WP_List_Table {
   function prepare_items() {
     global $wpdb;
 
-    $per_page = 10;
-    $page = 1;
+    $per_page = 2;
+    $page = $this->get_pagenum();
     $columns = $this->get_columns();
     $this->_column_headers = array($columns);
 
     $this->items = $this->get_logs($per_page, $page);
+    $total_items = $this->record_count();
 
     $this->set_pagination_args( array(
-      'total_items' => $this->record_count(),                  //WE have to calculate the total number of items
+      'total_items' => $total_items,                  //WE have to calculate the total number of items
       'per_page'    => $per_page,                     //WE have to determine how many items to show on a page
-      'total_pages' => ceil(count($this->items)/$per_page)   //WE have to calculate the total number of pages
+      'total_pages' => ceil($total_items / $per_page)   //WE have to calculate the total number of pages
     ) );
 
   }
