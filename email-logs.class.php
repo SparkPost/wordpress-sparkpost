@@ -44,8 +44,8 @@ class SparkPostEmailLogs extends \WP_List_Table {
       'subject' => 'Subject',
       'wp_mail_args'  => 'wp_mail Arguments',
       'sent_at' =>  'Generated At',
-      'content' =>  'Request',
-      'response'  =>  'SparkPost Response'
+      'content' =>  'Request Data',
+      'response'  =>  'Response Data'
     ];
 
     return $columns;
@@ -70,16 +70,6 @@ class SparkPostEmailLogs extends \WP_List_Table {
   function column_response($item) {
     return '<textarea style="width: 100%" rows="5">' . $item['response'] . '</textarea>';
   }
-
-
-  // function column_default($item, $column_name) {
-  //   switch ( $column_name ) {
-  //   case 'subject':
-  //     return $item[ $column_name ];
-  //   default:
-  //     // return print_r( $item, true ); //Show the whole array for troubleshooting purposes
-  //   }
-  // }
 
   function column_name( $item ) {
 

@@ -10,7 +10,6 @@ if (!defined('ABSPATH')) exit();
  */
 class SparkPost
 {
-
     protected static $settings_default = array(
         'port' => 587,
         'sending_method' => 'api',
@@ -20,7 +19,8 @@ class SparkPost
         'enable_sparkpost' => false,
         'enable_tracking' => true,
         'template' => '',
-        'transactional' => false
+        'transactional' => false,
+        'log_emails'  => false
     );
 
     var $settings, $db_version;
@@ -175,6 +175,10 @@ class SparkPost
     }
 
     static function add_log($wp_mail_args, $content, $response) {
+      if(!self::is_logging_enabled()) {
+        return;
+      }
+
       global $wpdb;
       $wpdb->show_errors();
       $content = json_decode($content);
@@ -192,5 +196,16 @@ class SparkPost
         'response'  => json_encode($response),
         'wp_mail_args'  => json_encode($wp_mail_args)
       ));
+    }
+
+    static function clear_logs() {
+      global $wpdb;
+      $wpdb->show_errors();
+      $wpdb->query('TRUNCATE ' . $wpdb->prefix . 'sp_email_logs');
+    }
+    static function is_logging_enabled() {
+      $settings = self::get_settings();
+
+      return $settings['sending_method'] === 'api' && $settings['log_emails'];
     }
 }
