@@ -1,4 +1,5 @@
 <?php
+
 namespace WPSparkPost;
 // If ABSPATH is defined, we assume WP is calling us.
 // Otherwise, this could be an illicit direct request.
@@ -45,9 +46,9 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         $request_body = $this->get_request_body();
 
-        if(!$request_body) {
-          $this->error('Failed to prepare transmission request body');
-          return false;
+        if (!$request_body) {
+            $this->error('Failed to prepare transmission request body');
+            return false;
         }
 
         $data = array(
@@ -61,33 +62,34 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         $result = apply_filters('wpsp_handle_response', $result);
         $this->check_permission_error($result, 'Transmissions: Read/Write');
-        if(is_bool($result)) { // it means, response been already processed by the hooked filter. so just return the value.
-          $this->debug('Skipping response processing');
-          return $result;
+        if (is_bool($result)) { // it means, response been already processed by the hooked filter. so just return the value.
+            $this->debug('Skipping response processing');
+            return $result;
         } else {
-          return $this->handle_response($result);
+            return $this->handle_response($result);
         }
     }
 
     /**
-    * Prepare substitution data to be used in template
-    */
-    protected function get_template_substitutes($sender, $replyTo){
-      $substitution_data = array();
-      $substitution_data['content'] = $this->Body;
-      $substitution_data['subject'] = $this->Subject;
-      $substitution_data['from_name'] = $sender['name'];
-      $substitution_data['from'] = $sender['email'];
-      if ($replyTo) {
-          $substitution_data['reply_to'] = $replyTo;
-      }
-      $localpart = explode('@', $sender['email']);
+     * Prepare substitution data to be used in template
+     */
+    protected function get_template_substitutes($sender, $replyTo)
+    {
+        $substitution_data = array();
+        $substitution_data['content'] = $this->Body;
+        $substitution_data['subject'] = $this->Subject;
+        $substitution_data['from_name'] = $sender['name'];
+        $substitution_data['from'] = $sender['email'];
+        if ($replyTo) {
+            $substitution_data['reply_to'] = $replyTo;
+        }
+        $localpart = explode('@', $sender['email']);
 
-      if (!empty($localpart)) {
-          $substitution_data['from_localpart'] = $localpart[0];
-      }
+        if (!empty($localpart)) {
+            $substitution_data['from_localpart'] = $localpart[0];
+        }
 
-      return apply_filters('wpsp_substitution_data', $substitution_data);
+        return apply_filters('wpsp_substitution_data', $substitution_data);
     }
 
     /**
@@ -105,9 +107,9 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         // enable engagement tracking
         $body['options'] = array(
-            'open_tracking' => (bool) apply_filters('wpsp_open_tracking', $tracking_enabled),
-            'click_tracking' => (bool) apply_filters('wpsp_click_tracking', $tracking_enabled),
-            'transactional' => (bool) apply_filters('wpsp_transactional', $this->settings['transactional'])
+            'open_tracking' => (bool)apply_filters('wpsp_open_tracking', $tracking_enabled),
+            'click_tracking' => (bool)apply_filters('wpsp_click_tracking', $tracking_enabled),
+            'transactional' => (bool)apply_filters('wpsp_transactional', $this->settings['transactional'])
         );
 
         $template_id = apply_filters('wpsp_template_id', $this->settings['template']);
@@ -116,35 +118,35 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         // pass through either stored template or inline content
         if (!empty($template_id)) {
-          // stored template
-          $substitution_data = $this->get_template_substitutes($sender, $replyTo);
-          if(sizeof($attachments) > 0){ //get template preview data and then send it as inline
-            $preview_contents = $this->template->preview($template_id, $substitution_data);
-            if($preview_contents === false) {
-              return false;
-            }
-            $body['content'] = array(
-                'from' => (array) $preview_contents->from,
-                'subject' => (string) $preview_contents->subject,
-                'headers' => (array) $this->get_headers()
-            );
+            // stored template
+            $substitution_data = $this->get_template_substitutes($sender, $replyTo);
+            if (sizeof($attachments) > 0) { //get template preview data and then send it as inline
+                $preview_contents = $this->template->preview($template_id, $substitution_data);
+                if ($preview_contents === false) {
+                    return false;
+                }
+                $body['content'] = array(
+                    'from' => (array)$preview_contents->from,
+                    'subject' => (string)$preview_contents->subject,
+                    'headers' => (array)$this->get_headers()
+                );
 
-            if(property_exists($preview_contents, 'text')) {
-                $body['content']['text'] = $preview_contents->text;
-            }
+                if (property_exists($preview_contents, 'text')) {
+                    $body['content']['text'] = $preview_contents->text;
+                }
 
-            if(property_exists($preview_contents, 'html')){
-              $body['content']['html'] = $preview_contents->html;
-            }
+                if (property_exists($preview_contents, 'html')) {
+                    $body['content']['html'] = $preview_contents->html;
+                }
 
-            if(property_exists($preview_contents, 'reply_to')) {
-                $body['content']['reply_to'] = $preview_contents->reply_to;
-            }
+                if (property_exists($preview_contents, 'reply_to')) {
+                    $body['content']['reply_to'] = $preview_contents->reply_to;
+                }
 
-          } else { // simply subsititute template tags
-            $body['content']['template_id'] = $template_id;
-            $body['substitution_data'] = $substitution_data;
-          }
+            } else { // simply subsititute template tags
+                $body['content']['template_id'] = $template_id;
+                $body['substitution_data'] = $substitution_data;
+            }
         } else {
             // inline content
             $body['content'] = array(
@@ -157,7 +159,7 @@ class SparkPostHTTPMailer extends \PHPMailer
                 $body['content']['reply_to'] = $replyTo;
             }
 
-            switch($this->ContentType) {
+            switch ($this->ContentType) {
                 case 'multipart/alternative':
                     $body['content']['html'] = $this->Body;
                     $body['content']['text'] = $this->AltBody;
@@ -179,7 +181,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             $body['options']['sandbox'] = true;
         }
 
-        $body = apply_filters( 'wpsp_request_body', $body);
+        $body = apply_filters('wpsp_request_body', $body);
 
         return $body;
     }
@@ -277,10 +279,10 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         //prepare header_to
         foreach ($this->to as $to) {
-            if(empty($to[1])) { // if name is empty use only address
-              $recipients_header_to[] = $to[0];
+            if (empty($to[1])) { // if name is empty use only address
+                $recipients_header_to[] = $to[0];
             } else { // otherwise, use name and email
-              $recipients_header_to[] = sprintf('%s <%s>', $to[1], $to[0]);
+                $recipients_header_to[] = sprintf('%s <%s>', $to[1], $to[0]);
             }
         }
         $recipients_header_to = implode(', ', $recipients_header_to);
@@ -332,20 +334,20 @@ class SparkPostHTTPMailer extends \PHPMailer
     }
 
     /**
-    * Returns list of Reply-To recipients
-    * For WordPress 4.6 and above
-    * @return array Formatted list of reply tos
-    */
+     * Returns list of Reply-To recipients
+     * For WordPress 4.6 and above
+     * @return array Formatted list of reply tos
+     */
     protected function parse_reply_to()
     {
         $replyTos = array();
         foreach ($this->ReplyTo as $reply_to) {
             $name = $reply_to[1];
             $email = $reply_to[0];
-            if(empty($name)) {
-              $replyTos[] = $email;
+            if (empty($name)) {
+                $replyTos[] = $email;
             } else {
-              $replyTos[] = sprintf('%s <%s>', $name, $email);
+                $replyTos[] = sprintf('%s <%s>', $name, $email);
             }
         }
 
@@ -354,32 +356,33 @@ class SparkPostHTTPMailer extends \PHPMailer
 
     protected function get_reply_to()
     {
-      $wp_version = get_bloginfo('version');
-      if(version_compare($wp_version, '4.6') == -1) { // if lower than 4.6
-        return $this->parse_reply_to_from_custom_header();
-      } else {
-        return $this->parse_reply_to();
-      }
+        $wp_version = get_bloginfo('version');
+        if (version_compare($wp_version, '4.6') == -1) { // if lower than 4.6
+            return $this->parse_reply_to_from_custom_header();
+        } else {
+            return $this->parse_reply_to();
+        }
     }
 
-    protected function build_recipient($email, $name = '', $header_to = '') {
-      $recipient = array(
-        'address' => array(
-          'email' => $email,
-          'name' => $name,
-        )
-      );
+    protected function build_recipient($email, $name = '', $header_to = '')
+    {
+        $recipient = array(
+            'address' => array(
+                'email' => $email,
+                'name' => $name,
+            )
+        );
 
-      if(!empty($header_to)) {
-        $recipient['address']['header_to'] = $header_to;
-        /* if header_to is like 'Name <email>', then having name attribute causes
-        showing weird display of name in the delivered mail. So, let's remove it
-        when header_to is set.
-        */
-        unset($recipient['address']['name']);
-      }
+        if (!empty($header_to)) {
+            $recipient['address']['header_to'] = $header_to;
+            /* if header_to is like 'Name <email>', then having name attribute causes
+            showing weird display of name in the delivered mail. So, let's remove it
+            when header_to is set.
+            */
+            unset($recipient['address']['name']);
+        }
 
-      return $recipient;
+        return $recipient;
     }
 
     /**
@@ -389,7 +392,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     protected function get_bcc($header_to)
     {
         $bcc = array();
-        foreach($this->getBccAddresses() as $bccAddress) {
+        foreach ($this->getBccAddresses() as $bccAddress) {
             $bcc[] = $this->build_recipient($bccAddress[0], $bccAddress[1], $header_to);
         }
         return $bcc;
@@ -403,24 +406,25 @@ class SparkPostHTTPMailer extends \PHPMailer
     protected function get_cc($header_to = '')
     {
         $cc = array();
-        foreach($this->getCcAddresses() as $ccAddress) {
+        foreach ($this->getCcAddresses() as $ccAddress) {
             $cc[] = $this->build_recipient($ccAddress[0], $ccAddress[1], $header_to);
         }
         return $cc;
     }
 
-    protected function stringify_recipients($recipients) {
-      $recipients_list = array();
+    protected function stringify_recipients($recipients)
+    {
+        $recipients_list = array();
 
-      foreach($recipients as $recipient) {
-        if(!empty($recipient['address']['name'])){
-          $recipients_list[] = sprintf('%s <%s>', $recipient['address']['name'], $recipient['address']['email']);
-        } else {
-          $recipients_list[] = $recipient['address']['email'];
-        }
-      };
+        foreach ($recipients as $recipient) {
+            if (!empty($recipient['address']['name'])) {
+                $recipients_list[] = sprintf('%s <%s>', $recipient['address']['name'], $recipient['address']['email']);
+            } else {
+                $recipients_list[] = $recipient['address']['email'];
+            }
+        };
 
-      return implode(',', $recipients_list);
+        return implode(',', $recipients_list);
     }
 
     /**
@@ -450,42 +454,46 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         // include cc in header
         $cc = $this->get_cc();
-        if(!empty($cc)) {
-          $formatted_headers['CC'] = $this->stringify_recipients($cc);
+        if (!empty($cc)) {
+            $formatted_headers['CC'] = $this->stringify_recipients($cc);
         }
 
         return apply_filters('wpsp_body_headers', $formatted_headers);
     }
 
-    function check_permission_error($response, $permission) {
-      $response = (array) $response;
-      if(!empty($response['response']) && $response['response']['code'] === 403) {
-        $this->debug("API Key might not have {$permission} permission. Actual Error: " . print_r($response['response'], true));
-        $this->error("API Key might not have {$permission} permission");
-        return true;
-      }
-      return false;
+    function check_permission_error($response, $permission)
+    {
+        $response = (array)$response;
+        if (!empty($response['response']) && $response['response']['code'] === 403) {
+            $this->debug("API Key might not have {$permission} permission. Actual Error: " . print_r($response['response'], true));
+            $this->error("API Key might not have {$permission} permission");
+            return true;
+        }
+        return false;
     }
 
-    public function debug($msg) {
-      $this->edebug($msg);
+    public function debug($msg)
+    {
+        $this->edebug($msg);
     }
 
-    public function error($msg) {
-      $this->setError($msg);
+    public function error($msg)
+    {
+        $this->setError($msg);
     }
 
-    public function request($endpoint, $data) {
-      $http = apply_filters('wpsp_get_http_lib', _wp_http_get_object());
+    public function request($endpoint, $data)
+    {
+        $http = apply_filters('wpsp_get_http_lib', _wp_http_get_object());
 
-      $this->debug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
-      $this->debug(sprintf('Request body: %s', $data['body']));
-      $this->debug(sprintf('Making HTTP POST request to %s', $endpoint));
-      do_action('wpsp_before_send', $this->endpoint, $data);
-      $result = $http->request($endpoint, $data);
-      do_action('wpsp_after_send', $result);
-      $this->debug('Response received');
-      SparkPost::add_log($this->wp_mail_args, $data['body'], $result);
-      return $result;
+        $this->debug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
+        $this->debug(sprintf('Request body: %s', $data['body']));
+        $this->debug(sprintf('Making HTTP POST request to %s', $endpoint));
+        do_action('wpsp_before_send', $this->endpoint, $data);
+        $result = $http->request($endpoint, $data);
+        do_action('wpsp_after_send', $result);
+        $this->debug('Response received');
+        SparkPost::add_log($this->wp_mail_args, $data['body'], $result);
+        return $result;
     }
 }

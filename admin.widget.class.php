@@ -132,14 +132,14 @@ class SparkPostAdmin
             )
         );
 
-        $email_logs_tab =  array(
-          'slug'  => 'logs',
-          'href'  => admin_url(add_query_arg(array('page' => 'wpsp-setting-admin', 'tab'  => 'logs'), 'admin.php')),
-          'name'  =>  'Email Logs'
+        $email_logs_tab = array(
+            'slug' => 'logs',
+            'href' => admin_url(add_query_arg(array('page' => 'wpsp-setting-admin', 'tab' => 'logs'), 'admin.php')),
+            'name' => 'Email Logs'
         );
 
-        if(SparkPost::is_logging_enabled()) {
-          $tabs[] = $email_logs_tab;
+        if (SparkPost::is_logging_enabled()) {
+            $tabs[] = $email_logs_tab;
         }
 
         $inactive_class = 'nav-tab';
@@ -201,24 +201,25 @@ class SparkPostAdmin
         <?php
     }
 
-    protected function render_logs_section(){
-      if(isset($_POST['action']) && $_POST['action'] === 'clearlogs') {
-        SparkPost::clear_logs();
-      }
-      $logsTable = new SparkPostEmailLogs();
-      $logsTable->prepare_items();
+    protected function render_logs_section()
+    {
+        if (isset($_POST['action']) && $_POST['action'] === 'clearlogs') {
+            SparkPost::clear_logs();
+        }
+        $logsTable = new SparkPostEmailLogs();
+        $logsTable->prepare_items();
 
-      $logsTable->display();
+        $logsTable->display();
 
-      if(count($logsTable->items) > 0) {
-      ?>
-      <form method="post" action="admin.php?page=wpsp-setting-admin&tab=logs">
-        <input type="hidden" name="action" value="clearlogs" />
-         <input type="submit" class="button button-primary" value="Empty Logs"/>
-      </form>
-    <?php
+        if (count($logsTable->items) > 0) {
+            ?>
+            <form method="post" action="admin.php?page=wpsp-setting-admin&tab=logs">
+                <input type="hidden" name="action" value="clearlogs"/>
+                <input type="submit" class="button button-primary" value="Empty Logs"/>
+            </form>
+            <?php
+        }
     }
-  }
 
     public function wpsp_admin_page()
     {
@@ -268,8 +269,8 @@ class SparkPostAdmin
         add_settings_field('transactional', 'Transactional', array($this, 'render_transactional_field'), 'sp-options-overrides', 'overrides');
         add_settings_field('enable_tracking', 'Enable tracking', array($this, 'render_enable_tracking_field'), 'sp-options-overrides', 'overrides');
 
-        if($this->settings['sending_method'] === 'api'){
-          add_settings_field('logs_emails', 'Email Logging', array($this, 'render_log_emails_field'), 'sp-options-overrides', 'overrides');
+        if ($this->settings['sending_method'] === 'api') {
+            add_settings_field('logs_emails', 'Email Logging', array($this, 'render_log_emails_field'), 'sp-options-overrides', 'overrides');
         }
 
         add_settings_section('test_email', '', null, 'sp-test-email');
@@ -449,9 +450,9 @@ class SparkPostAdmin
 
     public function render_log_emails_field()
     {
-      printf('<label><input type="checkbox" name="sp_settings_overrides[log_emails]" value="1" %s />Store log of generated emails</label>
+        printf('<label><input type="checkbox" name="sp_settings_overrides[log_emails]" value="1" %s />Store log of generated emails</label>
       <br/><small>HTTP API only.</small>',
-          $this->settings['log_emails'] ? 'checked' : '');
+            $this->settings['log_emails'] ? 'checked' : '');
     }
 
     public function render_to_email_field()

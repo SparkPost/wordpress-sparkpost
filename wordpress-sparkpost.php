@@ -1,4 +1,5 @@
 <?php
+
 namespace WPSparkPost;
 /*
 Plugin Name: SparkPost
