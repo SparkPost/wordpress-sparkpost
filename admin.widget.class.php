@@ -115,17 +115,17 @@ class SparkPostAdmin
     function render_tabs($active = '')
     {
         $tabs = array(
-            '0' => array(
+            array(
                 'slug' => 'basic',
                 'href' => admin_url(add_query_arg(array('page' => 'wpsp-setting-admin', 'tab' => 'basic'), 'admin.php')),
                 'name' => 'Basic Settings'
             ),
-            '1' => array(
+            array(
                 'slug' => 'overrides',
                 'href' => admin_url(add_query_arg(array('page' => 'wpsp-setting-admin', 'tab' => 'overrides'), 'admin.php')),
                 'name' => 'Overrides'
             ),
-            '2' => array(
+            array(
                 'slug' => 'test',
                 'href' => admin_url(add_query_arg(array('page' => 'wpsp-setting-admin', 'tab' => 'test'), 'admin.php')),
                 'name' => 'Test'
@@ -139,7 +139,7 @@ class SparkPostAdmin
         );
 
         if(SparkPost::is_logging_enabled()) {
-          $tabs['3']  = $email_logs_tab;
+          $tabs[] = $email_logs_tab;
         }
 
         $inactive_class = 'nav-tab';
@@ -153,10 +153,7 @@ class SparkPostAdmin
 
         $markups .= '</h2>';
         echo $markups;
-
-
     }
-
 
     function render_basic_settings()
     {
@@ -184,7 +181,6 @@ class SparkPostAdmin
         <hr/>
         <?php
     }
-
 
     protected function render_test_section()
     {
