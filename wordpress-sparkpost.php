@@ -1,4 +1,5 @@
 <?php
+
 namespace WPSparkPost;
 /*
 Plugin Name: SparkPost
@@ -23,6 +24,7 @@ require_once(WPSP_PLUGIN_DIR . 'sparkpost.class.php');
 
 if (is_admin()) {
     require_once(WPSP_PLUGIN_DIR . 'admin.widget.class.php');
+    require_once(WPSP_PLUGIN_DIR . 'email-logs.class.php');
     new SparkPostAdmin();
 }
 $sp = new SparkPost();
