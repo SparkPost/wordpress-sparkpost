@@ -219,9 +219,14 @@ class SparkPostHTTPMailer extends \PHPMailer
         return base64_encode($data);
     }
 
-    protected function read_attachment($path)
+    protected function read_attachment($data)
     {
-        return file_get_contents($path);
+        if ( file_exists( $data ) ) {
+            return file_get_contents($data);
+        }
+        else {
+            return $data;
+        }
     }
 
     public function isMail()
