@@ -125,6 +125,14 @@ class SparkPostHTTPMailer extends PHPMailer
             $body['content']['attachments'] = $attachments;
         }
 
+        // bp-reply-by-email sets a custom reply-to header which results in a 422 error from sparkpost:
+        // "Error while validating header reply-to: 'Reply-To' header must be specified in content.reply_to"
+        // Moving the header to content.reply_to avoids the error & makes sparkpost send the message.
+        if ( isset( $body['content']['headers']['reply-to'] ) ) {
+            $body['content']['reply_to'] = $body['content']['headers']['reply-to'];
+            unset( $body['content']['headers']['reply-to'] );
+        }
+
         return $body;
     }
 
