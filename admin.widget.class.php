@@ -325,6 +325,12 @@ class SparkPostAdmin
                 break;
         }
 
+        //validate template with HTTP API only
+        if($new_input['sending_method'] !== 'api' && !empty($new_input['template'])) {
+          add_settings_error('template', esc_attr('template'), sprintf("Template is not supported with SMTP methods. So template <i>%s</i> is removed from your settings.", $input['template']), 'error');
+          $new_input['template'] = '';
+        }
+
         return $new_input;
     }
 
