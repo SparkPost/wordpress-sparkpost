@@ -85,6 +85,13 @@ class SparkPost
 
     function db_update_check()
     {
+        //no need to check db version if email logging is not enabled
+        $mailer = self::get_setting('sending_method');
+        $email_logging_enabled = self::get_setting('log_emails');
+        if($mailer != 'api' ||  !$email_logging_enabled) {
+          return false;
+        }
+
         if (get_site_option('sp_db_version') != $this->db_version) {
             return $this->install_db();
         }

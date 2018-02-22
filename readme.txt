@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 4.3
 Tested up to: 4.9.4
-Stable tag: 3.1.0
+Stable tag: 3.1.1
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -51,6 +51,9 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 
 == Changelog ==
+= 3.1.1 =
+- Avoid db checking if email logging is not enabled
+
 = 3.1.0 =
 - Improved UI
 - (Optional) Email logging support for better debugging
