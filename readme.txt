@@ -41,7 +41,7 @@ Upon successful activation, **SparkPost** will appear on the _Settings_ menu in 
 == Frequently Asked Questions ==
 
 = What do I need to start using this plugin? =
-You'll need to create an account on SparkPost.com and then generate an API Key with *Send via SMTP* and *Transmission Read/Write* permissions. Creating an account is completely free. Visit [SparkPost](https://app.sparkpost.com/sign-up) to signup.
+You'll need to create an account on SparkPost.com and then generate an API Key with *Send via SMTP* and *Transmission Read/Write* permissions. Creating an account is completely free. Visit [SparkPost](https://app.sparkpost.com/join) to signup.
 
 = How do I create an API key? =
 Follow [this tutorial](https://support.sparkpost.com/customer/portal/articles/1933377) for creating an API key. **Remember:** your API key must have *Send via SMTP* and *Transmission Read/Write* permissions to be usable by this plugin.
