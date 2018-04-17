@@ -40,6 +40,8 @@ class SparkPost
         if (self::get_setting('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
             add_filter('wp_mail_from', array($this, 'set_from_email'));
             add_filter('wp_mail_from_name', array($this, 'set_from_name'));
+            add_filter('sp_api_location', array($this, 'location_endpoint'));
+            add_filter('sp_smtp_location', array($this, 'location_endpoint'));
         }
 
         $this->db_version = '1.0.0';
@@ -151,6 +153,26 @@ class SparkPost
         }
 
         return apply_filters('wpsp_sender_email', $email);
+    }
+
+    public function location_endpoint($endpoint)
+    {
+        $location = !empty($this->settings['location']) ? esc_attr($this->settings['location']) : '';
+        if ($location === 'eu') {
+            $endpoint = str_replace(
+                array(
+                    'https://api',
+                    'smtp.sparkpostmail.com'
+                ),
+                array(
+                    'https://api.eu',
+                    'smtp.eu.sparkpostmail.com'
+                ),
+                $endpoint
+            );
+        }
+
+        return $endpoint;
     }
 
     static function obfuscate_api_key($api_key)

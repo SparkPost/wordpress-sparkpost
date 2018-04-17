@@ -492,6 +492,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     public function request($endpoint, $data)
     {
         $http = apply_filters('wpsp_get_http_lib', _wp_http_get_object());
+        $endpoint = apply_filters('sp_api_location', $endpoint);
 
         $this->debug(sprintf('Request headers: %s', print_r($this->get_request_headers(true), true)));
         $this->debug(sprintf('Request body: %s', $data['body']));

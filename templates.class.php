@@ -16,7 +16,8 @@ class SparkPostTemplates
 
     public function preview($id, $substitution_data)
     {
-        $url = "{$this->endpoint}/{$id}/preview?draft=false";
+        $endpoint = apply_filters('sp_api_location', $this->endpoint);
+        $url = "{$endpoint}/{$id}/preview?draft=false";
 
         $body = array(
             'substitution_data' => $substitution_data
