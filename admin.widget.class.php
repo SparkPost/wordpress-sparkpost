@@ -261,8 +261,8 @@ class SparkPostAdmin
         add_settings_field('enable_sparkpost', 'Enable*', array($this, 'render_enable_sparkpost_field'), 'sp-options-basic', 'general');
         add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options-basic', 'general');
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options-basic', 'general');
-        add_settings_field('template', 'Template', array($this, 'render_template_field'), 'sp-options-basic', 'general');
         add_settings_field('location', 'API Location', array($this, 'render_location_field'), 'sp-options-basic', 'general' );
+        add_settings_field('template', 'Template', array($this, 'render_template_field'), 'sp-options-basic', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-options-overrides');
         add_settings_field('from_name', 'From name', array($this, 'render_from_name_field'), 'sp-options-overrides', 'overrides');
