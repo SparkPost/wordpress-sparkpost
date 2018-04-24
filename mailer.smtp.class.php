@@ -10,7 +10,6 @@ if (!defined('ABSPATH')) exit();
  */
 class SparkPostSMTPMailer
 {
-
     public function __construct()
     {
         add_action('phpmailer_init', array($this, 'configure_phpmailer'), 2);
@@ -36,10 +35,13 @@ class SparkPostSMTPMailer
             )
         );
 
+        $location = apply_filters('sp_location', 'us');
+        $host = SparkPost::get_hostname($location, 'smtp');
+
         $phpmailer->isSMTP();
         $phpmailer->SMTPSecure = 'tls';
         $phpmailer->Port = !empty($settings['port']) ? intval($settings['port']) : 587;
-        $phpmailer->Host = apply_filters('sp_smtp_location', 'smtp.sparkpostmail.com');
+        $phpmailer->Host = $host;
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = apply_filters('wpsp_api_key', $settings['password']);

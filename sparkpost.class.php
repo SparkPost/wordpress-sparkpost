@@ -21,7 +21,19 @@ class SparkPost
         'enable_tracking' => true,
         'template' => '',
         'transactional' => false,
-        'log_emails' => false
+        'log_emails' => false,
+        'location' => 'us'
+    );
+
+    protected static $hostnames = array(
+        'us' => array(
+            'api' => 'https://api.sparkpost.com',
+            'smtp' => 'smtp.sparkpostmail.com'
+        ),
+        'eu' => array(
+            'api' => 'https://api.eu.sparkpost.com',
+            'smtp' => 'smtp.eu.sparkpostmail.com'
+        )
     );
 
     var $settings, $db_version;
@@ -40,8 +52,7 @@ class SparkPost
         if (self::get_setting('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
             add_filter('wp_mail_from', array($this, 'set_from_email'));
             add_filter('wp_mail_from_name', array($this, 'set_from_name'));
-            add_filter('sp_api_location', array($this, 'location_endpoint'));
-            add_filter('sp_smtp_location', array($this, 'location_endpoint'));
+            add_filter('sp_location', array($this, 'hostname_location'));
         }
 
         $this->db_version = '1.0.0';
@@ -155,24 +166,14 @@ class SparkPost
         return apply_filters('wpsp_sender_email', $email);
     }
 
-    public function location_endpoint($endpoint)
+    public function hostname_location($location = 'us')
     {
-        $location = !empty($this->settings['location']) ? esc_attr($this->settings['location']) : '';
-        if ($location === 'eu') {
-            $endpoint = str_replace(
-                array(
-                    'https://api',
-                    'smtp.sparkpostmail.com'
-                ),
-                array(
-                    'https://api.eu',
-                    'smtp.eu.sparkpostmail.com'
-                ),
-                $endpoint
-            );
-        }
+        return !empty($this->settings['location']) ? esc_attr($this->settings['location']) : $location;
+    }
 
-        return $endpoint;
+    static function get_hostname($location = 'us', $type = 'api')
+    {
+        return apply_filters('sp_hostname', self::$hostnames[$location][$type]);
     }
 
     static function obfuscate_api_key($api_key)
