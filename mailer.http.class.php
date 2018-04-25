@@ -22,8 +22,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     {
         $this->settings = SparkPost::get_settings();
         $this->template = new SparkPostTemplates($this);
-        $location = apply_filters('sp_location', 'us');
-        $this->endpoint = SparkPost::get_hostname($location, 'api') . '/api/v1/transmissions';
+        $this->endpoint = apply_filters('sp_hostname', 'api') . '/api/v1/transmissions';
 
         parent::__construct($exceptions);
         do_action('wpsp_init_mailer', $this);

@@ -12,8 +12,8 @@ class SparkPostTemplates
     public function __construct($mailer)
     {
         $this->mailer = $mailer;
-        $location = apply_filters('sp_location', 'us');
-        $this->endpoint = SparkPost::get_hostname($location, 'api') . '/api/v1/templates';
+        
+        $this->endpoint = apply_filters('sp_hostname', 'api') . '/api/v1/templates';
     }
 
     public function preview($id, $substitution_data)

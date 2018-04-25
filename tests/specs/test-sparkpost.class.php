@@ -29,25 +29,22 @@ class TestSparkPost extends \WP_UnitTestCase {
         $this->assertFalse(SparkPost::is_sandbox('testing@mydoman.com'));
     }
 
-    function test_default_location() {
-        $this->assertTrue($this->SparkPost->settings['location'] === 'us');
-        $this->assertTrue($this->SparkPost->hostname_location() === 'us');
-    }
-
-    function test_eu_location() {
-        $this->SparkPost->settings['location'] = 'eu';
-
-        $this->assertTrue($this->SparkPost->hostname_location() === 'eu');
-    }
-
-    function test_get_hostname() {
+    function test_us_hostnames() {
         $us_api = 'https://api.sparkpost.com';
         $us_smtp = 'smtp.sparkpostmail.com';
 
-        $this->assertTrue(SparkPost::get_hostname('us', 'api') === $us_api);
-        $this->assertTrue(SparkPost::get_hostname() === $us_api);
-        $this->assertTrue(SparkPost::get_hostname('us', 'smtp') === 'smtp.sparkpostmail.com');
-        $this->assertTrue(SparkPost::get_hostname('eu', 'api') === 'https://api.eu.sparkpost.com');
-        $this->assertTrue(SparkPost::get_hostname('eu', 'smtp') === 'smtp.eu.sparkpostmail.com');
+        $this->assertTrue($this->SparkPost->get_hostname('api') === $us_api);
+        $this->assertTrue($this->SparkPost->get_hostname() === $us_api);
+        $this->assertTrue($this->SparkPost->get_hostname('smtp') === 'smtp.sparkpostmail.com');
+    }
+
+    function test_eu_hostnames() {
+        $eu_api = 'https://api.eu.sparkpost.com';
+        $eu_smtp = 'smtp.eu.sparkpostmail.com';
+
+        $this->SparkPost->settings['location'] = 'eu';
+
+        $this->assertTrue($this->SparkPost->get_hostname('api') === 'https://api.eu.sparkpost.com');
+        $this->assertTrue($this->SparkPost->get_hostname('smtp') === 'smtp.eu.sparkpostmail.com');
     }
 }

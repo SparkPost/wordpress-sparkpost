@@ -35,13 +35,10 @@ class SparkPostSMTPMailer
             )
         );
 
-        $location = apply_filters('sp_location', 'us');
-        $host = SparkPost::get_hostname($location, 'smtp');
-
         $phpmailer->isSMTP();
         $phpmailer->SMTPSecure = 'tls';
         $phpmailer->Port = !empty($settings['port']) ? intval($settings['port']) : 587;
-        $phpmailer->Host = $host;
+        $phpmailer->Host = apply_filters('sp_hostname', 'smtp');
         $phpmailer->SMTPAuth = true;
         $phpmailer->Username = 'SMTP_Injection';
         $phpmailer->Password = apply_filters('wpsp_api_key', $settings['password']);
