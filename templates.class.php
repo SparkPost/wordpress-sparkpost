@@ -7,16 +7,19 @@ if (!defined('ABSPATH')) exit();
 
 class SparkPostTemplates
 {
-    public $endpoint = 'https://api.sparkpost.com/api/v1/templates';
+    public $endpoint;
 
     public function __construct($mailer)
     {
         $this->mailer = $mailer;
+        
+        $this->endpoint = apply_filters('sp_hostname', 'api') . '/api/v1/templates';
     }
 
     public function preview($id, $substitution_data)
     {
-        $url = "{$this->endpoint}/{$id}/preview?draft=false";
+        $endpoint = apply_filters('sp_api_location', $this->endpoint);
+        $url = "{$endpoint}/{$id}/preview?draft=false";
 
         $body = array(
             'substitution_data' => $substitution_data

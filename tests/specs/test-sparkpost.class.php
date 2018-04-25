@@ -28,4 +28,23 @@ class TestSparkPost extends \WP_UnitTestCase {
         $this->assertTrue(SparkPost::is_sandbox('testing@sparkpostbox.com'));
         $this->assertFalse(SparkPost::is_sandbox('testing@mydoman.com'));
     }
+
+    function test_us_hostnames() {
+        $us_api = 'https://api.sparkpost.com';
+        $us_smtp = 'smtp.sparkpostmail.com';
+
+        $this->assertTrue($this->SparkPost->get_hostname('api') === $us_api);
+        $this->assertTrue($this->SparkPost->get_hostname() === $us_api);
+        $this->assertTrue($this->SparkPost->get_hostname('smtp') === 'smtp.sparkpostmail.com');
+    }
+
+    function test_eu_hostnames() {
+        $eu_api = 'https://api.eu.sparkpost.com';
+        $eu_smtp = 'smtp.eu.sparkpostmail.com';
+
+        $this->SparkPost->settings['location'] = 'eu';
+
+        $this->assertTrue($this->SparkPost->get_hostname('api') === 'https://api.eu.sparkpost.com');
+        $this->assertTrue($this->SparkPost->get_hostname('smtp') === 'smtp.eu.sparkpostmail.com');
+    }
 }

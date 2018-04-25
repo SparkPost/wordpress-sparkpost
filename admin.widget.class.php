@@ -261,6 +261,7 @@ class SparkPostAdmin
         add_settings_field('enable_sparkpost', 'Enable*', array($this, 'render_enable_sparkpost_field'), 'sp-options-basic', 'general');
         add_settings_field('sending_method', 'Method*', array($this, 'render_sending_method_field'), 'sp-options-basic', 'general');
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options-basic', 'general');
+        add_settings_field('location', 'API Location', array($this, 'render_location_field'), 'sp-options-basic', 'general' );
         add_settings_field('template', 'Template', array($this, 'render_template_field'), 'sp-options-basic', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-options-overrides');
@@ -287,6 +288,12 @@ class SparkPostAdmin
             $new_input['template'] = sanitize_text_field($input['template']);
         } else {
             $new_input['template'] = '';
+        }
+
+        if (isset($input['location'])) {
+            $new_input['location'] = sanitize_text_field($input['location']);
+        } else {
+            $new_input['location'] = '';
         }
 
         if (empty($input['password'])) {
@@ -444,6 +451,16 @@ class SparkPostAdmin
         <option value="api" ' . (($selected_method == 'api') ? 'selected' : '') . '>HTTP API (Default)</option>
         <option value="smtp587" ' . (($selected_method == 'smtp' && $selected_port == 587) ? 'selected' : '') . '>SMTP (Port 587)</option>
         <option value="smtp2525" ' . (($selected_method == 'smtp' && $selected_port == 2525) ? 'selected' : '') . '>SMTP (Port 2525)</option>
+        </select>';
+    }
+
+    public function render_location_field()
+    {
+        $selected = !empty($this->settings['location']) ? esc_attr($this->settings['location']) : '';
+
+        echo '<select name="sp_settings_basic[location]">
+        <option value="" ' . (($selected === '') ? 'selected' : '') . '>Worldwide</option>
+        <option value="eu" ' . (($selected === 'eu') ? 'selected' : '') . '>EU</option>
         </select>';
     }
 

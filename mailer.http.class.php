@@ -10,7 +10,7 @@ require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 
 class SparkPostHTTPMailer extends \PHPMailer
 {
-    public $endpoint = 'https://api.sparkpost.com/api/v1/transmissions';
+    public $endpoint;
     public $wp_mail_args;
     private $settings;
 
@@ -22,6 +22,7 @@ class SparkPostHTTPMailer extends \PHPMailer
     {
         $this->settings = SparkPost::get_settings();
         $this->template = new SparkPostTemplates($this);
+        $this->endpoint = apply_filters('sp_hostname', 'api') . '/api/v1/transmissions';
 
         parent::__construct($exceptions);
         do_action('wpsp_init_mailer', $this);

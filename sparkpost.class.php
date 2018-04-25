@@ -21,7 +21,19 @@ class SparkPost
         'enable_tracking' => true,
         'template' => '',
         'transactional' => false,
-        'log_emails' => false
+        'log_emails' => false,
+        'location' => 'us'
+    );
+
+    protected $hostnames = array(
+        'us' => array(
+            'api' => 'https://api.sparkpost.com',
+            'smtp' => 'smtp.sparkpostmail.com'
+        ),
+        'eu' => array(
+            'api' => 'https://api.eu.sparkpost.com',
+            'smtp' => 'smtp.eu.sparkpostmail.com'
+        )
     );
 
     var $settings, $db_version;
@@ -40,6 +52,7 @@ class SparkPost
         if (self::get_setting('enable_sparkpost')) { //no need to register this hooks if plugin is disabled
             add_filter('wp_mail_from', array($this, 'set_from_email'));
             add_filter('wp_mail_from_name', array($this, 'set_from_name'));
+            add_filter('sp_hostname', array($this, 'get_hostname'));
         }
 
         $this->db_version = '1.0.0';
@@ -151,6 +164,12 @@ class SparkPost
         }
 
         return apply_filters('wpsp_sender_email', $email);
+    }
+
+    public function get_hostname($type = 'api')
+    {
+        $location = !empty($this->settings['location']) ? esc_attr($this->settings['location']) : 'us';
+        return $this->hostnames[$location][$type];
     }
 
     static function obfuscate_api_key($api_key)
