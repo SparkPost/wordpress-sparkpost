@@ -2,7 +2,7 @@
 
 Use SparkPost emails right from your WordPress site.
 
-[![Travis CI](https://travis-ci.org/SparkPost/wordpress-sparkpost.svg?branch=master)](https://travis-ci.org/SparkPost/wordpress-sparkpost) [![Coverage Status](https://coveralls.io/repos/github/SparkPost/wordpress-sparkpost/badge.svg)](https://coveralls.io/github/SparkPost/wordpress-sparkpost) [![Slack Status](http://slack.sparkpost.com/badge.svg)](http://slack.sparkpost.com)
+[![Travis CI](https://travis-ci.org/SparkPost/wordpress-sparkpost.svg?branch=master)](https://travis-ci.org/SparkPost/wordpress-sparkpost) [![Coverage Status](https://coveralls.io/repos/github/SparkPost/wordpress-sparkpost/badge.svg)](https://coveralls.io/github/SparkPost/wordpress-sparkpost)
 
 ## Installation
 
