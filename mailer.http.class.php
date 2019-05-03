@@ -172,7 +172,16 @@ class SparkPostHTTPMailer extends PHPMailer
 
     protected function read_attachment($path)
     {
-        return file_get_contents($path);
+	// If the provided String is a File Path, load the File Contents. If not, assume the String is the contents
+        // This allows PHPMailer's addStringAttachment() method to work thereby avoiding the need to store a file on the server before attaching it
+        if ( is_file( $path ) ) {
+
+            return file_get_contents($path);
+        }
+        else {
+            return $path;
+        }
+
     }
 
     public function isMail()
