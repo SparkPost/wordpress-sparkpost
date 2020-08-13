@@ -15,7 +15,7 @@ When the SparkPost plugin is enabled, all outgoing email from your WordPress ins
 
 **Requirements**
 - PHP 5.4 or later
-- WordPress 4.3 or later
+- WordPress 5.5 or later
 
 
 == Installation ==
