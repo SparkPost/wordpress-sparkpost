@@ -117,7 +117,7 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         $attachments = $this->get_attachments();
 
-        $content_headers = json_decode(json_encode($this->get_headers(), JSON_FORCE_OBJECT));
+        $content_headers = $this->get_headers();
 
         // pass through either stored template or inline content
         if (!empty($template_id)) {
@@ -130,8 +130,7 @@ class SparkPostHTTPMailer extends \PHPMailer
                 }
                 $body['content'] = array(
                     'from' => (array)$preview_contents->from,
-                    'subject' => (string)$preview_contents->subject,
-                    'headers' => $content_headers
+                    'subject' => (string)$preview_contents->subject
                 );
 
                 if (property_exists($preview_contents, 'text')) {
@@ -154,8 +153,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             // inline content
             $body['content'] = array(
                 'from' => $sender,
-                'subject' => $this->Subject,
-                'headers' => $content_headers
+                'subject' => $this->Subject
             );
 
             if ($replyTo) {
@@ -174,6 +172,10 @@ class SparkPostHTTPMailer extends \PHPMailer
                     $body['content']['html'] = $this->Body;
                     break;
             }
+        }
+
+        if(!empty($content_headers)) {
+            $body['content']['headers'] = $content_headers;
         }
 
         if (sizeof($attachments)) {
