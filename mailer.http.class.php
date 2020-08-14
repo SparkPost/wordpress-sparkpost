@@ -5,10 +5,10 @@ namespace WPSparkPost;
 // Otherwise, this could be an illicit direct request.
 if (!defined('ABSPATH')) exit();
 
-require_once ABSPATH . WPINC . '/class-phpmailer.php';
+require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
 require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 
-class SparkPostHTTPMailer extends \PHPMailer
+class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
 {
     public $endpoint;
     public $wp_mail_args;
