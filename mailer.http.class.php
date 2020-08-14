@@ -64,11 +64,11 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
         $result = apply_filters('wpsp_handle_response', $result);
         $this->check_permission_error($result, 'Transmissions: Read/Write');
         if (is_bool($result)) { // it means, response been already processed by the hooked filter. so just return the value.
-            $this->debug('Skipping response processing');
+            $this->debug( 'Skipping response processing' );
             return $result;
-        } else {
-            return $this->handle_response($result);
         }
+
+        return $this->handle_response($result);
     }
 
     /**
@@ -336,7 +336,7 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
     {
         $replyTos = array();
         foreach ($this->getCustomHeaders() as $header) { // wp_mail sets Reply-To as custom header (does not use phpmailer->addReplyTo)
-            list($name, $value) = $header;
+            [$name, $value] = $header;
             if ($name === 'Reply-To' && !empty($value)) {
                 $replyTos[] = trim($value);
             }
@@ -434,7 +434,7 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
             } else {
                 $recipients_list[] = $recipient['address']['email'];
             }
-        };
+        }
 
         return implode(',', $recipients_list);
     }
@@ -454,7 +454,7 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
 
         $formatted_headers = array();
         // split by line separator
-        foreach (explode($this->LE, $headers) as $line) {
+        foreach (explode($this::$LE, $headers) as $line) {
 
             $splitted_line = explode(': ', $line);
             $key = trim($splitted_line[0]);
