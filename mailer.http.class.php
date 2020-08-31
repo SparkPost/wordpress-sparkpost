@@ -5,10 +5,10 @@ namespace WPSparkPost;
 // Otherwise, this could be an illicit direct request.
 if (!defined('ABSPATH')) exit();
 
-require_once ABSPATH . WPINC . '/class-phpmailer.php';
+require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
 require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 
-class SparkPostHTTPMailer extends \PHPMailer
+class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
 {
     public $endpoint;
     public $wp_mail_args;
@@ -66,9 +66,9 @@ class SparkPostHTTPMailer extends \PHPMailer
         if (is_bool($result)) { // it means, response been already processed by the hooked filter. so just return the value.
             $this->debug('Skipping response processing');
             return $result;
-        } else {
-            return $this->handle_response($result);
         }
+
+        return $this->handle_response($result);
     }
 
     /**
@@ -434,7 +434,7 @@ class SparkPostHTTPMailer extends \PHPMailer
             } else {
                 $recipients_list[] = $recipient['address']['email'];
             }
-        };
+        }
 
         return implode(',', $recipients_list);
     }
@@ -454,7 +454,7 @@ class SparkPostHTTPMailer extends \PHPMailer
 
         $formatted_headers = array();
         // split by line separator
-        foreach (explode($this->LE, $headers) as $line) {
+        foreach (explode($this::$LE, $headers) as $line) {
 
             $splitted_line = explode(': ', $line);
             $key = trim($splitted_line[0]);
