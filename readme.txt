@@ -14,7 +14,7 @@ The [SparkPost](https://www.sparkpost.com/) email delivery service offers best i
 When the SparkPost plugin is enabled, all outgoing email from your WordPress installation is sent through your SparkPost service.  From within [the SparkPost UI](https://app.sparkpost.com/) or [SparkPost EU UI](https://app.eu.sparkpost.com/), you can then watch your campaigns unfold live by tracking your engagement metrics, learn what your audience responds to and even integrate more deeply with your app using the SparkPost API.
 
 **Requirements**
-- PHP 5.4 or later
+- PHP 7.0 or later
 - WordPress 5.5 or later
 
 
