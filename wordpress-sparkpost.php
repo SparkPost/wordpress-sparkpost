@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) exit();
 
 define('WPSP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPSP_PLUGIN_PATH', WPSP_PLUGIN_DIR . basename(__FILE__));
-define('WPSP_PLUGIN_VERSION', '3.2.2');
+define('WPSP_PLUGIN_VERSION', '3.2.3');
 
 require_once(WPSP_PLUGIN_DIR . 'sparkpost.class.php');
 
