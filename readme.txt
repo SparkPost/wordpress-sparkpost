@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 5.5
 Tested up to: 5.5
-Stable tag: 3.2.2
+Stable tag: 3.2.3
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -14,7 +14,7 @@ The [SparkPost](https://www.sparkpost.com/) email delivery service offers best i
 When the SparkPost plugin is enabled, all outgoing email from your WordPress installation is sent through your SparkPost service.  From within [the SparkPost UI](https://app.sparkpost.com/) or [SparkPost EU UI](https://app.eu.sparkpost.com/), you can then watch your campaigns unfold live by tracking your engagement metrics, learn what your audience responds to and even integrate more deeply with your app using the SparkPost API.
 
 **Requirements**
-- PHP 5.4 or later
+- PHP 7.0 or later
 - WordPress 5.5 or later
 
 
@@ -51,6 +51,9 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 
 == Changelog ==
+
+= 3.2.3 =
+- Fixed broken SparkPost logo on settings page ([157](https://github.com/SparkPost/wordpress-sparkpost/pull/157))
 
 = 3.2.2 =
 - Fixed parsing of headers and addressed class-phpmailer.php deprecation notice (for HTTP) ([156](https://github.com/SparkPost/wordpress-sparkpost/pull/156))

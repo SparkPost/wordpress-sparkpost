@@ -25,11 +25,11 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $stub = Mockery::mock($this->mailer);
     $stub->shouldReceive('sparkpost_send')->andReturn('woowoo');
 
-    $this->assertTrue(NSA::invokeMethod($stub, 'mailSend', null, null) == 'woowoo');
+    $this->assertEquals(NSA::invokeMethod($stub, 'mailSend', null, null), 'woowoo');
   }
 
   function test_mailer_is_a_mailer_instance() {
-    $this->assertTrue( $this->mailer instanceof \PHPMailer );
+    $this->assertTrue( $this->mailer instanceof \PHPMailer\PHPMailer\PHPMailer );
   }
 
   function test_get_sender_with_name() {
@@ -39,7 +39,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
       'email' => 'me@hello.com'
     );
 
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_sender') == $sender);
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_sender'), $sender);
   }
 
   function test_get_sender_without_name() {
@@ -48,7 +48,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
       'email' => 'me@hello.com'
     );
 
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_sender') == $sender);
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_sender'), $sender);
   }
 
   function test_get_request_headers() {
@@ -57,7 +57,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
       'Content-Type' => 'application/json',
       'Authorization' => ''
     );
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers') == $expected);
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_request_headers'), $expected);
 
     NSA::setProperty($this->mailer, 'settings', array('password' => 'abcd1234'));
     $expected = array(
@@ -65,7 +65,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
       'Content-Type' => 'application/json',
       'Authorization' => 'abcd1234'
     );
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers') == $expected);
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_request_headers'), $expected);
   }
 
   function test_get_request_headers_obfuscate_key() {
@@ -75,48 +75,59 @@ class TestHttpMailer extends \WP_UnitTestCase {
       'Content-Type' => 'application/json',
       'Authorization' => 'abcd'.str_repeat('*', 36)
     );
-    $this->assertTrue(NSA::invokeMethod($this->mailer, 'get_request_headers', true) == $expected);
+
+    $this->assertEquals(NSA::invokeMethod($this->mailer, 'get_request_headers', true), $expected);
   }
 
   function test_get_headers() {
-    $raw_headers = "Date: Wed, 26 Oct 2016 23:45:32 +0000
-    To: undisclosed-recipients:;
-    From: Root User <root@localhost>
-    Subject: Hello
-    Reply-To: replyto@mydomain.com
-    Message-ID: <abcd@example.org>
-    MIME-Version: 1.0
-    Content-Type: text/plain; charset=iso-8859-1
-    Content-Transfer-Encoding: 8bit";
+    $stub = Mockery::mock($this->mailer);
+    $raw_headers = join(
+      NSA::getProperty($stub, 'LE'),
+      array(
+        'Date: Wed, 26 Oct 2016 23:45:32 +0000',
+        'To: undisclosed-recipients:;',
+        'From: Root User <root@localhost>',
+        'Subject: Hello',
+        'Reply-To: replyto@mydomain.com',
+        'Message-ID: <abcd@example.org>',
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=iso-8859-1',
+        'Content-Transfer-Encoding: 8bit'
+      )
+    );
+    $stub->shouldReceive('createHeader')->andReturn($raw_headers);
+    $formatted_headers = NSA::invokeMethod($stub, 'get_headers');
 
     $expected = array(
       'Message-ID' => '<abcd@example.org>',
       'Date' => 'Wed, 26 Oct 2016 23:45:32 +0000'
     );
-    $stub = Mockery::mock($this->mailer);
-    $stub->shouldReceive('createHeader')->andReturn($raw_headers);
-    $formatted_headers = NSA::invokeMethod($stub, 'get_headers');
 
-    $this->assertTrue($formatted_headers == $expected);
+    $this->assertEquals($formatted_headers, $expected);
   }
 
 
   function test_get_headers_should_include_cc_if_exists() {
-    $raw_headers = "Date: Wed, 26 Oct 2016 23:45:32 +0000
-    Reply-To: replyto@mydomain.com";
-
-    $expected = array(
-      'Date' => 'Wed, 26 Oct 2016 23:45:32 +0000',
-      'CC' => 'hello@abc.com,Name <name@domain.com>'
-    );
     $stub = Mockery::mock($this->mailer);
+    $raw_headers = join(
+      NSA::getProperty($stub, 'LE'),
+      array(
+        'Date: Wed, 26 Oct 2016 23:45:32 +0000',
+        'Reply-To: replyto@mydomain.com'
+      )
+    );
     $stub->shouldReceive('createHeader')->andReturn($raw_headers);
     $stub->addCc('hello@abc.com');
     $stub->addCc('name@domain.com', 'Name');
 
     $formatted_headers = NSA::invokeMethod($stub, 'get_headers');
 
-    $this->assertTrue($formatted_headers == $expected);
+    $expected = array(
+      'Date' => 'Wed, 26 Oct 2016 23:45:32 +0000',
+      'CC' => 'hello@abc.com,Name <name@domain.com>'
+    );
+
+    $this->assertEquals($formatted_headers, $expected);
   }
 
   function test_get_recipients() {
@@ -172,7 +183,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     ];
 
     $recipients = NSA::invokeMethod($this->mailer, 'get_recipients');
-    $this->assertTrue($recipients == $expected);
+    $this->assertEquals($recipients, $expected);
   }
 
   function test_get_attachments() {
@@ -190,9 +201,9 @@ class TestHttpMailer extends \WP_UnitTestCase {
   function test_isMail() {
     // test if isMail sets correct mailer
     $this->mailer->Mailer = 'abc';
-    $this->assertTrue($this->mailer->Mailer === 'abc');
+    $this->assertEquals($this->mailer->Mailer, 'abc');
     $this->mailer->isMail();
-    $this->assertTrue($this->mailer->Mailer === 'sparkpost');
+    $this->assertEquals($this->mailer->Mailer, 'sparkpost');
   }
 
   function test_get_request_body_without_template() {
@@ -250,7 +261,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     // for simpler expectation reset content.headers to empty array.
     // alternative is to stub get_headers which isn't working expectedly
     $actual['content']['headers'] = [];
-    $this->assertTrue($expected_request_body == $actual);
+    $this->assertEquals($expected_request_body, $actual);
 
     //INCLUDE REPLYTO
     $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
@@ -258,7 +269,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $actual['content']['headers'] = []; //see note above
     $expected_request_body['content']['reply_to'] = 'reply-to <reply@abc.com>';
-    $this->assertTrue($expected_request_body == $actual);
+    $this->assertEquals($expected_request_body, $actual);
   }
 
   function test_get_request_body_template_in_hook_but_not_in_settings() {
@@ -279,7 +290,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     $body = NSA::invokeMethod($this->mailer, 'get_request_body');
     remove_filter('wpsp_template_id', $callback);
-    $this->assertTrue($body['content']['template_id'] == 'test-template');
+    $this->assertEquals($body['content']['template_id'], 'test-template');
   }
 
   function test_get_request_body_with_template() {
@@ -333,14 +344,14 @@ class TestHttpMailer extends \WP_UnitTestCase {
     ];
 
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
-    $this->assertTrue($expected_request_body == $actual);
+    $this->assertEquals($expected_request_body, $actual);
 
     //INCLUDE REPLYTO
     $this->mailer->addReplyTo('reply@abc.com', 'reply-to');
     $this->mailer->addCustomHeader('Reply-To', 'reply-to <reply@abc.com>'); //for below version v4.6
     $actual = NSA::invokeMethod($this->mailer, 'get_request_body');
     $expected_request_body['substitution_data']['reply_to'] = 'reply-to <reply@abc.com>';
-    $this->assertTrue($expected_request_body == $actual);
+    $this->assertEquals($expected_request_body, $actual);
   }
 
   function test_get_request_body_with_template_and_attachments() {
@@ -420,7 +431,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
 
     $actual = NSA::invokeMethod($mailer, 'get_request_body');
     unset($actual['content']['headers']); //to simplify assertion
-    $this->assertTrue($expected_request_body == $actual);
+    $this->assertEquals($expected_request_body, $actual);
   }
 
   function test_sparkpost_send_false_on_error() {
@@ -519,7 +530,7 @@ class TestHttpMailer extends \WP_UnitTestCase {
     ]);
 
     $body = NSA::invokeMethod($mailer, 'get_request_body');
-    $this->assertTrue($body['options']['sandbox'] == true);
+    $this->assertTrue($body['options']['sandbox']);
   }
 
   function sparkpost_send_prepare_mocks($num_rejected) {
@@ -658,10 +669,10 @@ class TestHttpMailer extends \WP_UnitTestCase {
       ->setMethods(array('debug', 'error'))
       ->getMock();
 
-    $this->assertTrue($mailer->check_permission_error($response, 'test_perm') === true);
+    $this->assertTrue($mailer->check_permission_error($response, 'test_perm'));
 
     $response['response']['code'] = 200;
-    $this->assertTrue($mailer->check_permission_error($response, 'test_perm') === false);
+    $this->assertFalse($mailer->check_permission_error($response, 'test_perm'));
   }
 
 
