@@ -123,7 +123,7 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
         if (!empty($template_id)) {
             // stored template
             $substitution_data = $this->get_template_substitutes($sender, $replyTo);
-            if (sizeof($attachments) > 0) { //get template preview data and then send it as inline
+            if (sizeof($attachments) > 0) { // get template preview data and then send it as inline
                 $preview_contents = $this->template->preview($template_id, $substitution_data);
                 if ($preview_contents === false) {
                     return false;
@@ -132,6 +132,10 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
                     'from' => (array)$preview_contents->from,
                     'subject' => (string)$preview_contents->subject
                 );
+
+                if(!empty($content_headers)) {
+                    $body['content']['headers'] = $content_headers;
+                }
 
                 if (property_exists($preview_contents, 'text')) {
                     $body['content']['text'] = $preview_contents->text;
@@ -145,7 +149,7 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
                     $body['content']['reply_to'] = $preview_contents->reply_to;
                 }
 
-            } else { // simply subsititute template tags
+            } else { // simply substitute template tags
                 $body['content']['template_id'] = $template_id;
                 $body['substitution_data'] = $substitution_data;
             }
@@ -155,6 +159,10 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
                 'from' => $sender,
                 'subject' => $this->Subject
             );
+
+            if(!empty($content_headers)) {
+                $body['content']['headers'] = $content_headers;
+            }
 
             if ($replyTo) {
                 $body['content']['reply_to'] = $replyTo;
@@ -172,10 +180,6 @@ class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
                     $body['content']['html'] = $this->Body;
                     break;
             }
-        }
-
-        if(!empty($content_headers)) {
-            $body['content']['headers'] = $content_headers;
         }
 
         if (sizeof($attachments)) {
