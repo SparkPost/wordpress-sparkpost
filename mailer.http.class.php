@@ -1,6 +1,7 @@
 <?php
 
 namespace WPSparkPost;
+namespace PHPMailer\PHPMailer;
 // If ABSPATH is defined, we assume WP is calling us.
 // Otherwise, this could be an illicit direct request.
 if (!defined('ABSPATH')) exit();
@@ -8,7 +9,7 @@ if (!defined('ABSPATH')) exit();
 require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
 require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 
-class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
+class SparkPostHTTPMailer extends PHPMailer
 {
     public $endpoint;
     public $wp_mail_args;
