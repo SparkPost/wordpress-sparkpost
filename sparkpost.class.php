@@ -17,10 +17,14 @@ class SparkPost
         'password' => '',
         'from_name' => '',
         'from_email' => '',
+        'api_endpoint' => '',
+        'smtp_host' => '',
         'enable_sparkpost' => false,
         'enable_tracking' => true,
         'template' => '',
+        'campaign_id' => '',
         'transactional' => false,
+        'ip_pool' => '',
         'log_emails' => false,
         'location' => 'us'
     );

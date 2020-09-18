@@ -263,12 +263,16 @@ class SparkPostAdmin
         add_settings_field('password', 'API Key*', array($this, 'render_password_field'), 'sp-options-basic', 'general');
         add_settings_field('location', 'API Location', array($this, 'render_location_field'), 'sp-options-basic', 'general' );
         add_settings_field('template', 'Template', array($this, 'render_template_field'), 'sp-options-basic', 'general');
+        add_settings_field('campaign_id', 'Name of the campaign', array($this, 'render_campaign_id_field'), 'sp-options', 'general');
 
         add_settings_section('overrides', 'Overrides', null, 'sp-options-overrides');
         add_settings_field('from_name', 'From name', array($this, 'render_from_name_field'), 'sp-options-overrides', 'overrides');
         add_settings_field('from_email', 'From email', array($this, 'render_from_email_field'), 'sp-options-overrides', 'overrides');
         add_settings_field('transactional', 'Transactional', array($this, 'render_transactional_field'), 'sp-options-overrides', 'overrides');
+        add_settings_field('ip_pool', 'IP Pool', array($this, 'render_ip_pool_field'), 'sp-options', 'general');
         add_settings_field('enable_tracking', 'Enable tracking', array($this, 'render_enable_tracking_field'), 'sp-options-overrides', 'overrides');
+        add_settings_field('api_endpoint', 'API Endpoint', array($this, 'render_api_endpoint_field'), 'sp-overrides', 'overrides');
+        add_settings_field('smtp_host', 'SMTP Host', array($this, 'render_smtp_host_field'), 'sp-overrides', 'overrides');
 
         if ($this->settings['sending_method'] === 'api') {
             add_settings_field('logs_emails', 'Email Logging', array($this, 'render_log_emails_field'), 'sp-options-overrides', 'overrides');
@@ -284,10 +288,31 @@ class SparkPostAdmin
     {
         $new_input = array();
 
+        if (!empty($input['api_endpoint'])) {
+            $new_input['api_endpoint'] = sanitize_text_field($input['api_endpoint']);
+        }
+
+        if (!empty($input['smtp_host'])) {
+            $new_input['smtp_host'] = sanitize_text_field($input['smtp_host']);
+        }
+
+        if (!empty($input['ip_pool'])) {
+            $new_input['ip_pool'] = sanitize_text_field($input['ip_pool']);
+        }
+
+
         if (!empty($input['template'])) {
             $new_input['template'] = sanitize_text_field($input['template']);
         } else {
             $new_input['template'] = '';
+        }
+
+        if (!empty($input['campaign_id'])) {
+            if (strlen($input['campaign_id']) > 64) {
+                add_settings_error('Name of the campaign', esc_attr('campaign_id'), 'Maximum length - 64 bytes', 'error');
+            } else {
+                $new_input['campaign_id'] = sanitize_text_field($input['campaign_id']);
+            }
         }
 
         if (isset($input['location'])) {
@@ -439,6 +464,34 @@ class SparkPostAdmin
         );
     }
 
+    public function render_campaign_id_field()
+    {
+       printf(
+           '<input type="text" id="campaign_id" name="sp_settings[campaign_id]" class="regular-text" value="%s" />',
+           isset($this->settings['campaign_id']) ? esc_attr($this->settings['campaign_id']) : ''
+       );
+    }
+
+    public function render_api_endpoint_field()
+    {
+       $hint = sprintf('Leave the field blank to use the default <strong>%s</strong>. Enterprise customers should update to use the proper <a href="%s">API Endpoint</a>.', 'https://api.sparkpost.com/api/v1/transmissions', 'https://developers.sparkpost.com/api/index.html#header-api-endpoints');
+       $hint = sprintf('<small>%s</small>', $hint);
+       printf(
+           '<input type="text" id="api_endpoint" name="sp_settings[api_endpoint]" class="regular-text" value="%s" /><br/>%s',
+           isset($this->settings['api_endpoint']) ? esc_attr($this->settings['api_endpoint']) : '', $hint
+       );
+    }
+
+    public function render_smtp_host_field()
+    {
+       $hint = sprintf('Leave the field blank to use the default <strong>%s</strong>. Enterprise customers should update with their custom one when using SMTP Method.', 'smtp.sparkpostmail.com');
+       $hint = sprintf('<small>%s</small>', $hint);
+       printf(
+           '<input type="text" id="smtp_host" name="sp_settings[smtp_host]" class="regular-text" value="%s" /><br/>%s',
+           isset($this->settings['smtp_host']) ? esc_attr($this->settings['smtp_host']) : '', $hint
+       );
+    }
+
     public function render_sending_method_field()
     {
         $method = esc_attr($this->settings['sending_method']);
@@ -490,10 +543,19 @@ class SparkPostAdmin
 
     public function render_transactional_field()
     {
-        printf('<label><input type="checkbox" id="transactional" name="sp_settings_overrides[transactional]" value="1" %s />Mark emails as transactional</label>
-        <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
-            $this->settings['transactional'] ? 'checked' : '');
+      printf('<label><input type="checkbox" id="transactional" name="sp_settings[transactional]" value="1" %s />Mark emails as transactional</label>
+            <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',	        <br/><small>Upon checked, by default, it\'ll set mark all emails as transactional. It should be set false (using hooks) for non-transactional emails.</small>',
+             $this->settings['transactional'] ? 'checked' : '');	        $this->settings['transactional'] ? 'checked' : '');
+    }
 
+    public function render_ip_pool_field()
+    {
+        $hint = 'Unless you specify a pool here, all traffic will go through the sending IPs in the default pool. If the default pool has no sending IPs, then the traffic will be sent through the SparkPost shared IP pools.';
+        $hint = sprintf('<small>%s</small>', $hint);
+        printf(
+            '<input type="text" id="ip_pool" name="sp_settings[ip_pool]" class="regular-text" value="%s" /><br/>%s',
+            isset($this->settings['ip_pool']) ? esc_attr($this->settings['ip_pool']) : '', $hint
+        );
     }
 
     public function render_include_attachment_field()
