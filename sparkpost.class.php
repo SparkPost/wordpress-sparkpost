@@ -213,7 +213,7 @@ class SparkPost
         $content = json_decode($content);
 
         //get subject
-        if (property_exists($content->content, 'subject')) {
+        if (isset( $content->content ) && property_exists($content->content, 'subject')) {
             $subject = $content->content->subject;
         } else {
             $subject = $content->substitution_data->subject;
