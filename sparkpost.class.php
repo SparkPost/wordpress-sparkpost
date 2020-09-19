@@ -211,6 +211,7 @@ class SparkPost
         global $wpdb;
         $wpdb->show_errors();
         $content = json_decode($content);
+        $subject = '';
 
         //get subject
         if (isset($content->content) && property_exists($content->content, 'subject')) {
