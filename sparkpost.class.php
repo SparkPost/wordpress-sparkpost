@@ -211,11 +211,12 @@ class SparkPost
         global $wpdb;
         $wpdb->show_errors();
         $content = json_decode($content);
+        $subject = '';
 
         //get subject
-        if (property_exists($content->content, 'subject')) {
+        if (isset($content->content) && property_exists($content->content, 'subject')) {
             $subject = $content->content->subject;
-        } else {
+        } else if (isset($content->substitution_data) && property_exists($content->substitution_data, 'subject')) {
             $subject = $content->substitution_data->subject;
         }
 
