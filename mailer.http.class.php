@@ -6,6 +6,7 @@ namespace WPSparkPost;
 if (!defined('ABSPATH')) exit();
 
 require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
+require_once ABSPATH . WPINC . '/PHPMailer/Exception.php';
 require_once WPSP_PLUGIN_DIR . '/templates.class.php';
 
 class SparkPostHTTPMailer extends \PHPMailer\PHPMailer\PHPMailer
