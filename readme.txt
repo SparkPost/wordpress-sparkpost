@@ -3,7 +3,7 @@ Contributors: sparkpost, rajuru
 Tags: sparkpost, smtp, wp_mail, mail, email
 Requires at least: 5.5
 Tested up to: 5.5
-Stable tag: 3.2.4
+Stable tag: 3.2.5
 License: GPLv2 or later
 
 Send all your email from WordPress through SparkPost, the most advanced email delivery service.
@@ -51,6 +51,9 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 
 
 == Changelog ==
+
+= 3.2.5 =
+- Fixed fatal error PHPMailer\Exception not found ([163](https://github.com/SparkPost/wordpress-sparkpost/pull/163))
 
 = 3.2.4 =
 - Fixed undefined property warning when logging subject ([160](https://github.com/SparkPost/wordpress-sparkpost/pull/160))
