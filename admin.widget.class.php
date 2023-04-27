@@ -398,7 +398,7 @@ class SparkPostAdmin
     {
         ?>
         <input type="text" id="template" name="sp_settings_basic[template]" class="regular-text"
-               value="<?php echo $this->settings['template']; ?>"/><br/>
+               value="<?php echo esc_attr($this->settings['template']); ?>"/><br/>
         <small>
             <ul>
                 <li>- Please see <a
