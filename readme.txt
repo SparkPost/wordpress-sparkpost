@@ -53,7 +53,7 @@ Visit plugin's [official issue tracker](https://github.com/SparkPost/wordpress-s
 == Changelog ==
 
 = 3.2.7 =
-- Fixed CVE-2017-9841 ([166](https://github.com/SparkPost/wordpress-sparkpost/pull/168))
+- Fixed CVE-2017-9841 ([168](https://github.com/SparkPost/wordpress-sparkpost/pull/168))
 
 = 3.2.6 =
 - Fixed CVE-2017-9841 ([166](https://github.com/SparkPost/wordpress-sparkpost/pull/166))
