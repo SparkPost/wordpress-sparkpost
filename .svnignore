@@ -9,3 +9,4 @@ phpunit.xml.dist
 .travis.yml
 coverage
 .coveralls.yml
+stack.yml
